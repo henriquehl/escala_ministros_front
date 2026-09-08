@@ -1,0 +1,88 @@
+---
+// Tela 4: Gestão de Celebrações Litúrgicas
+---
+<div id="view-celebracoes" class="view-container w-full pt-32 md:pt-24 pb-12 px-margin-screen">
+  <div class="flex flex-col w-full space-y-spacing-md max-w-4xl mx-auto">
+    <!-- Status Banner & Quick Stats -->
+    <div class="relative overflow-hidden rounded-xl bg-surface-container-low p-spacing-md shadow-sm">
+      <div class="flex items-center justify-between">
+        <div class="space-y-1">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm">
+            <span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+            Catálogo Litúrgico 2024 / 2025
+          </span>
+          <h2 id="stat-total-celebrations-hero" class="font-headline-md text-headline-md text-primary">11 Celebrações Cadastradas</h2>
+          <p id="stat-regular-celebrations-hero" class="font-body-sm text-body-sm text-on-surface-variant">Missas dominicais, semanais e solenidades paroquiais</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-primary-fixed flex items-center justify-center text-primary shadow-sm">
+          <span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">church</span>
+        </div>
+      </div>
+      <!-- Quick Stats Bar (2 Colunas) -->
+      <div class="grid grid-cols-2 gap-spacing-sm mt-spacing-md pt-spacing-sm">
+        <div class="bg-surface-container-lowest rounded-xl p-3 flex flex-col items-center text-center shadow-sm">
+          <span id="stat-dominicais-count" class="font-headline-md text-headline-md text-primary font-bold">04</span>
+          <span class="font-label-md text-label-md text-on-surface-variant mt-0.5">Missas Dominicais</span>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl p-3 flex flex-col items-center text-center shadow-sm">
+          <span id="stat-solenes-count" class="font-headline-md text-headline-md text-outline font-bold">07</span>
+          <span class="font-label-md text-label-md text-on-surface-variant mt-0.5">Solenes &amp; Especiais</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action: Add Celebration CTA -->
+    <button class="w-full h-12 bg-primary hover:bg-primary-container text-on-primary rounded-xl font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-md active:scale-[0.99] transition-transform" id="open-celebration-modal-btn" type="button">
+      <span class="material-symbols-outlined text-[20px]">add_circle</span>
+      Adicionar Nova Celebração
+    </button>
+
+    <!-- Search & Filter Bar -->
+    <div class="space-y-spacing-xs">
+      <div class="relative w-full">
+        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px]">search</span>
+        <input class="w-full h-12 pl-10 pr-10 bg-surface-container-lowest rounded-xl font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" id="search-celebrations" placeholder="Buscar celebração por nome ou categoria..." type="text"/>
+        <button class="absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface" type="button" onclick="document.getElementById('search-celebrations').focus()">
+          <span class="material-symbols-outlined text-[20px]">tune</span>
+        </button>
+      </div>
+      <!-- Filter Chips -->
+      <div id="celebrations-filter-chips" class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+        <button class="px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm whitespace-nowrap shadow-sm" data-filter="todas" type="button">
+          Todas
+        </button>
+        <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="dominical" type="button">
+          Dominicais
+        </button>
+        <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="semanal" type="button">
+          Semanais
+        </button>
+        <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="solenidade" type="button">
+          Solenidades
+        </button>
+        <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="sacramento" type="button">
+          Sacramentos
+        </button>
+        <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="especial" type="button">
+          Especiais
+        </button>
+      </div>
+    </div>
+
+    <!-- Celebrations List (Dinâmica) -->
+    <div class="flex flex-col space-y-spacing-sm" id="celebrations-list-container">
+      <!-- Renderizado via js/components/celebrations.js -->
+    </div>
+
+    <!-- Liturgical Warm Message Card -->
+    <div class="bg-primary-fixed/40 rounded-xl p-spacing-md flex items-center gap-spacing-sm">
+      <div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0">
+        <span class="material-symbols-outlined text-[20px]">auto_stories</span>
+      </div>
+      <div class="min-w-0">
+        <p class="font-headline-sm text-headline-sm text-primary leading-snug">"Celebrar com amor e zelo a Santa Eucaristia"</p>
+        <p class="font-body-sm text-body-sm text-on-surface-variant">As celebrações cadastradas ficam disponíveis no seletor de escalas e no calendário paroquial.</p>
+      </div>
+    </div>
+  </div>
+</div>

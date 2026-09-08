@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Capela Divino Espírito Santo</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,600;0,8..60,700;1,8..60,600&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-tint": "#a4384a",
+            "error": "#ba1a1a",
+            "surface-variant": "#e3e2e0",
+            "on-background": "#1a1c1b",
+            "on-primary-fixed": "#40000f",
+            "surface-bright": "#faf9f7",
+            "background": "#faf9f7",
+            "surface-container": "#efeeec",
+            "tertiary-container": "#1b4e34",
+            "surface-container-lowest": "#ffffff",
+            "primary": "#63031d",
+            "tertiary-fixed": "#b8efcc",
+            "on-primary-fixed-variant": "#852034",
+            "on-tertiary-fixed": "#002111",
+            "secondary-container": "#fece57",
+            "on-secondary-container": "#735700",
+            "on-tertiary": "#ffffff",
+            "on-tertiary-fixed-variant": "#1d5036",
+            "secondary": "#775a00",
+            "outline": "#897173",
+            "inverse-primary": "#ffb2b9",
+            "on-surface": "#1a1c1b",
+            "tertiary-fixed-dim": "#9dd3b0",
+            "primary-fixed": "#ffdadc",
+            "secondary-fixed-dim": "#eec14b",
+            "on-error-container": "#93000a",
+            "on-error": "#ffffff",
+            "primary-container": "#821e32",
+            "inverse-surface": "#2f3130",
+            "on-surface-variant": "#564243",
+            "on-primary": "#ffffff",
+            "on-primary-container": "#ff939f",
+            "on-tertiary-container": "#8abe9d",
+            "tertiary": "#003720",
+            "on-secondary": "#ffffff",
+            "surface-container-high": "#e9e8e6",
+            "surface-dim": "#dadad8",
+            "error-container": "#ffdad6",
+            "primary-fixed-dim": "#ffb2b9",
+            "on-secondary-fixed": "#251a00",
+            "surface-container-highest": "#e3e2e0",
+            "secondary-fixed": "#ffdf98",
+            "surface": "#faf9f7",
+            "inverse-on-surface": "#f1f1ef",
+            "surface-container-low": "#f4f3f1",
+            "outline-variant": "ddc0c1",
+            "on-secondary-fixed-variant": "#5a4300"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          spacing: {
+            "spacing-xxs": "0.25rem",
+            "spacing-lg": "1.5rem",
+            "spacing-sm": "0.75rem",
+            "gutter-mobile": "1rem",
+            "spacing-md": "1rem",
+            "spacing-xs": "0.5rem",
+            "spacing-2xl": "3rem",
+            "spacing-xl": "2rem",
+            "gutter-tablet": "1.5rem",
+            "margin-screen": "1.25rem"
+          },
+          fontFamily: {
+            "label-md": ["Plus Jakarta Sans"],
+            "title-md": ["Plus Jakarta Sans"],
+            "headline-sm": ["\"Source Serif 4\""],
+            "label-lg": ["Plus Jakarta Sans"],
+            "body-md": ["Plus Jakarta Sans"],
+            "headline-lg": ["\"Source Serif 4\""],
+            "body-sm": ["Plus Jakarta Sans"],
+            "label-sm": ["Plus Jakarta Sans"],
+            "headline-md": ["\"Source Serif 4\""],
+            "headline-lg-mobile": ["\"Source Serif 4\""],
+            "body-lg": ["Plus Jakarta Sans"]
+          },
+          fontSize: {
+            "label-md": ["13px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+            "title-md": ["17px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "headline-sm": ["19px", { "lineHeight": "26px", "fontWeight": "600" }],
+            "label-lg": ["15px", { "lineHeight": "20px", "fontWeight": "600" }],
+            "body-md": ["15px", { "lineHeight": "22px", "fontWeight": "400" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "700" }],
+            "headline-md": ["22px", { "lineHeight": "30px", "fontWeight": "600" }],
+            "headline-lg-mobile": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "body-lg": ["17px", { "lineHeight": "26px", "fontWeight": "400" }]
+          }
+        }
+      }
+    };
+  </script>
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-surface text-on-surface font-body-md text-body-md flex flex-col min-h-screen">
+
+  <!-- ========================================== -->
+  <!-- CABEÇALHO GLOBAL COM NAVEGAÇÃO SUPERIOR -->
+  <!-- ========================================== -->
+  <header id="app-header" class="fixed top-0 w-full z-50 pt-safe bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.06)] hidden no-print">
+    <div class="max-w-5xl mx-auto">
+      <!-- Linha Principal: Logo, Menu Desktop e Perfil -->
+      <div class="h-16 px-margin-screen flex items-center justify-between border-b md:border-b-0 border-surface-container-high/60">
+        <div class="flex items-center gap-spacing-sm cursor-pointer" data-path="calendario-missas">
+          <img alt="Logo Paróquia e MESC" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIgSu4l2yDG1jT_7SwkOJJqFNaW2p_4HqqVnHCztIoLyqUYDPmoSGWYlYdkUc-1yWYm_JOr9NmY3lq_A-ZQddP4x4tS9u05k13J4a9O-yNFaKsUxGHTjy03OnqVp6ljUawhwHZrufK-bLI8Jsw_If_pirzKyW79ZrY_N8pBzfsYjOBN1N8pfD6vQCEQfT8MKv7RTPUUi4574MReICVACO_1wS4kDxI3rf_rviObVKnYChRfYyQT9tbBg"/>
+          <div class="flex flex-col">
+            <span class="font-headline-sm text-headline-sm text-primary leading-none">Capela Divino</span>
+            <span id="header-sub-title" class="font-label-sm text-label-sm text-on-surface-variant tracking-wide leading-none mt-1 uppercase">Calendário De Missas</span>
+          </div>
+        </div>
+
+        <!-- Links de Navegação Superior para Telas Médias e Grandes (Desktop/Tablet) -->
+        <nav id="app-desktop-nav" class="hidden md:flex items-center gap-1">
+          <a class="nav-tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-md text-label-md transition-all" data-path="inicio-login" href="#/inicio-login">
+            <span class="material-symbols-outlined text-[18px]">church</span>
+            <span>Início</span>
+          </a>
+          <a class="nav-tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-md text-label-md transition-all" data-path="calendario-missas" href="#/calendario-missas">
+            <span class="material-symbols-outlined text-[18px]">calendar_month</span>
+            <span>Calendário</span>
+          </a>
+          <a class="nav-tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-md text-label-md transition-all" data-path="membros-mesc" href="#/membros-mesc">
+            <span class="material-symbols-outlined text-[18px]">group</span>
+            <span>Membros</span>
+          </a>
+          <a class="nav-tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-md text-label-md transition-all" data-path="celebracoes" href="#/celebracoes">
+            <span class="material-symbols-outlined text-[18px]">auto_stories</span>
+            <span>Celebrações</span>
+          </a>
+          <a class="nav-tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-md text-label-md transition-all" data-path="montar-escala" href="#/montar-escala">
+            <span class="material-symbols-outlined text-[18px]">edit_calendar</span>
+            <span>Gerir Escalas</span>
+          </a>
+        </nav>
+
+        <!-- Área de Perfil do Usuário -->
+        <div class="flex items-center gap-spacing-xs">
+          <span id="header-user-role" class="hidden sm:inline-block px-spacing-xs py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">Administrador</span>
+          <button type="button" class="w-8 h-8 rounded-full bg-primary flex items-center justify-center hover:opacity-90 transition-opacity" data-path="inicio-login" title="Alternar Usuário / Sair">
+            <span class="material-symbols-outlined text-on-primary text-[18px]">person</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Barra de Abas Superior para Telas Mobile -->
+      <nav id="app-mobile-nav" class="flex md:hidden items-center justify-around h-12 px-spacing-xs bg-surface/95 border-b border-surface-container-high/60">
+        <a class="nav-tab-link flex items-center gap-1 py-1.5 px-3 rounded-xl text-on-surface-variant hover:text-on-surface transition-all" data-path="inicio-login" href="#/inicio-login">
+          <span class="material-symbols-outlined text-[18px]">church</span>
+          <span class="font-label-sm text-label-sm">Início</span>
+        </a>
+        <a class="nav-tab-link flex items-center gap-1 py-1.5 px-3 rounded-xl text-on-surface-variant hover:text-on-surface transition-all" data-path="calendario-missas" href="#/calendario-missas">
+          <span class="material-symbols-outlined text-[18px]">calendar_month</span>
+          <span class="font-label-sm text-label-sm">Calendário</span>
+        </a>
+        <a class="nav-tab-link flex items-center gap-1 py-1.5 px-3 rounded-xl text-on-surface-variant hover:text-on-surface transition-all" data-path="membros-mesc" href="#/membros-mesc">
+          <span class="material-symbols-outlined text-[18px]">group</span>
+          <span class="font-label-sm text-label-sm">Membros</span>
+        </a>
+        <a class="nav-tab-link flex items-center gap-1 py-1.5 px-3 rounded-xl text-on-surface-variant hover:text-on-surface transition-all" data-path="celebracoes" href="#/celebracoes">
+          <span class="material-symbols-outlined text-[18px]">auto_stories</span>
+          <span class="font-label-sm text-label-sm">Celebração</span>
+        </a>
+        <a class="nav-tab-link flex items-center gap-1 py-1.5 px-3 rounded-xl text-on-surface-variant hover:text-on-surface transition-all" data-path="montar-escala" href="#/montar-escala">
+          <span class="material-symbols-outlined text-[18px]">edit_calendar</span>
+          <span class="font-label-sm text-label-sm">Gerir Escalas</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ÁREA PRINCIPAL COM AS 4 TELAS SPA -->
+  <main class="flex flex-col relative w-full flex-1">
+
+    <!-- ========================================== -->
+    <!-- TELA 1: ACESSO E LOGIN -->
+    <!-- ========================================== -->
+    <div id="view-inicio-login" class="view-container active w-full min-h-screen">
+      <div class="flex flex-col items-center justify-center min-h-screen w-full bg-surface px-margin-screen py-spacing-xl">
+        <div class="flex flex-col w-full">
+          <div class="flex flex-col items-center w-full max-w-xs mx-auto text-center">
+            <div class="w-24 h-24 rounded-full bg-surface-container-lowest shadow-sm flex items-center justify-center p-spacing-xs mb-spacing-md">
+              <img alt="Logo Paróquia MESC" class="w-20 h-20 object-contain rounded-full" src="https://lh3.googleusercontent.com/aida/AEtjO1WczmdbAexmyw3qOojOnzA5AVxVZCNbXriGye7jS_Cwc8Aawxmy0VUCvJbfdcx9XuuqJOVJsBwezM_9d8hfUL83kGljIhpDZR8mWVgWoe1gO8yKsNl8x2RBJFVod8YZ67NNKYbw7wi1P8gTG12MiPM-1whPFJWNR-q0QoGjO06EsBEM-eCyIxgmcLllZwwYDYqSa_IBljUsnfJ1g8imbS5GCS1sB36GOJsW87z-cQSn5BYbq5DqpDfS2n_p">
+            </div>
+            <h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary tracking-tight mb-spacing-xl">Capela Divino Espírito Santo</h1>
+
+            <form id="login-form" class="flex flex-col gap-spacing-md w-full text-left">
+              <div class="flex flex-col gap-1.5">
+                <label class="font-label-md text-label-md text-on-surface flex items-center gap-1" for="login-user">
+                  <span class="material-symbols-outlined text-[16px] text-on-surface-variant">person</span>
+                  Nome de Usuário
+                </label>
+                <div class="relative flex items-center">
+                  <input class="w-full h-12 bg-surface-container-low text-on-surface placeholder:text-outline font-body-md text-body-md px-spacing-md rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container transition-colors" id="login-user" placeholder="Digite seu e-mail ou usuário" type="text" value="admin.pastoral">
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <label class="font-label-md text-label-md text-on-surface flex items-center gap-1" for="login-password">
+                  <span class="material-symbols-outlined text-[16px] text-on-surface-variant">lock</span>
+                  Senha
+                </label>
+                <div class="relative flex items-center">
+                  <input class="w-full h-12 bg-surface-container-low text-on-surface placeholder:text-outline font-body-md text-body-md pl-spacing-md pr-12 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container transition-colors" id="login-password" placeholder="••••••••••••" type="password" value="pastoral2025">
+                  <button id="toggle-password-btn" class="absolute right-3 text-on-surface-variant hover:text-on-surface p-1 flex items-center justify-center" type="button" aria-label="Mostrar ou ocultar senha">
+                    <span class="material-symbols-outlined text-[20px]">visibility</span>
+                  </button>
+                </div>
+              </div>
+
+              <button class="mt-spacing-sm w-full h-12 bg-primary-container hover:bg-primary text-on-primary font-label-lg text-label-lg rounded-xl flex items-center justify-center gap-spacing-xs shadow-md transition-all active:scale-[0.99]" type="submit">
+                <span class="material-symbols-outlined text-[20px]">login</span>
+                <span>Acessar</span>
+              </button>
+
+              <button id="btn-visitor-access" class="w-full h-12 bg-surface-container-low hover:bg-surface-container text-primary font-label-lg text-label-lg rounded-xl flex items-center justify-center gap-spacing-xs transition-colors active:scale-[0.99]" type="button">
+                <span class="material-symbols-outlined text-[20px]">visibility</span>
+                <span>Acessar como visitante</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TELA 2: CALENDÁRIO E ESCALAS -->
+    <!-- ========================================== -->
+    <div id="view-calendario-missas" class="view-container w-full pt-32 md:pt-24 pb-12 px-margin-screen">
+      <div class="flex flex-col w-full pb-8 max-w-4xl mx-auto">
+        <!-- Topo da Seção & Exportar -->
+        <section class="flex flex-col gap-spacing-xs mb-spacing-md">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-spacing-xs">
+              <span class="p-2 rounded-xl bg-primary-fixed text-primary flex items-center justify-center shadow-sm">
+                <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+              </span>
+              <div>
+                <h1 class="font-headline-sm text-headline-sm text-primary leading-tight">Calendário de Escalas</h1>
+                <p class="font-body-sm text-body-sm text-on-surface-variant">Selecione uma data litúrgica para conferir as presenças</p>
+              </div>
+            </div>
+            <button aria-label="Exportar Escala" class="flex items-center gap-1.5 px-spacing-sm py-2 rounded-xl bg-secondary-container text-on-secondary-container shadow-sm active:scale-95 transition-transform" id="shareSheetBtn" type="button">
+              <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+              <span class="font-label-sm text-label-sm">Exportar / Imprimir</span>
+            </button>
+          </div>
+
+          <!-- Filtros Rápidos de Horário das Missas -->
+          <div id="calendar-time-filters" class="flex items-center gap-2 overflow-x-auto py-1 no-scrollbar -mx-margin-screen px-margin-screen">
+            <button class="filter-chip px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md whitespace-nowrap shadow-sm transition-all" data-horario="todos" type="button">
+              Todos os Horários
+            </button>
+            <button class="filter-chip px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface font-label-md text-label-md whitespace-nowrap active:scale-95 transition-all" data-horario="08:00" type="button">
+              08:00h
+            </button>
+            <button class="filter-chip px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface font-label-md text-label-md whitespace-nowrap active:scale-95 transition-all" data-horario="10:00" type="button">
+              10:00h
+            </button>
+            <button class="filter-chip px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface font-label-md text-label-md whitespace-nowrap active:scale-95 transition-all" data-horario="19:00" type="button">
+              19:00h
+            </button>
+          </div>
+        </section>
+
+        <!-- Calendário Mensal Principal -->
+        <section class="w-full bg-surface-container-lowest rounded-2xl p-spacing-sm shadow-sm flex flex-col gap-spacing-sm">
+          <!-- Cabeçalho de Navegação do Mês -->
+          <div class="flex items-center justify-between px-1">
+            <div class="flex items-center gap-2">
+              <h2 id="calendar-month-name" class="font-headline-md text-headline-md text-on-surface">Outubro</h2>
+              <span id="calendar-year-badge" class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">2025</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <button id="btn-prev-month" aria-label="Mês anterior" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors" type="button">
+                <span class="material-symbols-outlined text-[22px]">chevron_left</span>
+              </button>
+              <button id="btn-next-month" aria-label="Próximo mês" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors" type="button">
+                <span class="material-symbols-outlined text-[22px]">chevron_right</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Dias da semana -->
+          <div class="grid grid-cols-7 gap-1 text-center font-label-sm text-label-sm text-on-surface-variant py-1">
+            <span>DOM</span>
+            <span>SEG</span>
+            <span>TER</span>
+            <span>QUA</span>
+            <span>QUI</span>
+            <span>SEX</span>
+            <span>SÁB</span>
+          </div>
+
+          <!-- Grade Dinâmica de Dias -->
+          <div class="grid grid-cols-7 gap-1 text-center font-body-md text-body-md" id="calendarGrid">
+            <!-- Renderizado dinamicamente via js/components/calendar.js -->
+          </div>
+
+          <!-- Legenda Litúrgica Discreta -->
+          <div class="flex items-center justify-center gap-spacing-md pt-2 border-t border-surface-container-high">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant">Missa &amp; Escala</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-secondary-container"></span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant">Solenidade Especial</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-surface-container-highest"></span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant">Dia Comum</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Card Interativo Detalhado do Dia Selecionado -->
+        <section class="w-full mt-spacing-md flex flex-col gap-spacing-sm" id="selectedRosterSection">
+          <div class="bg-surface-container-lowest rounded-2xl p-spacing-md shadow-sm flex flex-col gap-spacing-sm relative overflow-hidden">
+            <!-- Fita Litúrgica Dourada no Topo -->
+            <div class="absolute top-0 left-0 right-0 h-1.5 liturgical-ribbon"></div>
+
+            <div class="flex items-start justify-between mt-1">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span id="selectedMassTypeBadge" class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-primary/10 text-primary uppercase font-bold tracking-wider">Missa Solene</span>
+                  <span id="selectedDateShortBadge" class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-secondary-container/60 text-on-secondary-container font-semibold">12/10/2025</span>
+                </div>
+                <h3 class="font-headline-sm text-headline-sm text-primary mt-1" id="selectedDateTitle">Domingo, 12/10/2025</h3>
+                <p class="font-body-md text-body-md text-on-surface font-medium flex items-center gap-1.5 mt-0.5" id="selectedMassSubtitle">
+                  <span class="material-symbols-outlined text-[18px] text-secondary">schedule</span>
+                  19:00h · Solenidade de N. Sra. Aparecida
+                </p>
+              </div>
+              <div class="flex flex-col items-end">
+                <span id="selectedSlotRatio" class="font-headline-sm text-headline-sm text-primary font-bold">5 / 5</span>
+                <span id="selectedSlotStatus" class="font-label-sm text-label-sm text-tertiary font-medium flex items-center gap-0.5">
+                  <span class="material-symbols-outlined text-[14px]">check_circle</span> Completa
+                </span>
+              </div>
+            </div>
+
+            <div class="h-px bg-surface-container-high w-full"></div>
+
+            <!-- Lista Dinâmica de Ministros Escalados -->
+            <div class="flex flex-col gap-3" id="ministersRosterList">
+              <!-- Renderizado via js/components/calendar.js -->
+            </div>
+
+            <!-- Botões de Ação Direta no Card (Com "Copiar lembrete") -->
+            <div class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-surface-container-high no-print">
+              <button class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-surface-container text-on-surface font-label-md text-label-md active:scale-95 transition-transform hover:bg-surface-container-high" id="copyWhatsappBtn" type="button">
+                <span class="material-symbols-outlined text-[18px] text-primary">content_copy</span>
+                <span>Copiar lembrete</span>
+              </button>
+              <button class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-surface-container text-on-surface font-label-md text-label-md active:scale-95 transition-transform hover:bg-surface-container-high" id="printPdfBtn" type="button">
+                <span class="material-symbols-outlined text-[18px] text-primary">picture_as_pdf</span>
+                <span>Opções de Impressão</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Painel de Gestão Rápida para Administrador -->
+        <section class="w-full mt-spacing-md no-print" id="admin-management-section">
+          <div class="bg-surface-container-high/60 rounded-2xl p-spacing-md flex flex-col gap-spacing-sm shadow-sm">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm tracking-wide uppercase font-bold">ADM</span>
+                <h4 class="font-title-md text-title-md text-on-surface">Gestão Pastoral</h4>
+              </div>
+              <span class="font-label-sm text-label-sm text-on-surface-variant">Ações de Coordenação</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <button class="w-full flex items-center justify-between p-3 rounded-xl bg-primary text-on-primary shadow-sm hover:opacity-95 active:scale-98 transition-all text-left" data-path="montar-escala" type="button">
+                <div class="flex items-center gap-2.5">
+                  <span class="p-2 rounded-lg bg-on-primary/10 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[20px]">edit_calendar</span>
+                  </span>
+                  <div class="flex flex-col">
+                    <span class="font-label-lg text-label-lg leading-tight">Montar Nova Escala</span>
+                    <span class="font-body-sm text-body-sm text-on-primary/80">Distribuir ministros para o mês</span>
+                  </div>
+                </div>
+                <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+              </button>
+              <button class="w-full flex items-center justify-between p-3 rounded-xl bg-surface-container-lowest text-on-surface shadow-sm hover:bg-surface-container active:scale-98 transition-all text-left" data-path="membros-mesc" type="button">
+                <div class="flex items-center gap-2.5">
+                  <span class="p-2 rounded-lg bg-surface-container-high text-primary flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[20px]">manage_accounts</span>
+                  </span>
+                  <div class="flex flex-col">
+                    <span class="font-label-lg text-label-lg leading-tight">Gerir Membros Capela Divino</span>
+                    <span class="font-body-sm text-body-sm text-on-surface-variant">Cadastro, status e setores</span>
+                  </div>
+                </div>
+                <span class="material-symbols-outlined text-[20px] text-on-surface-variant">chevron_right</span>
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TELA 3: GESTÃO DE MEMBROS MESC -->
+    <!-- ========================================== -->
+    <div id="view-membros-mesc" class="view-container w-full pt-32 md:pt-24 pb-12 px-margin-screen">
+      <div class="flex flex-col w-full space-y-spacing-md max-w-4xl mx-auto">
+        <!-- Status Banner & Quick Stats (Apenas Ativos e Licença) -->
+        <div class="relative overflow-hidden rounded-xl bg-surface-container-low p-spacing-md shadow-sm">
+          <div class="flex items-center justify-between">
+            <div class="space-y-1">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm">
+                <span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+                Pastoral 2024 / 2025
+              </span>
+              <h2 id="stat-total-hero" class="font-headline-md text-headline-md text-primary">38 Ministros Ativos</h2>
+              <p id="stat-active-hero" class="font-body-sm text-body-sm text-on-surface-variant">1 em licença pastoral</p>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-primary-fixed flex items-center justify-center text-primary shadow-sm">
+              <span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">diversity_3</span>
+            </div>
+          </div>
+          <!-- Quick Stats Bar (2 Colunas) -->
+          <div class="grid grid-cols-2 gap-spacing-sm mt-spacing-md pt-spacing-sm">
+            <div class="bg-surface-container-lowest rounded-xl p-3 flex flex-col items-center text-center shadow-sm">
+              <span id="stat-active-count" class="font-headline-md text-headline-md text-primary font-bold">15</span>
+              <span class="font-label-md text-label-md text-on-surface-variant mt-0.5">Ministros Ativos</span>
+            </div>
+            <div class="bg-surface-container-lowest rounded-xl p-3 flex flex-col items-center text-center shadow-sm">
+              <span id="stat-leave-count" class="font-headline-md text-headline-md text-outline font-bold">01</span>
+              <span class="font-label-md text-label-md text-on-surface-variant mt-0.5">Em Licença</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action: Add Minister CTA -->
+        <button class="w-full h-12 bg-primary hover:bg-primary-container text-on-primary rounded-xl font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-md active:scale-[0.99] transition-transform" id="open-modal-btn" type="button">
+          <span class="material-symbols-outlined text-[20px]">person_add</span>
+          Adicionar Novo Ministro
+        </button>
+
+        <!-- Search & Filter Bar -->
+        <div class="space-y-spacing-xs">
+          <div class="relative w-full">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px]">search</span>
+            <input class="w-full h-12 pl-10 pr-10 bg-surface-container-lowest rounded-xl font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" id="search-ministers" placeholder="Buscar por nome, setor ou comunidade..." type="text"/>
+            <button class="absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface" type="button" onclick="document.getElementById('search-ministers').focus()">
+              <span class="material-symbols-outlined text-[20px]">tune</span>
+            </button>
+          </div>
+          <!-- Filter Chips (Sem Formação) -->
+          <div id="members-filter-chips" class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+            <button class="px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm whitespace-nowrap shadow-sm" data-filter="todos" type="button">
+              Todos
+            </button>
+            <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="ativo" type="button">
+              Ativos
+            </button>
+            <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="licenca" type="button">
+              Licença
+            </button>
+            <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="matriz" type="button">
+              Matriz
+            </button>
+            <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="comunidades" type="button">
+              Comunidades
+            </button>
+          </div>
+        </div>
+
+        <!-- Ministers Roster List (Dinâmica) -->
+        <div class="flex flex-col space-y-spacing-sm" id="members-list-container">
+          <!-- Renderizado via js/components/members.js -->
+        </div>
+
+        <!-- Liturgical Warm Message Card -->
+        <div class="bg-primary-fixed/40 rounded-xl p-spacing-md flex items-center gap-spacing-sm">
+          <div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-[20px]">local_florist</span>
+          </div>
+          <div class="min-w-0">
+            <p class="font-headline-sm text-headline-sm text-primary leading-snug">"Servir com amor e prontidão"</p>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">Lembre-se de enviar a confirmação das escalas mensais aos ministros via WhatsApp.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TELA: GESTÃO DE CELEBRAÇÕES LITÚRGICAS -->
+    <!-- ========================================== -->
+    <div id="view-celebracoes" class="view-container w-full pt-32 md:pt-24 pb-12 px-margin-screen">
+      <div class="flex flex-col w-full space-y-spacing-md max-w-4xl mx-auto">
+        <!-- Status Banner & Quick Stats (Layout Padrão Membros) -->
+        <div class="relative overflow-hidden rounded-xl bg-surface-container-low p-spacing-md shadow-sm">
+          <div class="flex items-center justify-between">
+            <div class="space-y-1">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm">
+                <span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+                Catálogo Litúrgico 2024 / 2025
+              </span>
+              <h2 id="stat-total-celebrations-hero" class="font-headline-md text-headline-md text-primary">11 Celebrações Cadastradas</h2>
+              <p id="stat-regular-celebrations-hero" class="font-body-sm text-body-sm text-on-surface-variant">Missas dominicais, semanais e solenidades paroquiais</p>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-primary-fixed flex items-center justify-center text-primary shadow-sm">
+              <span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">church</span>
+            </div>
+          </div>
+          <!-- Quick Stats Bar (2 Colunas) -->
+          <div class="grid grid-cols-2 gap-spacing-sm mt-spacing-md pt-spacing-sm">
+            <div class="bg-surface-container-lowest rounded-xl p-3 flex flex-col items-center text-center shadow-sm">
+              <span id="stat-dominicais-count" class="font-headline-md text-headline-md text-primary font-bold">04</span>
+              <span class="font-label-md text-label-md text-on-surface-variant mt-0.5">Missas Dominicais</span>
+            </div>
+            <div class="bg-surface-container-lowest rounded-xl p-3 flex flex-col items-center text-center shadow-sm">
+              <span id="stat-solenes-count" class="font-headline-md text-headline-md text-outline font-bold">07</span>
+              <span class="font-label-md text-label-md text-on-surface-variant mt-0.5">Solenes &amp; Especiais</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action: Add Celebration CTA -->
+        <button class="w-full h-12 bg-primary hover:bg-primary-container text-on-primary rounded-xl font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-md active:scale-[0.99] transition-transform" id="open-celebration-modal-btn" type="button">
+          <span class="material-symbols-outlined text-[20px]">add_circle</span>
+          Adicionar Nova Celebração
+        </button>
+
+        <!-- Search & Filter Bar -->
+        <div class="space-y-spacing-xs">
+          <div class="relative w-full">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px]">search</span>
+            <input class="w-full h-12 pl-10 pr-10 bg-surface-container-lowest rounded-xl font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" id="search-celebrations" placeholder="Buscar celebração por nome ou categoria..." type="text"/>
+            <button class="absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface" type="button" onclick="document.getElementById('search-celebrations').focus()">
+              <span class="material-symbols-outlined text-[20px]">tune</span>
+            </button>
+          </div>
+          <!-- Filter Chips -->
+          <div id="celebrations-filter-chips" class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+            <button class="px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm whitespace-nowrap shadow-sm" data-filter="todas" type="button">
+              Todas
+            </button>
+            <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="dominical" type="button">
+              Dominicais
+            </button>
+            <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="semanal" type="button">
+              Semanais
+            </button>
+            <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="solenidade" type="button">
+              Solenidades
+            </button>
+            <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="sacramento" type="button">
+              Sacramentos
+            </button>
+            <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="especial" type="button">
+              Especiais
+            </button>
+          </div>
+        </div>
+
+        <!-- Celebrations List (Dinâmica) -->
+        <div class="flex flex-col space-y-spacing-sm" id="celebrations-list-container">
+          <!-- Renderizado via js/components/celebrations.js -->
+        </div>
+
+        <!-- Liturgical Warm Message Card -->
+        <div class="bg-primary-fixed/40 rounded-xl p-spacing-md flex items-center gap-spacing-sm">
+          <div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-[20px]">auto_stories</span>
+          </div>
+          <div class="min-w-0">
+            <p class="font-headline-sm text-headline-sm text-primary leading-snug">"Celebrar com amor e zelo a Santa Eucaristia"</p>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">As celebrações cadastradas ficam disponíveis no seletor de escalas e no calendário paroquial.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TELA 4: MONTAR E GERIR ESCALA -->
+    <!-- ========================================== -->
+    <div id="view-montar-escala" class="view-container w-full pt-32 md:pt-24 pb-12 px-margin-screen">
+      <div class="flex flex-col w-full space-y-spacing-md max-w-4xl mx-auto">
+        <!-- Passo 1 -->
+        <div class="bg-surface-container-lowest rounded-xl p-spacing-md shadow-sm">
+          <div class="flex items-center justify-between mb-spacing-xs">
+            <span class="font-label-sm text-label-sm text-primary uppercase tracking-wider font-bold">Passo 1 de 3</span>
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm bg-surface-container-high px-2 py-0.5 rounded-full" id="roster-month-badge">
+                <span class="material-symbols-outlined text-[14px]">event</span>
+                Outubro 2025
+              </span>
+            </div>
+          </div>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-spacing-md">
+            <div>
+              <h2 class="font-headline-sm text-headline-sm text-on-surface">Data e Celebração</h2>
+              <p class="font-body-sm text-body-sm text-on-surface-variant">Escolha qualquer dia do calendário para montar ou editar a escala.</p>
+            </div>
+            <!-- Seletor Rápido de Data do Calendário -->
+            <div class="flex items-center gap-1.5 self-start sm:self-auto bg-surface-container-low px-3 py-1.5 rounded-xl border border-surface-container-high">
+              <label for="roster-date-picker" class="font-label-sm text-label-sm text-on-surface-variant font-medium flex items-center gap-1 cursor-pointer">
+                <span class="material-symbols-outlined text-primary text-[18px]">calendar_month</span>
+                <span>Escolher Data:</span>
+              </label>
+              <input type="date" id="roster-date-picker" value="2025-10-19" class="bg-surface text-on-surface font-label-sm text-label-sm px-2 py-1 rounded-lg border border-outline/20 focus:outline-none focus:ring-2 focus:ring-primary/30">
+            </div>
+          </div>
+          
+          <!-- Faixa Horizontal Dinâmica de Todos os Dias do Mês -->
+          <div id="roster-date-chips" class="flex gap-spacing-xs overflow-x-auto pb-spacing-xs -mx-spacing-md px-spacing-md no-scrollbar">
+            <!-- Renderizado dinamicamente via js/components/roster.js -->
+          </div>
+
+          <!-- Seleção de Horário da Missa -->
+          <div class="mt-spacing-md">
+            <div class="flex items-center justify-between mb-spacing-xs">
+              <label class="block font-label-md text-label-md text-on-surface">Horário da Missa</label>
+              <span class="font-body-sm text-[12px] text-on-surface-variant">Celebração matutina, vespertina ou noturna</span>
+            </div>
+            <div id="roster-hour-buttons" class="grid grid-cols-3 sm:grid-cols-6 gap-spacing-xs">
+              <button class="hour-btn py-2.5 px-2 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md text-center transition-colors" data-hour="07:00" type="button">07:00</button>
+              <button class="hour-btn py-2.5 px-2 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md text-center transition-colors" data-hour="08:00" type="button">08:00</button>
+              <button class="hour-btn py-2.5 px-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md text-center shadow-sm transition-colors" data-hour="10:00" type="button">10:00</button>
+              <button class="hour-btn py-2.5 px-2 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md text-center transition-colors" data-hour="18:00" type="button">18:00</button>
+              <button class="hour-btn py-2.5 px-2 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md text-center transition-colors" data-hour="19:00" type="button">19:00</button>
+              <button class="hour-btn py-2.5 px-2 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md text-center transition-colors" data-hour="19:30" type="button">19:30</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Passo 2 -->
+        <div class="bg-surface-container-lowest rounded-xl p-spacing-md shadow-sm">
+          <div class="flex items-center justify-between mb-spacing-xs">
+            <span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider font-bold">Passo 2 de 3</span>
+            <span class="material-symbols-outlined text-secondary text-[20px]">auto_stories</span>
+          </div>
+          <h2 class="font-headline-sm text-headline-sm text-on-surface">Nome da Celebração &amp; Presidência</h2>
+          <p class="font-body-sm text-body-sm text-on-surface-variant mb-spacing-md">Selecione uma celebração da lista cadastrada ou adicione uma nova.</p>
+          
+          <div class="space-y-spacing-sm">
+            <!-- Seleção do Nome da Celebração -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="block font-label-md text-label-md text-on-surface font-semibold" for="celebration-select">Nome da Celebração</label>
+                <button type="button" id="btn-toggle-new-celebration" class="text-primary hover:text-primary-container font-label-sm text-label-sm flex items-center gap-1 font-semibold">
+                  <span class="material-symbols-outlined text-[16px]">add_circle</span>
+                  <span>Cadastrar Novo Nome</span>
+                </button>
+              </div>
+
+              <!-- Select da Lista Pré-definida -->
+              <div class="relative">
+                <select class="w-full bg-surface-container-low text-on-surface font-body-md text-body-md rounded-lg p-3 pr-10 appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container font-medium" id="celebration-select">
+                  <!-- Populado dinamicamente via js/components/roster.js -->
+                </select>
+                <span class="material-symbols-outlined absolute right-3 top-3 text-on-surface-variant pointer-events-none text-[20px]">expand_more</span>
+              </div>
+
+              <!-- Formulário Inline para Cadastrar Novo Nome (Expansível) -->
+              <div id="new-celebration-container" class="hidden mt-2 p-3 bg-surface-container-low rounded-xl border border-primary/20 animate-fade-in">
+                <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1" for="new-celebration-name">Cadastrar Novo Nome de Celebração</label>
+                <div class="flex items-center gap-2">
+                  <input type="text" id="new-celebration-name" placeholder="Ex: Missa de Ação de Graças..." class="flex-1 bg-surface text-on-surface font-body-sm text-body-sm rounded-lg p-2.5 border border-outline/20 focus:outline-none focus:ring-2 focus:ring-primary/30">
+                  <button type="button" id="btn-save-new-celebration" class="px-3.5 py-2.5 bg-primary text-on-primary rounded-lg font-label-sm text-label-sm font-semibold hover:opacity-95 transition-opacity">
+                    Salvar
+                  </button>
+                  <button type="button" id="btn-cancel-new-celebration" class="px-2.5 py-2.5 text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm">
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Seleção do Celebrante Principal -->
+            <div>
+              <label class="block font-label-md text-label-md text-on-surface mb-1" for="celebrante">Celebrante principal</label>
+              <div class="relative">
+                <select class="w-full bg-surface-container-low text-on-surface font-body-md text-body-md rounded-lg p-3 pr-10 appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container" id="celebrante">
+                  <option value="padre_marcelo">Pe. Marcelo Rossi (Pároco)</option>
+                  <option value="padre_antonio">Pe. Antônio Vieira (Vigário)</option>
+                  <option value="dom_orlando">Dom Orlando (Bispo Convidado)</option>
+                  <option value="diacono_joao">Diác. João Carlos (Celebração da Palavra)</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-3 top-3 text-on-surface-variant pointer-events-none text-[20px]">expand_more</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Passo 3 -->
+        <div class="bg-surface-container-lowest rounded-xl p-spacing-md shadow-sm">
+          <div class="flex items-center justify-between mb-spacing-xs">
+            <span class="font-label-sm text-label-sm text-tertiary uppercase tracking-wider font-bold">Passo 3 de 3</span>
+            <span class="font-label-sm text-label-sm bg-tertiary-fixed text-on-tertiary-fixed px-2 py-0.5 rounded-full font-bold" id="slot-counter">4 de 6 Vagas Preenchidas</span>
+          </div>
+          <h2 class="font-headline-sm text-headline-sm text-on-surface">Ministros Escalados</h2>
+          <p class="font-body-sm text-body-sm text-on-surface-variant mb-spacing-md">Funções predefinidas para a liturgia desta missa.</p>
+          
+          <!-- Escalados Roster (Dinâmico) -->
+          <div class="space-y-spacing-xs mb-spacing-md" id="escalados-list">
+            <!-- Renderizado via js/components/roster.js -->
+          </div>
+
+          <!-- Add Minister Filter & Search -->
+          <div class="bg-surface-container-low rounded-xl p-spacing-sm">
+            <div class="flex items-center justify-between mb-spacing-xs">
+              <h3 class="font-title-md text-title-md text-on-surface">Adicionar Ministros</h3>
+              <span id="active-base-count" class="font-label-sm text-label-sm text-on-surface-variant">Base Ativa (28)</span>
+            </div>
+            <!-- Search Bar -->
+            <div class="relative mb-spacing-xs">
+              <span class="material-symbols-outlined absolute left-3 top-2.5 text-on-surface-variant text-[20px]">search</span>
+              <input class="w-full bg-surface-container-lowest text-on-surface font-body-sm text-body-sm rounded-lg py-2.5 pl-10 pr-3 focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-sm" id="minister-search" placeholder="Buscar por nome ou setor..." type="text"/>
+            </div>
+            <!-- Candidate Minister List (Dinâmico) -->
+            <div class="space-y-spacing-xs max-h-56 overflow-y-auto pr-1" id="candidate-ministers-list">
+              <!-- Renderizado via js/components/roster.js -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Section -->
+        <div class="pt-spacing-xs space-y-spacing-xs">
+          <!-- Primary CTA: Save -->
+          <button class="w-full h-13 py-3.5 px-4 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg shadow-sm flex items-center justify-center gap-2 hover:bg-primary-container active:scale-[0.99] transition-all" id="btn-save-roster" type="button">
+            <span class="material-symbols-outlined text-[20px]">check_circle</span>
+            Salvar Escala
+          </button>
+          <!-- Secondary CTA: Save and Copy Reminder -->
+          <button class="w-full h-12 py-3 px-4 rounded-xl bg-surface-container-high text-primary font-label-lg text-label-lg flex items-center justify-center gap-2 hover:bg-surface-container-highest active:scale-[0.99] transition-all" id="btn-save-notify" type="button">
+            <span class="material-symbols-outlined text-primary text-[20px]">content_copy</span>
+            Salvar e Copiar Lembrete
+          </button>
+          <!-- Export Monthly PDF Options -->
+          <button class="w-full h-11 py-2.5 px-4 rounded-xl text-on-surface-variant font-label-md text-label-md flex items-center justify-center gap-1.5 hover:bg-surface-container-low transition-colors" id="btn-export-pdf" type="button">
+            <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+            Opções de Impressão e PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODAL / DRAWER: ADD & EDIT MEMBER -->
+  <!-- ========================================== -->
+  <div class="fixed inset-0 z-50 bg-inverse-surface/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity duration-200 hidden" id="minister-modal">
+    <div class="w-full sm:max-w-lg bg-surface-container-lowest rounded-t-2xl sm:rounded-2xl p-spacing-lg shadow-xl max-h-[90vh] overflow-y-auto space-y-spacing-md">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-1 border-b border-surface-container-high">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[22px]">assignment_ind</span>
+          </div>
+          <div>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface leading-tight" id="modal-title">Cadastrar Novo Ministro</h3>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">Pastoral da Sagrada Comunhão</p>
+          </div>
+        </div>
+        <button class="w-9 h-9 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors" id="close-modal-btn" type="button" aria-label="Fechar janela">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <!-- Form Body -->
+      <form class="space-y-spacing-sm" id="minister-form">
+        <input type="hidden" id="input-status-hidden" value="ativo">
+
+        <!-- Nome Completo -->
+        <div class="space-y-1">
+          <label class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider font-semibold" for="input-name">Nome Completo</label>
+          <div class="relative">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px]">person</span>
+            <input class="w-full h-12 pl-10 pr-3.5 bg-surface-container-low rounded-xl font-body-md text-body-md text-on-surface focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 focus:outline-none shadow-sm" id="input-name" placeholder="Ex: João Carlos da Silva" required="" type="text" value="Sebastião Pinheiro Rocha"/>
+          </div>
+        </div>
+
+        <!-- WhatsApp / Telefone -->
+        <div class="space-y-1">
+          <label class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider font-semibold" for="input-phone">Telefone / WhatsApp</label>
+          <div class="relative">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px]">call</span>
+            <input class="w-full h-12 pl-10 pr-3.5 bg-surface-container-low rounded-xl font-body-md text-body-md text-on-surface focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 focus:outline-none shadow-sm" id="input-phone" placeholder="(00) 00000-0000" required="" type="tel" value="(11) 98721-4409"/>
+          </div>
+        </div>
+
+        <!-- Comunidade / Setor -->
+        <div class="space-y-1">
+          <label class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider font-semibold" for="input-community">Comunidade de Origem</label>
+          <div class="relative">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px]">church</span>
+            <select class="w-full h-12 pl-10 pr-10 bg-surface-container-low rounded-xl font-body-md text-body-md text-on-surface focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 focus:outline-none shadow-sm appearance-none" id="input-community">
+              <option selected="">Matriz São José Operário</option>
+              <option>Capela N. Sra. de Fátima</option>
+              <option>Comunidade Sagrado Coração de Jesus</option>
+              <option>Capela São Judas Tadeu</option>
+            </select>
+            <span class="absolute right-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px] pointer-events-none">expand_more</span>
+          </div>
+        </div>
+
+        <!-- Horários de Preferência Habitual -->
+        <div class="space-y-1">
+          <label class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider font-semibold">Disponibilidade Habitual</label>
+          <div class="grid grid-cols-2 gap-2 pt-1" id="modal-schedule-checkboxes">
+            <label class="flex items-center gap-2 p-2.5 rounded-xl bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+              <input checked="" value="Sáb 19:30" class="w-4 h-4 rounded text-primary focus:ring-0 accent-primary" type="checkbox"/>
+              <span class="font-body-sm text-body-sm text-on-surface">Sáb 19:30</span>
+            </label>
+            <label class="flex items-center gap-2 p-2.5 rounded-xl bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+              <input checked="" value="Dom 08:00" class="w-4 h-4 rounded text-primary focus:ring-0 accent-primary" type="checkbox"/>
+              <span class="font-body-sm text-body-sm text-on-surface">Dom 08:00</span>
+            </label>
+            <label class="flex items-center gap-2 p-2.5 rounded-xl bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+              <input value="Dom 10:00" class="w-4 h-4 rounded text-primary focus:ring-0 accent-primary" type="checkbox"/>
+              <span class="font-body-sm text-body-sm text-on-surface">Dom 10:00</span>
+            </label>
+            <label class="flex items-center gap-2 p-2.5 rounded-xl bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+              <input checked="" value="Dom 19:00" class="w-4 h-4 rounded text-primary focus:ring-0 accent-primary" type="checkbox"/>
+              <span class="font-body-sm text-body-sm text-on-surface">Dom 19:00</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Status Ministerial (Apenas Ativo e Licença) -->
+        <div class="space-y-1">
+          <label class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider font-semibold">Situação Pastoral</label>
+          <div class="flex items-center gap-2" id="modal-status-buttons">
+            <button class="flex-1 py-2.5 px-3 rounded-xl bg-tertiary-fixed text-on-tertiary-fixed font-label-md text-label-md text-center font-bold shadow-sm" data-status="ativo" type="button">Ativo</button>
+            <button class="flex-1 py-2.5 px-3 rounded-xl bg-surface-container-high text-on-surface-variant font-label-md text-label-md text-center transition-colors" data-status="licenca" type="button">Licença</button>
+          </div>
+        </div>
+
+        <!-- Modal Action Buttons -->
+        <div class="pt-spacing-sm flex items-center gap-spacing-xs">
+          <button class="flex-1 h-12 rounded-xl bg-surface-container-high text-on-surface font-label-lg text-label-lg hover:bg-surface-variant transition-colors" id="btn-cancel-modal" type="button">
+            Cancelar
+          </button>
+          <button class="flex-1 h-12 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg shadow-md hover:bg-primary-container transition-colors flex items-center justify-center gap-1.5" type="submit">
+            <span class="material-symbols-outlined text-[20px]">save</span>
+            Salvar Ministro
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: CADASTRAR / EDITAR CELEBRAÇÃO -->
+  <!-- ========================================== -->
+  <div class="fixed inset-0 z-50 bg-inverse-surface/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity duration-200 hidden" id="celebration-modal">
+    <div class="w-full sm:max-w-lg bg-surface-container-lowest rounded-t-2xl sm:rounded-2xl p-spacing-lg shadow-2xl max-h-[90vh] overflow-y-auto space-y-spacing-md">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-2 border-b border-surface-container-high">
+        <div>
+          <h3 class="font-headline-sm text-headline-sm text-on-surface" id="celebration-modal-title">Cadastrar Nova Celebração</h3>
+          <p class="font-body-sm text-body-sm text-on-surface-variant">Preencha as informações litúrgicas da celebração</p>
+        </div>
+        <button class="w-9 h-9 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors" id="close-celebration-modal-btn" type="button" aria-label="Fechar janela">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <!-- Modal Form -->
+      <form class="space-y-spacing-md" id="celebration-form">
+        <!-- Nome da Celebração -->
+        <div class="space-y-1">
+          <label class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider font-semibold" for="input-cel-name">Nome da Celebração</label>
+          <div class="relative">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px]">church</span>
+            <input class="w-full h-12 pl-10 pr-3.5 bg-surface-container-low rounded-xl font-body-md text-body-md text-on-surface focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 focus:outline-none shadow-sm" id="input-cel-name" placeholder="Ex: Missa de Bodas de Prata" required="" type="text"/>
+          </div>
+        </div>
+
+        <!-- Categoria Litúrgica -->
+        <div class="space-y-1">
+          <label class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider font-semibold" for="input-cel-category">Categoria Litúrgica</label>
+          <div class="relative">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px]">category</span>
+            <select class="w-full h-12 pl-10 pr-10 bg-surface-container-low rounded-xl font-body-md text-body-md text-on-surface focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 focus:outline-none shadow-sm appearance-none" id="input-cel-category">
+              <option value="dominical" selected="">Dominical (Preceito)</option>
+              <option value="semanal">Semanal (Ferial)</option>
+              <option value="solenidade">Solenidade Especial</option>
+              <option value="sacramento">Sacramento (Batismo, Matrimônio, Crisma)</option>
+              <option value="especial">Especial / Devocional / Exéquias</option>
+            </select>
+            <span class="absolute right-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px] pointer-events-none">expand_more</span>
+          </div>
+        </div>
+
+        <!-- Número Recomendado de Ministros -->
+        <div class="space-y-1">
+          <label class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider font-semibold" for="input-cel-ministers">Mínimo Sugerido de Ministros</label>
+          <div class="relative">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px]">groups</span>
+            <select class="w-full h-12 pl-10 pr-10 bg-surface-container-low rounded-xl font-body-md text-body-md text-on-surface focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 focus:outline-none shadow-sm appearance-none" id="input-cel-ministers">
+              <option value="2">2 Ministros (Semanal / Capelas)</option>
+              <option value="3">3 Ministros (Vespertina / Intermediária)</option>
+              <option value="4" selected="">4 Ministros (Dominical Padrão)</option>
+              <option value="5">5 Ministros (Missa Solene)</option>
+              <option value="6">6 Ministros (Grande Solenidade / Festividade)</option>
+            </select>
+            <span class="absolute right-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px] pointer-events-none">expand_more</span>
+          </div>
+        </div>
+
+        <!-- Descrição / Observações Litúrgicas -->
+        <div class="space-y-1">
+          <label class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider font-semibold" for="input-cel-description">Orientações e Observações</label>
+          <div class="relative">
+            <textarea class="w-full h-24 p-3 bg-surface-container-low rounded-xl font-body-md text-body-md text-on-surface focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 focus:outline-none shadow-sm resize-none" id="input-cel-description" placeholder="Ex: Bênção especial no início, cálice duplo e acolhida na porta principal."></textarea>
+          </div>
+        </div>
+
+        <!-- Modal Action Buttons -->
+        <div class="pt-spacing-sm flex items-center gap-spacing-xs">
+          <button class="flex-1 h-12 rounded-xl bg-surface-container-high text-on-surface font-label-lg text-label-lg hover:bg-surface-variant transition-colors" id="btn-cancel-celebration-modal" type="button">
+            Cancelar
+          </button>
+          <button class="flex-1 h-12 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg shadow-md hover:bg-primary-container transition-colors flex items-center justify-center gap-1.5" type="submit">
+            <span class="material-symbols-outlined text-[20px]">save</span>
+            Salvar Celebração
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: ESCOLHA DE MODELO DE IMPRESSÃO / PDF -->
+  <!-- ========================================== -->
+  <div class="fixed inset-0 z-50 bg-inverse-surface/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity duration-200 hidden" id="export-pdf-modal">
+    <div class="w-full sm:max-w-lg bg-surface-container-lowest rounded-t-2xl sm:rounded-2xl p-spacing-lg shadow-2xl max-h-[90vh] overflow-y-auto space-y-spacing-md">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-2 border-b border-surface-container-high">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[22px]">print</span>
+          </div>
+          <div>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface leading-tight">Opções de Impressão e PDF</h3>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">Selecione o modelo oficial desejado</p>
+          </div>
+        </div>
+        <button class="w-9 h-9 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors" id="btn-close-export-modal" type="button" aria-label="Fechar janela">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <!-- Opções de Modelos -->
+      <div class="space-y-3 pt-1">
+        <!-- MODELO 1: Escala Individual do Dia -->
+        <button id="btn-export-model-day" class="w-full p-3.5 rounded-xl border border-surface-container-high hover:border-primary bg-surface-container-low hover:bg-surface-container-lowest text-left flex items-start gap-3.5 transition-all group shadow-sm" type="button">
+          <div class="w-11 h-11 rounded-xl bg-primary-fixed text-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            <span class="material-symbols-outlined text-[24px]">event_note</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between">
+              <h4 class="font-title-md text-title-md text-on-surface group-hover:text-primary font-bold">1. Escala do Dia Selecionado</h4>
+              <span class="font-label-sm text-label-sm bg-primary/10 text-primary px-2 py-0.5 rounded font-bold">Individual</span>
+            </div>
+            <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Ficha litúrgica detalhada com nomes, celebrante, funções específicas e orientações paroquiais.</p>
+          </div>
+        </button>
+
+        <!-- MODELO 2: Escala Geral do Mês Completo em Folha Única A4 -->
+        <button id="btn-export-model-month" class="w-full p-3.5 rounded-xl border-2 border-primary/40 hover:border-primary bg-primary-fixed/20 hover:bg-surface-container-lowest text-left flex items-start gap-3.5 transition-all group shadow-sm" type="button">
+          <div class="w-11 h-11 rounded-xl bg-primary text-on-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            <span class="material-symbols-outlined text-[24px]">calendar_month</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between">
+              <h4 class="font-title-md text-title-md text-primary font-bold">2. Escala Mensal Completa</h4>
+              <span class="font-label-sm text-label-sm bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded font-bold">Folha Única A4</span>
+            </div>
+            <p class="font-body-sm text-body-sm text-on-surface mt-0.5">Quadro geral condensado de todo o mês para afixação no mural da Sacristia e arquivo paroquial.</p>
+          </div>
+        </button>
+
+        <!-- Opção Copiar Lembrete Rápido -->
+        <button id="btn-export-model-whatsapp" class="w-full p-3 rounded-xl bg-surface-container-high/60 hover:bg-surface-container-high text-left flex items-center gap-3 transition-colors text-on-surface" type="button">
+          <div class="w-9 h-9 rounded-lg bg-primary text-on-primary flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-[20px]">content_copy</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <span class="font-label-md text-label-md font-semibold text-primary">Copiar Lembrete dos Ministros</span>
+            <span class="font-body-sm text-[11px] text-on-surface-variant block">Copia no padrão: ESCALA: [nomes]... compromisso às [horário]</span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- NOTIFICAÇÃO TOAST GLOBAL -->
+  <!-- ========================================== -->
+  <div id="global-toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-full bg-inverse-surface text-inverse-on-surface font-label-md text-label-md shadow-xl opacity-0 pointer-events-none translate-y-2 transition-all duration-300 flex items-center gap-2 z-50 whitespace-nowrap">
+    <span class="material-symbols-outlined text-[18px] text-tertiary-fixed">check_circle</span>
+    <span id="global-toast-text">Ação executada com sucesso!</span>
+  </div>
+
+  <!-- CONTÊINER DEDICADO PARA IMPRESSÃO EM PDF (Exclusivo para @media print) -->
+  <div id="print-container"></div>
+
+  <!-- Scripts SPA -->
+  <script src="js/store.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/components/login.js"></script>
+  <script src="js/components/calendar.js"></script>
+  <script src="js/components/members.js"></script>
+  <script src="js/components/celebrations.js"></script>
+  <script src="js/components/roster.js"></script>
+  <script src="js/export.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

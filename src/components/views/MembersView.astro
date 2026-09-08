@@ -1,0 +1,85 @@
+---
+// Tela 3: Gestão de Ministros MESC
+---
+<div id="view-membros-mesc" class="view-container w-full pt-32 md:pt-24 pb-12 px-margin-screen">
+  <div class="flex flex-col w-full space-y-spacing-md max-w-4xl mx-auto">
+    <!-- Status Banner & Quick Stats (Apenas Ativos e Licença) -->
+    <div class="relative overflow-hidden rounded-xl bg-surface-container-low p-spacing-md shadow-sm">
+      <div class="flex items-center justify-between">
+        <div class="space-y-1">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm">
+            <span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+            Pastoral 2024 / 2025
+          </span>
+          <h2 id="stat-total-hero" class="font-headline-md text-headline-md text-primary">38 Ministros Ativos</h2>
+          <p id="stat-active-hero" class="font-body-sm text-body-sm text-on-surface-variant">1 em licença pastoral</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-primary-fixed flex items-center justify-center text-primary shadow-sm">
+          <span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">diversity_3</span>
+        </div>
+      </div>
+      <!-- Quick Stats Bar (2 Colunas) -->
+      <div class="grid grid-cols-2 gap-spacing-sm mt-spacing-md pt-spacing-sm">
+        <div class="bg-surface-container-lowest rounded-xl p-3 flex flex-col items-center text-center shadow-sm">
+          <span id="stat-active-count" class="font-headline-md text-headline-md text-primary font-bold">15</span>
+          <span class="font-label-md text-label-md text-on-surface-variant mt-0.5">Ministros Ativos</span>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl p-3 flex flex-col items-center text-center shadow-sm">
+          <span id="stat-leave-count" class="font-headline-md text-headline-md text-outline font-bold">01</span>
+          <span class="font-label-md text-label-md text-on-surface-variant mt-0.5">Em Licença</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action: Add Minister CTA -->
+    <button class="w-full h-12 bg-primary hover:bg-primary-container text-on-primary rounded-xl font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-md active:scale-[0.99] transition-transform" id="open-modal-btn" type="button">
+      <span class="material-symbols-outlined text-[20px]">person_add</span>
+      Adicionar Novo Ministro
+    </button>
+
+    <!-- Search & Filter Bar -->
+    <div class="space-y-spacing-xs">
+      <div class="relative w-full">
+        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px]">search</span>
+        <input class="w-full h-12 pl-10 pr-10 bg-surface-container-lowest rounded-xl font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" id="search-ministers" placeholder="Buscar por nome, setor ou comunidade..." type="text"/>
+        <button class="absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface" type="button" onclick="document.getElementById('search-ministers').focus()">
+          <span class="material-symbols-outlined text-[20px]">tune</span>
+        </button>
+      </div>
+      <!-- Filter Chips (Sem Formação) -->
+      <div id="members-filter-chips" class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+        <button class="px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm whitespace-nowrap shadow-sm" data-filter="todos" type="button">
+          Todos
+        </button>
+        <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="ativo" type="button">
+          Ativos
+        </button>
+        <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="licenca" type="button">
+          Licença
+        </button>
+        <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="matriz" type="button">
+          Matriz
+        </button>
+        <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="comunidades" type="button">
+          Comunidades
+        </button>
+      </div>
+    </div>
+
+    <!-- Ministers Roster List (Dinâmica) -->
+    <div class="flex flex-col space-y-spacing-sm" id="members-list-container">
+      <!-- Renderizado via js/components/members.js -->
+    </div>
+
+    <!-- Liturgical Warm Message Card -->
+    <div class="bg-primary-fixed/40 rounded-xl p-spacing-md flex items-center gap-spacing-sm">
+      <div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0">
+        <span class="material-symbols-outlined text-[20px]">local_florist</span>
+      </div>
+      <div class="min-w-0">
+        <p class="font-headline-sm text-headline-sm text-primary leading-snug">"Servir com amor e prontidão"</p>
+        <p class="font-body-sm text-body-sm text-on-surface-variant">Lembre-se de enviar a confirmação das escalas mensais aos ministros via WhatsApp.</p>
+      </div>
+    </div>
+  </div>
+</div>

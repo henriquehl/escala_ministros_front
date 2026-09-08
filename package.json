@@ -1,0 +1,26 @@
+{
+  "name": "escala-virtual-divino-espirito-santo",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Portal de Gestão Litúrgica & Escala Virtual - Capela Divino Espírito Santo",
+  "scripts": {
+    "dev": "astro dev --port 3000",
+    "start": "astro dev --port 3000",
+    "build": "astro build",
+    "preview": "astro preview --port 3000"
+  },
+  "keywords": [
+    "escala",
+    "liturgia",
+    "mesc",
+    "astro",
+    "gestao-liturgica"
+  ],
+  "author": "Capela Divino Espírito Santo",
+  "license": "MIT",
+  "dependencies": {
+    "@astrojs/tailwind": "^5.1.5",
+    "astro": "^5.4.2",
+    "tailwindcss": "^3.4.17"
+  }
+}

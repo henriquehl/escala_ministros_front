@@ -1,0 +1,66 @@
+---
+import Header from '../components/Header.astro';
+import Toast from '../components/Toast.astro';
+import MemberModal from '../components/modals/MemberModal.astro';
+import CelebrationModal from '../components/modals/CelebrationModal.astro';
+import ExportModal from '../components/modals/ExportModal.astro';
+import '../styles/styles.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { 
+  title = "Capela Divino Espírito Santo - Portal de Gestão Litúrgica",
+  description = "Portal de Gestão Litúrgica e Escala Virtual da Capela Divino Espírito Santo - MESC"
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content={description}>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <title>{title}</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,600;0,8..60,700;1,8..60,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+</head>
+<body class="bg-surface text-on-surface font-body-md text-body-md flex flex-col min-h-screen">
+  <!-- Cabeçalho Global -->
+  <Header />
+
+  <!-- Conteúdo Principal das Views SPA -->
+  <main class="flex flex-col relative w-full flex-1">
+    <slot />
+  </main>
+
+  <!-- Janelas Modais -->
+  <MemberModal />
+  <CelebrationModal />
+  <ExportModal />
+
+  <!-- Notificação Toast Global -->
+  <Toast />
+
+  <!-- Contêiner Dedicado para Impressão PDF (Apenas em @media print) -->
+  <div id="print-container"></div>
+
+  <!-- Scripts SPA Client-side -->
+  <script is:inline src="/js/store.js"></script>
+  <script is:inline src="/js/router.js"></script>
+  <script is:inline src="/js/components/login.js"></script>
+  <script is:inline src="/js/components/calendar.js"></script>
+  <script is:inline src="/js/components/members.js"></script>
+  <script is:inline src="/js/components/celebrations.js"></script>
+  <script is:inline src="/js/components/roster.js"></script>
+  <script is:inline src="/js/export.js"></script>
+  <script is:inline src="/js/app.js"></script>
+</body>
+</html>

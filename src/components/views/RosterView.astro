@@ -1,0 +1,164 @@
+---
+// Tela 5: Construtor e Gestão de Escalas Litúrgicas
+---
+<div id="view-montar-escala" class="view-container w-full pt-32 md:pt-24 pb-12 px-margin-screen">
+  <div class="flex flex-col w-full space-y-spacing-md max-w-4xl mx-auto">
+    <!-- Passo 1 -->
+    <div class="bg-surface-container-lowest rounded-xl p-spacing-md shadow-sm">
+      <div class="flex items-center justify-between mb-spacing-xs">
+        <span class="font-label-sm text-label-sm text-primary uppercase tracking-wider font-bold">Passo 1 de 3</span>
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm bg-surface-container-high px-2 py-0.5 rounded-full" id="roster-month-badge">
+            <span class="material-symbols-outlined text-[14px]">event</span>
+            Outubro 2025
+          </span>
+        </div>
+      </div>
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-spacing-md">
+        <div>
+          <h2 class="font-headline-sm text-headline-sm text-on-surface">Data e Celebração</h2>
+          <p class="font-body-sm text-body-sm text-on-surface-variant">Escolha qualquer dia do calendário para montar ou editar a escala.</p>
+        </div>
+        <!-- Seletor Rápido de Data do Calendário -->
+        <div class="flex items-center gap-1.5 self-start sm:self-auto bg-surface-container-low px-3 py-1.5 rounded-xl border border-surface-container-high">
+          <label for="roster-date-picker" class="font-label-sm text-label-sm text-on-surface-variant font-medium flex items-center gap-1 cursor-pointer">
+            <span class="material-symbols-outlined text-primary text-[18px]">calendar_month</span>
+            <span>Escolher Data:</span>
+          </label>
+          <input type="date" id="roster-date-picker" value="2025-10-19" class="bg-surface text-on-surface font-label-sm text-label-sm px-2 py-1 rounded-lg border border-outline/20 focus:outline-none focus:ring-2 focus:ring-primary/30">
+        </div>
+      </div>
+      
+      <!-- Faixa Horizontal Dinâmica de Todos os Dias do Mês -->
+      <div id="roster-date-chips" class="flex gap-spacing-xs overflow-x-auto pb-spacing-xs -mx-spacing-md px-spacing-md no-scrollbar">
+        <!-- Renderizado dinamicamente via js/components/roster.js -->
+      </div>
+
+      <!-- Seleção de Horário da Missa -->
+      <div class="mt-spacing-md">
+        <div class="flex items-center justify-between mb-spacing-xs">
+          <label class="block font-label-md text-label-md text-on-surface">Horário da Missa</label>
+          <span class="font-body-sm text-[12px] text-on-surface-variant">Celebração matutina, vespertina ou noturna</span>
+        </div>
+        <div id="roster-hour-buttons" class="grid grid-cols-3 sm:grid-cols-6 gap-spacing-xs">
+          <button class="hour-btn py-2.5 px-2 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md text-center transition-colors" data-hour="07:00" type="button">07:00</button>
+          <button class="hour-btn py-2.5 px-2 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md text-center transition-colors" data-hour="08:00" type="button">08:00</button>
+          <button class="hour-btn py-2.5 px-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md text-center shadow-sm transition-colors" data-hour="10:00" type="button">10:00</button>
+          <button class="hour-btn py-2.5 px-2 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md text-center transition-colors" data-hour="18:00" type="button">18:00</button>
+          <button class="hour-btn py-2.5 px-2 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md text-center transition-colors" data-hour="19:00" type="button">19:00</button>
+          <button class="hour-btn py-2.5 px-2 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md text-center transition-colors" data-hour="19:30" type="button">19:30</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Passo 2 -->
+    <div class="bg-surface-container-lowest rounded-xl p-spacing-md shadow-sm">
+      <div class="flex items-center justify-between mb-spacing-xs">
+        <span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider font-bold">Passo 2 de 3</span>
+        <span class="material-symbols-outlined text-secondary text-[20px]">auto_stories</span>
+      </div>
+      <h2 class="font-headline-sm text-headline-sm text-on-surface">Nome da Celebração &amp; Presidência</h2>
+      <p class="font-body-sm text-body-sm text-on-surface-variant mb-spacing-md">Selecione uma celebração da lista cadastrada ou adicione uma nova.</p>
+      
+      <div class="space-y-spacing-sm">
+        <!-- Seleção do Nome da Celebração -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block font-label-md text-label-md text-on-surface font-semibold" for="celebration-select">Nome da Celebração</label>
+            <button type="button" id="btn-toggle-new-celebration" class="text-primary hover:text-primary-container font-label-sm text-label-sm flex items-center gap-1 font-semibold">
+              <span class="material-symbols-outlined text-[16px]">add_circle</span>
+              <span>Cadastrar Novo Nome</span>
+            </button>
+          </div>
+
+          <!-- Select da Lista Pré-definida -->
+          <div class="relative">
+            <select class="w-full bg-surface-container-low text-on-surface font-body-md text-body-md rounded-lg p-3 pr-10 appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container font-medium" id="celebration-select">
+              <!-- Populado dinamicamente via js/components/roster.js -->
+            </select>
+            <span class="material-symbols-outlined absolute right-3 top-3 text-on-surface-variant pointer-events-none text-[20px]">expand_more</span>
+          </div>
+
+          <!-- Formulário Inline para Cadastrar Novo Nome (Expansível) -->
+          <div id="new-celebration-container" class="hidden mt-2 p-3 bg-surface-container-low rounded-xl border border-primary/20 animate-fade-in">
+            <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1" for="new-celebration-name">Cadastrar Novo Nome de Celebração</label>
+            <div class="flex items-center gap-2">
+              <input type="text" id="new-celebration-name" placeholder="Ex: Missa de Ação de Graças..." class="flex-1 bg-surface text-on-surface font-body-sm text-body-sm rounded-lg p-2.5 border border-outline/20 focus:outline-none focus:ring-2 focus:ring-primary/30">
+              <button type="button" id="btn-save-new-celebration" class="px-3.5 py-2.5 bg-primary text-on-primary rounded-lg font-label-sm text-label-sm font-semibold hover:opacity-95 transition-opacity">
+                Salvar
+              </button>
+              <button type="button" id="btn-cancel-new-celebration" class="px-2.5 py-2.5 text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seleção do Celebrante Principal -->
+        <div>
+          <label class="block font-label-md text-label-md text-on-surface mb-1" for="celebrante">Celebrante principal</label>
+          <div class="relative">
+            <select class="w-full bg-surface-container-low text-on-surface font-body-md text-body-md rounded-lg p-3 pr-10 appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container" id="celebrante">
+              <option value="padre_marcelo">Pe. Marcelo Rossi (Pároco)</option>
+              <option value="padre_antonio">Pe. Antônio Vieira (Vigário)</option>
+              <option value="dom_orlando">Dom Orlando (Bispo Convidado)</option>
+              <option value="diacono_joao">Diác. João Carlos (Celebração da Palavra)</option>
+            </select>
+            <span class="material-symbols-outlined absolute right-3 top-3 text-on-surface-variant pointer-events-none text-[20px]">expand_more</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Passo 3 -->
+    <div class="bg-surface-container-lowest rounded-xl p-spacing-md shadow-sm">
+      <div class="flex items-center justify-between mb-spacing-xs">
+        <span class="font-label-sm text-label-sm text-tertiary uppercase tracking-wider font-bold">Passo 3 de 3</span>
+        <span class="font-label-sm text-label-sm bg-tertiary-fixed text-on-tertiary-fixed px-2 py-0.5 rounded-full font-bold" id="slot-counter">4 de 6 Vagas Preenchidas</span>
+      </div>
+      <h2 class="font-headline-sm text-headline-sm text-on-surface">Ministros Escalados</h2>
+      <p class="font-body-sm text-body-sm text-on-surface-variant mb-spacing-md">Funções predefinidas para a liturgia desta missa.</p>
+      
+      <!-- Escalados Roster (Dinâmico) -->
+      <div class="space-y-spacing-xs mb-spacing-md" id="escalados-list">
+        <!-- Renderizado via js/components/roster.js -->
+      </div>
+
+      <!-- Add Minister Filter & Search -->
+      <div class="bg-surface-container-low rounded-xl p-spacing-sm">
+        <div class="flex items-center justify-between mb-spacing-xs">
+          <h3 class="font-title-md text-title-md text-on-surface">Adicionar Ministros</h3>
+          <span id="active-base-count" class="font-label-sm text-label-sm text-on-surface-variant">Base Ativa (28)</span>
+        </div>
+        <!-- Search Bar -->
+        <div class="relative mb-spacing-xs">
+          <span class="material-symbols-outlined absolute left-3 top-2.5 text-on-surface-variant text-[20px]">search</span>
+          <input class="w-full bg-surface-container-lowest text-on-surface font-body-sm text-body-sm rounded-lg py-2.5 pl-10 pr-3 focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-sm" id="minister-search" placeholder="Buscar por nome ou setor..." type="text"/>
+        </div>
+        <!-- Candidate Minister List (Dinâmico) -->
+        <div class="space-y-spacing-xs max-h-56 overflow-y-auto pr-1" id="candidate-ministers-list">
+          <!-- Renderizado via js/components/roster.js -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Section -->
+    <div class="pt-spacing-xs space-y-spacing-xs">
+      <!-- Primary CTA: Save -->
+      <button class="w-full h-13 py-3.5 px-4 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg shadow-sm flex items-center justify-center gap-2 hover:bg-primary-container active:scale-[0.99] transition-all" id="btn-save-roster" type="button">
+        <span class="material-symbols-outlined text-[20px]">check_circle</span>
+        Salvar Escala
+      </button>
+      <!-- Secondary CTA: Save and Copy Reminder -->
+      <button class="w-full h-12 py-3 px-4 rounded-xl bg-surface-container-high text-primary font-label-lg text-label-lg flex items-center justify-center gap-2 hover:bg-surface-container-highest active:scale-[0.99] transition-all" id="btn-save-notify" type="button">
+        <span class="material-symbols-outlined text-primary text-[20px]">content_copy</span>
+        Salvar e Copiar Lembrete
+      </button>
+      <!-- Export Monthly PDF Options -->
+      <button class="w-full h-11 py-2.5 px-4 rounded-xl text-on-surface-variant font-label-md text-label-md flex items-center justify-center gap-1.5 hover:bg-surface-container-low transition-colors" id="btn-export-pdf" type="button">
+        <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+        Opções de Impressão e PDF
+      </button>
+    </div>
+  </div>
+</div>

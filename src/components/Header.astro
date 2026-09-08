@@ -1,0 +1,65 @@
+---
+// Header Global com Navegação Superior (Desktop e Mobile)
+---
+<header id="app-header" class="fixed top-0 w-full z-50 pt-safe bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.06)] hidden no-print">
+  <div class="max-w-5xl mx-auto">
+    <!-- Linha Principal: Logo, Menu Desktop e Perfil -->
+    <div class="h-16 px-margin-screen flex items-center justify-between border-b md:border-b-0 border-surface-container-high/60">
+      <div class="flex items-center gap-spacing-sm cursor-pointer" data-path="calendario-missas">
+        <img alt="Logo Paróquia e MESC" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIgSu4l2yDG1jT_7SwkOJJqFNaW2p_4HqqVnHCztIoLyqUYDPmoSGWYlYdkUc-1yWYm_JOr9NmY3lq_A-ZQddP4x4tS9u05k13J4a9O-yNFaKsUxGHTjy03OnqVp6ljUawhwHZrufK-bLI8Jsw_If_pirzKyW79ZrY_N8pBzfsYjOBN1N8pfD6vQCEQfT8MKv7RTPUUi4574MReICVACO_1wS4kDxI3rf_rviObVKnYChRfYyQT9tbBg"/>
+        <div class="flex flex-col">
+          <span class="font-headline-sm text-headline-sm text-primary leading-none">Capela Divino</span>
+          <span id="header-sub-title" class="font-label-sm text-label-sm text-on-surface-variant tracking-wide leading-none mt-1 uppercase">Calendário De Missas</span>
+        </div>
+      </div>
+
+      <!-- Links de Navegação Superior para Telas Médias e Grandes (Desktop/Tablet) -->
+      <nav id="app-desktop-nav" class="hidden md:flex items-center gap-1">
+        <a class="nav-tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-md text-label-md transition-all" data-path="calendario-missas" href="#/calendario-missas">
+          <span class="material-symbols-outlined text-[18px]">calendar_month</span>
+          <span>Calendário</span>
+        </a>
+        <a class="nav-tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-md text-label-md transition-all" data-path="membros-mesc" href="#/membros-mesc">
+          <span class="material-symbols-outlined text-[18px]">group</span>
+          <span>Membros</span>
+        </a>
+        <a class="nav-tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-md text-label-md transition-all" data-path="celebracoes" href="#/celebracoes">
+          <span class="material-symbols-outlined text-[18px]">auto_stories</span>
+          <span>Celebrações</span>
+        </a>
+        <a class="nav-tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-md text-label-md transition-all" data-path="montar-escala" href="#/montar-escala">
+          <span class="material-symbols-outlined text-[18px]">edit_calendar</span>
+          <span>Gerir Escalas</span>
+        </a>
+      </nav>
+
+      <!-- Área de Perfil do Usuário -->
+      <div class="flex items-center gap-spacing-xs">
+        <span id="header-user-role" class="hidden sm:inline-block px-spacing-xs py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">Administrador</span>
+        <button type="button" class="w-8 h-8 rounded-full bg-primary flex items-center justify-center hover:opacity-90 transition-opacity" data-path="inicio-login" title="Alternar Usuário / Sair">
+          <span class="material-symbols-outlined text-on-primary text-[18px]">person</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Barra de Abas Superior para Telas Mobile -->
+    <nav id="app-mobile-nav" class="flex md:hidden items-center justify-around h-12 px-spacing-xs bg-surface/95 border-b border-surface-container-high/60">
+      <a class="nav-tab-link flex items-center gap-1 py-1.5 px-3 rounded-xl text-on-surface-variant hover:text-on-surface transition-all" data-path="calendario-missas" href="#/calendario-missas">
+        <span class="material-symbols-outlined text-[18px]">calendar_month</span>
+        <span class="font-label-sm text-label-sm">Calendário</span>
+      </a>
+      <a class="nav-tab-link flex items-center gap-1 py-1.5 px-3 rounded-xl text-on-surface-variant hover:text-on-surface transition-all" data-path="membros-mesc" href="#/membros-mesc">
+        <span class="material-symbols-outlined text-[18px]">group</span>
+        <span class="font-label-sm text-label-sm">Membros</span>
+      </a>
+      <a class="nav-tab-link flex items-center gap-1 py-1.5 px-3 rounded-xl text-on-surface-variant hover:text-on-surface transition-all" data-path="celebracoes" href="#/celebracoes">
+        <span class="material-symbols-outlined text-[18px]">auto_stories</span>
+        <span class="font-label-sm text-label-sm">Celebração</span>
+      </a>
+      <a class="nav-tab-link flex items-center gap-1 py-1.5 px-3 rounded-xl text-on-surface-variant hover:text-on-surface transition-all" data-path="montar-escala" href="#/montar-escala">
+        <span class="material-symbols-outlined text-[18px]">edit_calendar</span>
+        <span class="font-label-sm text-label-sm">Gerir Escalas</span>
+      </a>
+    </nav>
+  </div>
+</header>
