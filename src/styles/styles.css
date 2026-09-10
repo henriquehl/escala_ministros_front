@@ -86,7 +86,7 @@
 
 /* Fita Litúrgica Dourada / Gradiente */
 .liturgical-ribbon {
-  background: linear-gradient(90deg, #63031d 0%, #fece57 50%, #63031d 100%);
+  background: linear-gradient(90deg, #b3093f 0%, #fcedc4 50%, #b3093f 100%);
 }
 
 /* Contêiner de Impressão (Oculto em tela normal) */
@@ -130,8 +130,8 @@
   }
 
   .monthly-print-table th {
-    background-color: #f2ede8 !important;
-    color: #63031d !important;
+    background-color: #ffd9e2 !important;
+    color: #b3093f !important;
     border: 1px solid #c2b5b6 !important;
     padding: 6px 8px;
     font-weight: 700;
@@ -159,6 +159,6 @@
 
 /* Ajustes de foco amigáveis e acessíveis */
 button:focus-visible, input:focus-visible, select:focus-visible {
-  outline: 2px solid #821e32;
+  outline: 2px solid #b3093f;
   outline-offset: 2px;
 }

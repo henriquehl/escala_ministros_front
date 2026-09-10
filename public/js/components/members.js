@@ -114,11 +114,9 @@ function renderMembersStats() {
   const statActiveEl = document.getElementById('stat-active-count');
   const statLeaveEl = document.getElementById('stat-leave-count');
 
-  if (totalHeroEl) totalHeroEl.textContent = `${stats.active} Ministros Ativos`;
+  if (totalHeroEl) totalHeroEl.textContent = 'Quadro de Ministros';
   if (activeHeroEl) {
-    activeHeroEl.textContent = stats.leave > 0
-      ? `${stats.leave} ministro(s) em licença pastoral`
-      : 'Nenhum ministro em licença pastoral';
+    activeHeroEl.textContent = `${stats.total} ministro${stats.total === 1 ? '' : 's'} cadastrado${stats.total === 1 ? '' : 's'} na pastoral`;
   }
   if (statActiveEl) statActiveEl.textContent = String(stats.active).padStart(2, '0');
   if (statLeaveEl) statLeaveEl.textContent = String(stats.leave).padStart(2, '0');
@@ -147,16 +145,13 @@ function renderMembersList() {
     // 1. Filtro por Categoria
     if (activeMembersFilter === 'ativo' && m.status !== 'ativo') return false;
     if (activeMembersFilter === 'licenca' && m.status !== 'licenca') return false;
-    if (activeMembersFilter === 'matriz' && !m.community.toLowerCase().includes('matriz')) return false;
-    if (activeMembersFilter === 'comunidades' && m.community.toLowerCase().includes('matriz')) return false;
 
     // 2. Filtro por Busca
     if (currentSearchTerm) {
       const matchName = m.name.toLowerCase().includes(currentSearchTerm);
-      const matchCommunity = m.community.toLowerCase().includes(currentSearchTerm);
       const matchPhone = (m.phone || '').includes(currentSearchTerm);
       const matchSchedule = (m.schedule || '').toLowerCase().includes(currentSearchTerm);
-      return matchName || matchCommunity || matchPhone || matchSchedule;
+      return matchName || matchPhone || matchSchedule;
     }
 
     return true;
@@ -164,10 +159,10 @@ function renderMembersList() {
 
   if (filtered.length === 0) {
     container.innerHTML = `
-      <div class="p-8 text-center bg-surface-container-lowest rounded-xl shadow-sm">
+      <div class="col-span-full p-8 text-center bg-surface-container-lowest rounded-xl shadow-sm">
         <span class="material-symbols-outlined text-4xl text-outline mb-2">person_search</span>
         <p class="font-body-md text-body-md text-on-surface">Nenhum ministro encontrado com estes critérios.</p>
-        <button type="button" class="mt-3 px-4 py-2 rounded-xl bg-surface-container-high text-primary font-label-md text-label-md" onclick="clearMembersSearch()">
+        <button type="button" class="mt-3 px-4 py-2 rounded-xl bg-surface-container-high text-primary font-label-md text-label-md hover:bg-surface-container transition-colors" onclick="clearMembersSearch()">
           Limpar Filtros
         </button>
       </div>
@@ -181,63 +176,61 @@ function renderMembersList() {
     let opacityClass = '';
 
     if (member.status === 'ativo') {
-      statusBadge = `<span class="px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm shrink-0 font-medium">Ativo</span>`;
+      statusBadge = `<span class="px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-[11px] shrink-0 font-semibold tracking-wide">Ativo</span>`;
     } else {
-      statusBadge = `<span class="px-2.5 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm shrink-0 font-medium">Licença</span>`;
-      opacityClass = 'opacity-85';
+      statusBadge = `<span class="px-2.5 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-[11px] shrink-0 font-medium tracking-wide">Licença</span>`;
+      opacityClass = 'opacity-80';
     }
 
     // Botões de Ação apenas para Administradores
     const actionButtons = isAdmin ? `
-      <div class="flex items-center justify-end gap-2 pt-spacing-xs">
-        <button type="button" class="h-9 px-3 rounded-lg bg-surface-container-high hover:bg-surface-variant text-on-surface font-label-sm text-label-sm flex items-center gap-1.5 transition-colors" onclick="openEditMemberModal('${member.id}')">
-          <span class="material-symbols-outlined text-[16px]">edit</span>
+      <div class="flex items-center justify-end gap-1.5 pt-2 border-t border-surface-container-high/60 mt-0.5">
+        <button type="button" class="h-7.5 px-2.5 rounded-lg bg-surface-container-high hover:bg-primary hover:text-on-primary text-on-surface font-label-sm text-[12px] font-medium flex items-center gap-1 transition-all shadow-2xs" onclick="openEditMemberModal('${member.id}')">
+          <span class="material-symbols-outlined text-[15px]">edit</span>
           Editar
         </button>
-        <button type="button" class="h-9 px-2.5 rounded-lg text-outline hover:bg-error-container hover:text-on-error-container font-label-sm text-label-sm flex items-center gap-1 transition-colors" onclick="deleteMemberAction('${member.id}', '${member.name.replace("'", "\\'")}')">
-          <span class="material-symbols-outlined text-[18px]">delete</span>
+        <button type="button" class="h-7.5 w-7.5 rounded-lg text-outline hover:bg-error-container hover:text-on-error-container flex items-center justify-center transition-all" title="Excluir ministro" onclick="deleteMemberAction('${member.id}', '${member.name.replace("'", "\\'")}')">
+          <span class="material-symbols-outlined text-[17px]">delete</span>
         </button>
       </div>
     ` : '';
 
     return `
-      <div class="relative bg-surface-container-lowest rounded-xl p-spacing-md shadow-sm flex flex-col space-y-spacing-xs ${opacityClass}" id="member-card-${member.id}">
-        <div class="flex items-start justify-between gap-spacing-sm">
-          <div class="flex items-center gap-spacing-sm min-w-0">
-            <div class="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-surface-container flex items-center justify-center">
+      <div class="relative bg-surface-container-lowest rounded-xl p-3 sm:p-3.5 border border-surface-container-high border-l-[3.5px] border-l-[#b3093f] hover:border-primary/40 hover:shadow-md transition-all duration-200 flex flex-col justify-between gap-2.5 shadow-xs ${opacityClass}" id="member-card-${member.id}">
+        <!-- Cabeçalho: Avatar, Nome, Experiência, Status -->
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-surface-container flex items-center justify-center ring-1 ring-surface-container-high">
               ${
                 member.avatar
                   ? `<img class="w-full h-full object-cover" src="${member.avatar}" alt="${member.name}">`
-                  : `<div class="w-full h-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-title-md text-title-md font-bold">${initials}</div>`
+                  : `<div class="w-full h-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-bold text-xs">${initials}</div>`
               }
             </div>
             <div class="min-w-0">
-              <h3 class="font-title-md text-title-md text-on-surface truncate">${member.name}</h3>
-              <p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
-                <span class="material-symbols-outlined text-[14px]">church</span>
-                <span class="truncate">${member.community}</span>
+              <h3 class="font-title-sm text-[14.5px] text-on-surface truncate font-semibold leading-tight">${member.name}</h3>
+              <p class="font-body-sm text-[12px] text-on-surface-variant flex items-center gap-1 mt-0.5 truncate">
+                <span class="material-symbols-outlined text-[13px] text-primary shrink-0">verified_user</span>
+                <span class="truncate text-[11.5px] text-primary font-medium">${member.experience || 'Ministro MESC'}</span>
               </p>
             </div>
           </div>
           ${statusBadge}
         </div>
 
-        <!-- Detalhes & Escalas -->
-        <div class="grid grid-cols-1 gap-1.5 pt-1">
-          <div class="flex items-center gap-2 text-on-surface-variant font-body-sm text-body-sm bg-surface-container-low px-2.5 py-1.5 rounded-lg">
-            <span class="material-symbols-outlined text-[16px] text-primary">schedule</span>
-            <span class="truncate">${member.schedule || 'Disponibilidade sob consulta'}</span>
+        <!-- Micro-chips de Informações: Horário e Contato -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-0.5">
+          <div class="flex items-center gap-1.5 text-on-surface-variant text-[11.5px] bg-surface-container-low px-2 py-1 rounded-lg truncate" title="${member.schedule || 'Disponibilidade sob consulta'}">
+            <span class="material-symbols-outlined text-[15px] text-primary shrink-0">schedule</span>
+            <span class="truncate font-medium">${member.schedule || 'Sob consulta'}</span>
           </div>
-          <div class="flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm bg-surface-container-low px-2.5 py-1.5 rounded-lg">
-            <div class="flex items-center gap-2 truncate">
-              <span class="material-symbols-outlined text-[16px] text-tertiary">chat</span>
-              <span class="truncate">${member.phone || 'Sem telefone'}</span>
-            </div>
-            <span class="font-label-sm text-label-sm text-primary font-semibold">${member.experience || 'Capela Divino'}</span>
+          <div class="flex items-center gap-1.5 text-on-surface-variant text-[11.5px] bg-surface-container-low px-2 py-1 rounded-lg truncate" title="${member.phone || 'Sem telefone'}">
+            <span class="material-symbols-outlined text-[15px] text-emerald-600 shrink-0">chat</span>
+            <span class="truncate font-medium">${member.phone || 'Sem telefone'}</span>
           </div>
         </div>
 
-        <!-- Ações do Administrador -->
+        <!-- Ações do Administrador (Botões Editar / Excluir) -->
         ${actionButtons}
       </div>
     `;
@@ -251,11 +244,9 @@ window.clearMembersSearch = function() {
   activeMembersFilter = 'todos';
   const filterChips = document.querySelectorAll('#members-filter-chips button');
   filterChips.forEach((chip, idx) => {
-    if (idx === 0) {
-      chip.className = 'px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm whitespace-nowrap shadow-sm transition-all';
-    } else {
-      chip.className = 'px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap transition-all';
-    }
+    chip.className = idx === 0
+      ? 'px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm whitespace-nowrap shadow-sm transition-all'
+      : 'px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap transition-all';
   });
   renderMembersList();
 };
@@ -274,13 +265,13 @@ function openAddMemberModal() {
   const modalTitle = document.getElementById('modal-title');
   const nameInput = document.getElementById('input-name');
   const phoneInput = document.getElementById('input-phone');
-  const communityInput = document.getElementById('input-community');
+  const startDateInput = document.getElementById('input-start-date');
   const statusInput = document.getElementById('input-status-hidden');
 
   if (modalTitle) modalTitle.textContent = 'Cadastrar Novo Ministro';
   if (nameInput) nameInput.value = '';
   if (phoneInput) phoneInput.value = '';
-  if (communityInput) communityInput.selectedIndex = 0;
+  if (startDateInput) startDateInput.value = '';
   if (statusInput) statusInput.value = 'ativo';
 
   resetModalStatusButtons('ativo');
@@ -302,26 +293,15 @@ window.openEditMemberModal = function(id) {
   const modalTitle = document.getElementById('modal-title');
   const nameInput = document.getElementById('input-name');
   const phoneInput = document.getElementById('input-phone');
-  const communityInput = document.getElementById('input-community');
+  const startDateInput = document.getElementById('input-start-date');
   const statusInput = document.getElementById('input-status-hidden');
 
   if (modalTitle) modalTitle.textContent = 'Editar Ministro';
   if (nameInput) nameInput.value = member.name || '';
   if (phoneInput) phoneInput.value = member.phone || '';
+  if (startDateInput) startDateInput.value = member.startDate || '';
   const currentStatus = member.status === 'licenca' ? 'licenca' : 'ativo';
   if (statusInput) statusInput.value = currentStatus;
-
-  if (communityInput) {
-    let found = false;
-    for (let i = 0; i < communityInput.options.length; i++) {
-      if (communityInput.options[i].text === member.community || member.community.includes(communityInput.options[i].text)) {
-        communityInput.selectedIndex = i;
-        found = true;
-        break;
-      }
-    }
-    if (!found) communityInput.selectedIndex = 0;
-  }
 
   resetModalStatusButtons(currentStatus);
   if (modal) modal.classList.remove('hidden');
@@ -357,20 +337,38 @@ function saveMemberForm() {
 
   const nameInput = document.getElementById('input-name');
   const phoneInput = document.getElementById('input-phone');
-  const communityInput = document.getElementById('input-community');
+  const startDateInput = document.getElementById('input-start-date');
   const statusInput = document.getElementById('input-status-hidden');
 
   const name = nameInput ? nameInput.value.trim() : '';
   const phone = phoneInput ? phoneInput.value.trim() : '';
-  const community = communityInput ? communityInput.value : 'Matriz São José Operário';
+  const startDate = startDateInput ? startDateInput.value : '';
   const status = (statusInput && statusInput.value === 'licenca') ? 'licenca' : 'ativo';
 
-  // Coletar horários marcados
+  // Coletar horários (se existirem checkboxes) ou manter existente/padrão
   const checkedSchedules = [];
   document.querySelectorAll('#modal-schedule-checkboxes input[type="checkbox"]:checked').forEach((cb) => {
     checkedSchedules.push(cb.value);
   });
-  const scheduleStr = checkedSchedules.length > 0 ? checkedSchedules.join(' | ') : 'Domingos: 19:00';
+  const existingSchedule = (editingMemberId && window.appStore.getMemberById(editingMemberId)?.schedule);
+  const scheduleStr = checkedSchedules.length > 0
+    ? checkedSchedules.join(' | ')
+    : (existingSchedule || 'Todos os horários');
+
+  // Calcular experiência se data de início for informada
+  let calculatedExperience = undefined;
+  if (startDate) {
+    const startYear = parseInt(startDate.split('-')[0], 10);
+    const currentYear = new Date().getFullYear();
+    const diffYears = currentYear - startYear;
+    if (diffYears <= 0) {
+      calculatedExperience = 'Novo Ministro';
+    } else if (diffYears === 1) {
+      calculatedExperience = '1 ano de Ministério';
+    } else {
+      calculatedExperience = `${diffYears} anos de Ministério`;
+    }
+  }
 
   if (!name) {
     if (window.showToast) window.showToast('Por favor, informe o nome do ministro.');
@@ -378,11 +376,13 @@ function saveMemberForm() {
   }
 
   if (editingMemberId) {
+    const currentMember = window.appStore.getMemberById(editingMemberId);
     window.appStore.updateMember(editingMemberId, {
       name,
       phone,
-      community,
       status,
+      startDate: startDate || undefined,
+      experience: calculatedExperience || (currentMember && currentMember.experience) || 'Ministro MESC',
       schedule: scheduleStr
     });
     if (window.showToast) window.showToast('Dados do ministro atualizados com sucesso!');
@@ -390,10 +390,10 @@ function saveMemberForm() {
     window.appStore.addMember({
       name,
       phone,
-      community,
       status,
-      schedule: scheduleStr,
-      experience: 'Novo Ministro'
+      startDate: startDate || undefined,
+      experience: calculatedExperience || 'Novo Ministro',
+      schedule: scheduleStr
     });
     if (window.showToast) window.showToast('Novo ministro cadastrado na paróquia com bênçãos!');
   }

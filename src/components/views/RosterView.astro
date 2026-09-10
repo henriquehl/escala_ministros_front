@@ -6,7 +6,7 @@
     <!-- Passo 1 -->
     <div class="bg-surface-container-lowest rounded-xl p-spacing-md shadow-sm">
       <div class="flex items-center justify-between mb-spacing-xs">
-        <span class="font-label-sm text-label-sm text-primary uppercase tracking-wider font-bold">Passo 1 de 3</span>
+        <span class="font-label-md text-label-md text-primary uppercase tracking-wider font-bold">Passo 1 de 3</span>
         <div class="flex items-center gap-2">
           <span class="inline-flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm bg-surface-container-high px-2 py-0.5 rounded-full" id="roster-month-badge">
             <span class="material-symbols-outlined text-[14px]">event</span>
@@ -14,39 +14,40 @@
           </span>
         </div>
       </div>
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-spacing-md">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <h2 class="font-headline-sm text-headline-sm text-on-surface">Data e Celebração</h2>
-          <p class="font-body-sm text-body-sm text-on-surface-variant">Escolha qualquer dia do calendário para montar ou editar a escala.</p>
+          <p class="font-body-sm text-body-sm text-on-surface-variant">Selecione a data e o horário para montar ou editar a escala.</p>
         </div>
-        <!-- Seletor Rápido de Data do Calendário -->
-        <div class="flex items-center gap-1.5 self-start sm:self-auto bg-surface-container-low px-3 py-1.5 rounded-xl border border-surface-container-high">
-          <label for="roster-date-picker" class="font-label-sm text-label-sm text-on-surface-variant font-medium flex items-center gap-1 cursor-pointer">
-            <span class="material-symbols-outlined text-primary text-[18px]">calendar_month</span>
-            <span>Escolher Data:</span>
-          </label>
-          <input type="date" id="roster-date-picker" value="2025-10-19" class="bg-surface text-on-surface font-label-sm text-label-sm px-2 py-1 rounded-lg border border-outline/20 focus:outline-none focus:ring-2 focus:ring-primary/30">
-        </div>
-      </div>
-      
-      <!-- Faixa Horizontal Dinâmica de Todos os Dias do Mês -->
-      <div id="roster-date-chips" class="flex gap-spacing-xs overflow-x-auto pb-spacing-xs -mx-spacing-md px-spacing-md no-scrollbar">
-        <!-- Renderizado dinamicamente via js/components/roster.js -->
-      </div>
+        <!-- Seletores de Data e Horário -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <!-- Seletor Rápido de Data do Calendário Ampliado -->
+          <div class="flex items-center justify-between sm:justify-start gap-3 bg-surface-container-low px-4 py-2.5 rounded-2xl border-2 border-surface-container-high hover:border-primary/40 focus-within:border-primary transition-all shadow-sm">
+            <label for="roster-date-picker" class="font-label-md text-label-md text-on-surface font-bold flex items-center gap-2 cursor-pointer whitespace-nowrap">
+              <span class="material-symbols-outlined text-primary text-[26px]">calendar_month</span>
+              <span>Data da Escala:</span>
+            </label>
+            <input type="date" id="roster-date-picker" value="2025-10-19" class="bg-surface text-on-surface font-title-md text-title-md font-semibold h-11 px-3 py-1.5 rounded-xl border border-outline/20 focus:outline-none focus:ring-2 focus:ring-primary/30 cursor-pointer shadow-inner">
+          </div>
 
-      <!-- Seleção de Horário da Missa -->
-      <div class="mt-spacing-md">
-        <div class="flex items-center justify-between mb-spacing-xs">
-          <label class="block font-label-md text-label-md text-on-surface">Horário da Missa</label>
-          <span class="font-body-sm text-[12px] text-on-surface-variant">Celebração matutina, vespertina ou noturna</span>
-        </div>
-        <div id="roster-hour-buttons" class="grid grid-cols-3 sm:grid-cols-6 gap-spacing-xs">
-          <button class="hour-btn py-2.5 px-2 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md text-center transition-colors" data-hour="07:00" type="button">07:00</button>
-          <button class="hour-btn py-2.5 px-2 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md text-center transition-colors" data-hour="08:00" type="button">08:00</button>
-          <button class="hour-btn py-2.5 px-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md text-center shadow-sm transition-colors" data-hour="10:00" type="button">10:00</button>
-          <button class="hour-btn py-2.5 px-2 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md text-center transition-colors" data-hour="18:00" type="button">18:00</button>
-          <button class="hour-btn py-2.5 px-2 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md text-center transition-colors" data-hour="19:00" type="button">19:00</button>
-          <button class="hour-btn py-2.5 px-2 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md text-center transition-colors" data-hour="19:30" type="button">19:30</button>
+          <!-- Seletor Suspenso de Horário da Missa -->
+          <div class="flex items-center justify-between sm:justify-start gap-3 bg-surface-container-low px-4 py-2.5 rounded-2xl border-2 border-surface-container-high hover:border-primary/40 focus-within:border-primary transition-all shadow-sm">
+            <label for="roster-hour-select" class="font-label-md text-label-md text-on-surface font-bold flex items-center gap-2 cursor-pointer whitespace-nowrap">
+              <span class="material-symbols-outlined text-primary text-[26px]">schedule</span>
+              <span>Horário da Missa:</span>
+            </label>
+            <div class="relative min-w-[110px]">
+              <select id="roster-hour-select" class="w-full bg-surface text-on-surface font-title-md text-title-md font-semibold h-11 pl-3 pr-8 py-1.5 rounded-xl border border-outline/20 focus:outline-none focus:ring-2 focus:ring-primary/30 cursor-pointer shadow-inner appearance-none">
+                <option value="07:00">07:00</option>
+                <option value="08:00">08:00</option>
+                <option value="10:00" selected>10:00</option>
+                <option value="18:00">18:00</option>
+                <option value="19:00">19:00</option>
+                <option value="19:30">19:30</option>
+              </select>
+              <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[20px]">expand_more</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -54,7 +55,7 @@
     <!-- Passo 2 -->
     <div class="bg-surface-container-lowest rounded-xl p-spacing-md shadow-sm">
       <div class="flex items-center justify-between mb-spacing-xs">
-        <span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider font-bold">Passo 2 de 3</span>
+        <span class="font-label-md text-label-md text-primary uppercase tracking-wider font-bold">Passo 2 de 3</span>
         <span class="material-symbols-outlined text-secondary text-[20px]">auto_stories</span>
       </div>
       <h2 class="font-headline-sm text-headline-sm text-on-surface">Nome da Celebração &amp; Presidência</h2>
@@ -113,7 +114,7 @@
     <!-- Passo 3 -->
     <div class="bg-surface-container-lowest rounded-xl p-spacing-md shadow-sm">
       <div class="flex items-center justify-between mb-spacing-xs">
-        <span class="font-label-sm text-label-sm text-tertiary uppercase tracking-wider font-bold">Passo 3 de 3</span>
+        <span class="font-label-md text-label-md text-primary uppercase tracking-wider font-bold">Passo 3 de 3</span>
         <span class="font-label-sm text-label-sm bg-tertiary-fixed text-on-tertiary-fixed px-2 py-0.5 rounded-full font-bold" id="slot-counter">4 de 6 Vagas Preenchidas</span>
       </div>
       <h2 class="font-headline-sm text-headline-sm text-on-surface">Ministros Escalados</h2>

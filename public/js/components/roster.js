@@ -33,8 +33,8 @@ function initRosterComponent() {
     });
   }
 
-  // 2. Configurar Botões de Horário
-  initRosterHourButtons();
+  // 2. Configurar Seletor de Horário Suspenso
+  initRosterHourSelect();
 
   // 3. Configurar Controles do Passo 2 (Celebrações)
   initCelebrationControls();
@@ -86,6 +86,8 @@ function initRosterComponent() {
 
   window.addEventListener('routeChanged', (e) => {
     if (e.detail && e.detail.path === 'montar-escala') {
+      const hourSelect = document.getElementById('roster-hour-select');
+      if (hourSelect) hourSelect.value = selectedRosterHour;
       renderRosterDateChips();
       renderCelebrationSelect();
       loadExistingScaleForSelectedDate();
@@ -171,13 +173,10 @@ function initCelebrationControls() {
 }
 
 /**
- * Renderiza a faixa horizontal com TODOS os dias do mês
+ * Renderiza o badge do mês e atualiza controles de data
  */
 function renderRosterDateChips() {
-  const container = document.getElementById('roster-date-chips');
   const monthBadge = document.getElementById('roster-month-badge');
-  if (!container) return;
-
   const parts = selectedRosterDate.split('-');
   const year = parseInt(parts[0], 10) || 2025;
   const month = parseInt(parts[1], 10) || 10;
@@ -188,6 +187,9 @@ function renderRosterDateChips() {
       ${ROSTER_MONTH_NAMES[month - 1]} ${year}
     `;
   }
+
+  const container = document.getElementById('roster-date-chips');
+  if (!container) return;
 
   const daysInMonth = new Date(year, month, 0).getDate();
   let chipsHtml = '';
@@ -257,39 +259,44 @@ function setSelectedRosterDate(dateStr) {
     datePicker.value = dateStr;
   }
 
-  // Atualizar visual dos chips
   const parts = dateStr.split('-');
-  const month = parseInt(parts[1], 10);
-  const currentChipMonth = document.querySelector('#roster-date-chips .date-chip')?.getAttribute('data-date')?.split('-')[1];
+  const year = parseInt(parts[0], 10) || 2025;
+  const month = parseInt(parts[1], 10) || 10;
+  const monthBadge = document.getElementById('roster-month-badge');
+  if (monthBadge) {
+    monthBadge.innerHTML = `
+      <span class="material-symbols-outlined text-[14px]">event</span>
+      ${ROSTER_MONTH_NAMES[month - 1]} ${year}
+    `;
+  }
 
-  if (currentChipMonth && parseInt(currentChipMonth, 10) !== month) {
-    renderRosterDateChips();
-  } else {
-    document.querySelectorAll('#roster-date-chips .date-chip').forEach((c) => {
-      const chipDate = c.getAttribute('data-date');
-      const isSelected = chipDate === dateStr;
-      const isSunday = c.querySelector('span:first-child')?.textContent === 'DOM';
+  const container = document.getElementById('roster-date-chips');
+  if (container) {
+    const currentChipMonth = container.querySelector('.date-chip')?.getAttribute('data-date')?.split('-')[1];
+    if (currentChipMonth && parseInt(currentChipMonth, 10) !== month) {
+      renderRosterDateChips();
+    } else {
+      container.querySelectorAll('.date-chip').forEach((c) => {
+        const chipDate = c.getAttribute('data-date');
+        const isSelected = chipDate === dateStr;
+        const isSunday = c.querySelector('span:first-child')?.textContent === 'DOM';
 
-      if (isSelected) {
-        c.className = 'date-chip active-date flex flex-col items-center justify-center min-w-[64px] py-2.5 px-2 rounded-xl bg-primary text-on-primary shadow-sm transition-all focus:outline-none flex-shrink-0 cursor-pointer';
-        const sub = c.querySelector('span:last-child');
-        if (sub) sub.className = 'font-label-sm text-[10px] text-primary-fixed';
-        const top = c.querySelector('span:first-child');
-        if (top) top.className = 'font-label-sm text-[11px] text-primary-fixed font-bold';
-      } else {
-        c.className = isSunday
-          ? 'date-chip flex flex-col items-center justify-center min-w-[64px] py-2.5 px-2 rounded-xl bg-surface-container-low text-on-surface font-semibold hover:bg-surface-container transition-all focus:outline-none flex-shrink-0 cursor-pointer'
-          : 'date-chip flex flex-col items-center justify-center min-w-[64px] py-2.5 px-2 rounded-xl bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all focus:outline-none flex-shrink-0 cursor-pointer';
-        const sub = c.querySelector('span:last-child');
-        if (sub) sub.className = 'font-label-sm text-[10px] opacity-70';
-        const top = c.querySelector('span:first-child');
-        if (top) top.className = `font-label-sm text-[11px] ${isSunday ? 'text-primary font-bold' : ''}`;
-      }
-    });
-
-    const activeChip = document.getElementById(`chip-date-${dateStr}`);
-    if (activeChip) {
-      activeChip.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        if (isSelected) {
+          c.className = 'date-chip active-date flex flex-col items-center justify-center min-w-[64px] py-2.5 px-2 rounded-xl bg-primary text-on-primary shadow-sm transition-all focus:outline-none flex-shrink-0 cursor-pointer';
+          const sub = c.querySelector('span:last-child');
+          if (sub) sub.className = 'font-label-sm text-[10px] text-primary-fixed';
+          const top = c.querySelector('span:first-child');
+          if (top) top.className = 'font-label-sm text-[11px] text-primary-fixed font-bold';
+        } else {
+          c.className = isSunday
+            ? 'date-chip flex flex-col items-center justify-center min-w-[64px] py-2.5 px-2 rounded-xl bg-surface-container-low text-on-surface font-semibold hover:bg-surface-container transition-all focus:outline-none flex-shrink-0 cursor-pointer'
+            : 'date-chip flex flex-col items-center justify-center min-w-[64px] py-2.5 px-2 rounded-xl bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all focus:outline-none flex-shrink-0 cursor-pointer';
+          const sub = c.querySelector('span:last-child');
+          if (sub) sub.className = 'font-label-sm text-[10px] opacity-70';
+          const top = c.querySelector('span:first-child');
+          if (top) top.className = `font-label-sm text-[11px] ${isSunday ? 'text-primary font-bold' : ''}`;
+        }
+      });
     }
   }
 
@@ -297,20 +304,17 @@ function setSelectedRosterDate(dateStr) {
 }
 
 /**
- * Inicializa os botões de seleção de horário
+ * Inicializa a seleção suspensa de horário da missa
  */
-function initRosterHourButtons() {
-  const hourButtons = document.querySelectorAll('#roster-hour-buttons .hour-btn');
-  hourButtons.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      hourButtons.forEach((b) => {
-        b.className = 'hour-btn py-2.5 px-2 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md text-center transition-colors';
-      });
-      btn.className = 'hour-btn py-2.5 px-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md text-center shadow-sm transition-colors';
-      selectedRosterHour = btn.getAttribute('data-hour') || '10:00';
+function initRosterHourSelect() {
+  const hourSelect = document.getElementById('roster-hour-select');
+  if (hourSelect) {
+    hourSelect.value = selectedRosterHour;
+    hourSelect.addEventListener('change', (e) => {
+      selectedRosterHour = e.target.value || '10:00';
       loadExistingScaleForSelectedDate();
     });
-  });
+  }
 }
 
 /**
@@ -471,7 +475,7 @@ function renderCandidateMinisters(searchTerm = '') {
   const available = allMembers.filter((m) => {
     if (assignedIds.has(m.id)) return false;
     if (searchTerm) {
-      return m.name.toLowerCase().includes(searchTerm) || m.community.toLowerCase().includes(searchTerm);
+      return m.name.toLowerCase().includes(searchTerm) || (m.phone && m.phone.toLowerCase().includes(searchTerm));
     }
     return true;
   });

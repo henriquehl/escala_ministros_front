@@ -3,30 +3,37 @@
 ---
 <div id="view-membros-mesc" class="view-container w-full pt-32 md:pt-24 pb-12 px-margin-screen">
   <div class="flex flex-col w-full space-y-spacing-md max-w-4xl mx-auto">
-    <!-- Status Banner & Quick Stats (Apenas Ativos e Licença) -->
-    <div class="relative overflow-hidden rounded-xl bg-surface-container-low p-spacing-md shadow-sm">
-      <div class="flex items-center justify-between">
-        <div class="space-y-1">
-          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm">
-            <span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
-            Pastoral 2024 / 2025
-          </span>
-          <h2 id="stat-total-hero" class="font-headline-md text-headline-md text-primary">38 Ministros Ativos</h2>
-          <p id="stat-active-hero" class="font-body-sm text-body-sm text-on-surface-variant">1 em licença pastoral</p>
+    <!-- Header Minimalista e Moderno de Ministros -->
+    <div class="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 border border-outline-variant/30 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+      <!-- Título & Subtítulo -->
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-xl bg-primary-fixed/60 flex items-center justify-center text-primary flex-shrink-0">
+          <span class="material-symbols-outlined text-[22px]">groups</span>
         </div>
-        <div class="w-12 h-12 rounded-xl bg-primary-fixed flex items-center justify-center text-primary shadow-sm">
-          <span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">diversity_3</span>
+        <div class="min-w-0">
+          <h2 id="stat-total-hero" class="text-base sm:text-lg font-bold text-on-surface tracking-tight leading-tight">Quadro de Ministros</h2>
+          <p id="stat-active-hero" class="text-xs text-on-surface-variant font-medium mt-0.5">Carregando ministros...</p>
         </div>
       </div>
-      <!-- Quick Stats Bar (2 Colunas) -->
-      <div class="grid grid-cols-2 gap-spacing-sm mt-spacing-md pt-spacing-sm">
-        <div class="bg-surface-container-lowest rounded-xl p-3 flex flex-col items-center text-center shadow-sm">
-          <span id="stat-active-count" class="font-headline-md text-headline-md text-primary font-bold">15</span>
-          <span class="font-label-md text-label-md text-on-surface-variant mt-0.5">Ministros Ativos</span>
+
+      <!-- Métricas Minimalistas (Pills) -->
+      <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0 self-start sm:self-auto">
+        <!-- Ativos -->
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container-low/70 border border-outline-variant/25">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <div class="flex items-baseline gap-1.5">
+            <span id="stat-active-count" class="text-sm sm:text-base font-bold text-on-surface leading-none">--</span>
+            <span class="text-[11px] text-on-surface-variant font-medium">Ativos</span>
+          </div>
         </div>
-        <div class="bg-surface-container-lowest rounded-xl p-3 flex flex-col items-center text-center shadow-sm">
-          <span id="stat-leave-count" class="font-headline-md text-headline-md text-outline font-bold">01</span>
-          <span class="font-label-md text-label-md text-on-surface-variant mt-0.5">Em Licença</span>
+
+        <!-- Em Licença -->
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container-low/70 border border-outline-variant/25">
+          <span class="w-2 h-2 rounded-full bg-outline/50"></span>
+          <div class="flex items-baseline gap-1.5">
+            <span id="stat-leave-count" class="text-sm sm:text-base font-bold text-on-surface-variant leading-none">--</span>
+            <span class="text-[11px] text-on-surface-variant font-medium">Licença</span>
+          </div>
         </div>
       </div>
     </div>
@@ -41,7 +48,7 @@
     <div class="space-y-spacing-xs">
       <div class="relative w-full">
         <span class="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px]">search</span>
-        <input class="w-full h-12 pl-10 pr-10 bg-surface-container-lowest rounded-xl font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" id="search-ministers" placeholder="Buscar por nome, setor ou comunidade..." type="text"/>
+        <input class="w-full h-12 pl-10 pr-10 bg-surface-container-lowest rounded-xl font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" id="search-ministers" placeholder="Buscar por nome ou telefone..." type="text"/>
         <button class="absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface" type="button" onclick="document.getElementById('search-ministers').focus()">
           <span class="material-symbols-outlined text-[20px]">tune</span>
         </button>
@@ -57,17 +64,11 @@
         <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="licenca" type="button">
           Licença
         </button>
-        <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="matriz" type="button">
-          Matriz
-        </button>
-        <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="comunidades" type="button">
-          Comunidades
-        </button>
       </div>
     </div>
 
     <!-- Ministers Roster List (Dinâmica) -->
-    <div class="flex flex-col space-y-spacing-sm" id="members-list-container">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="members-list-container">
       <!-- Renderizado via js/components/members.js -->
     </div>
 

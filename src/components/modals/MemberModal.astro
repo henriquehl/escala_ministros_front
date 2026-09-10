@@ -41,41 +41,15 @@
         </div>
       </div>
 
-      <!-- Comunidade / Setor -->
-      <div class="space-y-1">
-        <label class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider font-semibold" for="input-community">Comunidade de Origem</label>
-        <div class="relative">
-          <span class="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px]">church</span>
-          <select class="w-full h-12 pl-10 pr-10 bg-surface-container-low rounded-xl font-body-md text-body-md text-on-surface focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 focus:outline-none shadow-sm appearance-none" id="input-community">
-            <option selected="">Matriz São José Operário</option>
-            <option>Capela N. Sra. de Fátima</option>
-            <option>Comunidade Sagrado Coração de Jesus</option>
-            <option>Capela São Judas Tadeu</option>
-          </select>
-          <span class="absolute right-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px] pointer-events-none">expand_more</span>
-        </div>
-      </div>
 
-      <!-- Horários de Preferência Habitual -->
+      <!-- Data de Início no Ministério (Opcional) -->
       <div class="space-y-1">
-        <label class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider font-semibold">Disponibilidade Habitual</label>
-        <div class="grid grid-cols-2 gap-2 pt-1" id="modal-schedule-checkboxes">
-          <label class="flex items-center gap-2 p-2.5 rounded-xl bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
-            <input checked="" value="Sáb 19:30" class="w-4 h-4 rounded text-primary focus:ring-0 accent-primary" type="checkbox"/>
-            <span class="font-body-sm text-body-sm text-on-surface">Sáb 19:30</span>
-          </label>
-          <label class="flex items-center gap-2 p-2.5 rounded-xl bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
-            <input checked="" value="Dom 08:00" class="w-4 h-4 rounded text-primary focus:ring-0 accent-primary" type="checkbox"/>
-            <span class="font-body-sm text-body-sm text-on-surface">Dom 08:00</span>
-          </label>
-          <label class="flex items-center gap-2 p-2.5 rounded-xl bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
-            <input value="Dom 10:00" class="w-4 h-4 rounded text-primary focus:ring-0 accent-primary" type="checkbox"/>
-            <span class="font-body-sm text-body-sm text-on-surface">Dom 10:00</span>
-          </label>
-          <label class="flex items-center gap-2 p-2.5 rounded-xl bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
-            <input checked="" value="Dom 19:00" class="w-4 h-4 rounded text-primary focus:ring-0 accent-primary" type="checkbox"/>
-            <span class="font-body-sm text-body-sm text-on-surface">Dom 19:00</span>
-          </label>
+        <label class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider font-semibold" for="input-start-date">
+          Data de Início no Ministério <span class="text-on-surface-variant font-normal lowercase text-[11px]">(opcional)</span>
+        </label>
+        <div class="relative">
+          <span class="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px]">calendar_month</span>
+          <input class="w-full h-12 pl-10 pr-3.5 bg-surface-container-low rounded-xl font-body-md text-body-md text-on-surface focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 focus:outline-none shadow-sm cursor-pointer" id="input-start-date" type="date"/>
         </div>
       </div>
 

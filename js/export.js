@@ -116,12 +116,9 @@ window.exportSingleDayPdf = function(scaleData) {
   const ministersRows = scale.ministers.map((m, idx) => `
     <tr>
       <td style="text-align: center; font-weight: bold; width: 36px;">${idx + 1}</td>
-      <td style="font-weight: 600;">${m.name} ${m.isLeader ? '<span style="color:#63031d; font-size: 8.5pt;">(Coordenador)</span>' : ''}</td>
+      <td style="font-weight: 600;">${m.name} ${m.isLeader ? '<span style="color:#b3093f; font-size: 8.5pt;">(Coordenador)</span>' : ''}</td>
       <td>${m.role || 'Ministro da Eucaristia'}</td>
       <td style="text-align: center;">${m.phone || '-'}</td>
-      <td style="text-align: center; color: ${m.confirmed !== false ? '#003720' : '#775a00'}; font-weight: bold;">
-        ${m.confirmed !== false ? 'Confirmado' : 'Pendente'}
-      </td>
     </tr>
   `).join('');
 
@@ -134,16 +131,16 @@ window.exportSingleDayPdf = function(scaleData) {
   printContainer.innerHTML = `
     <div style="font-family: 'Plus Jakarta Sans', Arial, sans-serif; color: #1a1c1b; padding: 8px 0;">
       <!-- Cabeçalho Paroquial Oficial -->
-      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #63031d; padding-bottom: 12px; margin-bottom: 16px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #b3093f; padding-bottom: 12px; margin-bottom: 16px;">
         <div style="display: flex; align-items: center; gap: 12px;">
           <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIgSu4l2yDG1jT_7SwkOJJqFNaW2p_4HqqVnHCztIoLyqUYDPmoSGWYlYdkUc-1yWYm_JOr9NmY3lq_A-ZQddP4x4tS9u05k13J4a9O-yNFaKsUxGHTjy03OnqVp6ljUawhwHZrufK-bLI8Jsw_If_pirzKyW79ZrY_N8pBzfsYjOBN1N8pfD6vQCEQfT8MKv7RTPUUi4574MReICVACO_1wS4kDxI3rf_rviObVKnYChRfYyQT9tbBg" style="height: 50px; width: auto;" alt="Logo Paróquia">
           <div>
-            <h1 style="font-size: 16pt; margin: 0; color: #63031d; font-family: 'Source Serif 4', Georgia, serif; font-weight: bold;">CAPELA DIVINO ESPÍRITO SANTO</h1>
+            <h1 style="font-size: 16pt; margin: 0; color: #b3093f; font-family: 'Source Serif 4', Georgia, serif; font-weight: bold;">CAPELA DIVINO ESPÍRITO SANTO</h1>
             <p style="margin: 2px 0 0 0; font-size: 9pt; color: #564243; text-transform: uppercase; letter-spacing: 0.05em;">Pastoral dos Ministros Extraordinários da Sagrada Comunhão</p>
           </div>
         </div>
         <div style="text-align: right;">
-          <span style="display: inline-block; background-color: #ffdadc; color: #63031d; font-size: 8.5pt; font-weight: bold; padding: 3px 8px; border-radius: 4px; text-transform: uppercase;">Modelo Individual</span>
+          <span style="display: inline-block; background-color: #ffd9e2; color: #b3093f; font-size: 8.5pt; font-weight: bold; padding: 3px 8px; border-radius: 4px; text-transform: uppercase;">Modelo Individual</span>
           <p style="margin: 4px 0 0 0; font-size: 8pt; color: #897173;">Emitido em: ${new Date().toLocaleDateString('pt-BR')}</p>
         </div>
       </div>
@@ -153,19 +150,19 @@ window.exportSingleDayPdf = function(scaleData) {
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
           <div>
             <p style="margin: 0; font-size: 9pt; color: #564243; font-weight: 600; text-transform: uppercase;">Celebração Litúrgica</p>
-            <h2 style="margin: 2px 0 0 0; font-size: 13pt; color: #63031d; font-family: 'Source Serif 4', Georgia, serif;">${scale.celebrationName || 'Santa Missa'}</h2>
+            <h2 style="margin: 2px 0 0 0; font-size: 13pt; color: #b3093f; font-family: 'Source Serif 4', Georgia, serif;">${scale.celebrationName || 'Santa Missa'}</h2>
             <p style="margin: 4px 0 0 0; font-size: 9.5pt; color: #1a1c1b;"><strong>Celebrante:</strong> ${scale.celebrant || 'Pároco'}</p>
           </div>
           <div style="text-align: right;">
             <p style="margin: 0; font-size: 9pt; color: #564243; font-weight: 600; text-transform: uppercase;">Data & Horário</p>
             <p style="margin: 2px 0 0 0; font-size: 12pt; color: #1a1c1b; font-weight: bold;">${displayTitleDate}</p>
-            <p style="margin: 2px 0 0 0; font-size: 11pt; color: #63031d; font-weight: bold;">${scale.time} horas</p>
+            <p style="margin: 2px 0 0 0; font-size: 11pt; color: #b3093f; font-weight: bold;">${scale.time} horas</p>
           </div>
         </div>
       </div>
 
       <!-- Tabela dos Ministros Escalados -->
-      <h3 style="font-size: 11pt; color: #63031d; margin: 0 0 8px 0; text-transform: uppercase; font-weight: bold; border-bottom: 1px solid #63031d; padding-bottom: 4px;">Corpo Ministerial Escalado (${scale.ministers.length} Ministros)</h3>
+      <h3 style="font-size: 11pt; color: #b3093f; margin: 0 0 8px 0; text-transform: uppercase; font-weight: bold; border-bottom: 1px solid #b3093f; padding-bottom: 4px;">Corpo Ministerial Escalado (${scale.ministers.length} Ministros)</h3>
       <table class="monthly-print-table" style="width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 9.5pt;">
         <thead>
           <tr style="background-color: #efeeec;">
@@ -173,7 +170,6 @@ window.exportSingleDayPdf = function(scaleData) {
             <th style="border: 1px solid #dadad8; padding: 6px; text-align: left;">Ministro(a)</th>
             <th style="border: 1px solid #dadad8; padding: 6px; text-align: left;">Função Litúrgica</th>
             <th style="border: 1px solid #dadad8; padding: 6px; text-align: center;">Contato</th>
-            <th style="border: 1px solid #dadad8; padding: 6px; text-align: center;">Presença</th>
           </tr>
         </thead>
         <tbody>
@@ -183,7 +179,7 @@ window.exportSingleDayPdf = function(scaleData) {
 
       <!-- Orientações Paroquiais -->
       <div style="border: 1px dashed #897173; border-radius: 6px; padding: 10px 14px; margin-bottom: 24px; font-size: 8.5pt; color: #564243; background-color: #faf9f7;">
-        <strong style="color: #63031d;">Lembretes Litúrgicos:</strong>
+        <strong style="color: #b3093f;">Lembretes Litúrgicos:</strong>
         <ul style="margin: 4px 0 0 0; padding-left: 18px; line-height: 1.4;">
           <li>Apresentar-se na Sacristia com no mínimo <strong>20 minutos de antecedência</strong> da celebração.</li>
           <li>Portar veste litúrgica oficial limpa e bem cuidada.</li>
@@ -245,7 +241,7 @@ window.exportMonthlySheetPdf = function(year = 2025, month = 10) {
 
     return `
       <tr>
-        <td style="text-align: center; font-weight: bold; white-space: nowrap; color: #63031d;">
+        <td style="text-align: center; font-weight: bold; white-space: nowrap; color: #b3093f;">
           ${dateFormatted}
         </td>
         <td style="text-align: center; font-weight: 600; white-space: nowrap;">
@@ -265,16 +261,16 @@ window.exportMonthlySheetPdf = function(year = 2025, month = 10) {
   printContainer.innerHTML = `
     <div style="font-family: 'Plus Jakarta Sans', Arial, sans-serif; color: #1a1c1b; padding: 4px 0;">
       <!-- Cabeçalho do Painel Mensal A4 -->
-      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #63031d; padding-bottom: 6px; margin-bottom: 10px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #b3093f; padding-bottom: 6px; margin-bottom: 10px;">
         <div style="display: flex; align-items: center; gap: 10px;">
           <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIgSu4l2yDG1jT_7SwkOJJqFNaW2p_4HqqVnHCztIoLyqUYDPmoSGWYlYdkUc-1yWYm_JOr9NmY3lq_A-ZQddP4x4tS9u05k13J4a9O-yNFaKsUxGHTjy03OnqVp6ljUawhwHZrufK-bLI8Jsw_If_pirzKyW79ZrY_N8pBzfsYjOBN1N8pfD6vQCEQfT8MKv7RTPUUi4574MReICVACO_1wS4kDxI3rf_rviObVKnYChRfYyQT9tbBg" style="height: 38px; width: auto;" alt="Logo Paróquia">
           <div>
-            <h1 style="font-size: 13pt; margin: 0; color: #63031d; font-family: 'Source Serif 4', Georgia, serif; font-weight: bold; line-height: 1.1;">CAPELA DIVINO ESPÍRITO SANTO</h1>
+            <h1 style="font-size: 13pt; margin: 0; color: #b3093f; font-family: 'Source Serif 4', Georgia, serif; font-weight: bold; line-height: 1.1;">CAPELA DIVINO ESPÍRITO SANTO</h1>
             <p style="margin: 1px 0 0 0; font-size: 8pt; color: #564243; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Escala Geral Mensal dos Ministros da Eucaristia</p>
           </div>
         </div>
         <div style="text-align: right;">
-          <span style="display: inline-block; background-color: #63031d; color: #ffffff; font-size: 9pt; font-weight: bold; padding: 2px 10px; border-radius: 4px; text-transform: uppercase;">${monthName.toUpperCase()} / ${year}</span>
+          <span style="display: inline-block; background-color: #b3093f; color: #ffffff; font-size: 9pt; font-weight: bold; padding: 2px 10px; border-radius: 4px; text-transform: uppercase;">${monthName.toUpperCase()} / ${year}</span>
           <p style="margin: 2px 0 0 0; font-size: 7.5pt; color: #897173;">Quadro Oficial para Mural e Sacristia</p>
         </div>
       </div>

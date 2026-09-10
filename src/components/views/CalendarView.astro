@@ -5,7 +5,7 @@
   <div class="flex flex-col w-full pb-8 max-w-4xl mx-auto">
     <!-- Topo da Seção & Exportar -->
     <section class="flex flex-col gap-spacing-xs mb-spacing-md">
-      <div class="flex items-center justify-between">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div class="flex items-center gap-spacing-xs">
           <span class="p-2 rounded-xl bg-primary-fixed text-primary flex items-center justify-center shadow-sm">
             <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
@@ -15,10 +15,19 @@
             <p class="font-body-sm text-body-sm text-on-surface-variant">Selecione uma data litúrgica para conferir as presenças</p>
           </div>
         </div>
-        <button aria-label="Exportar Escala" class="flex items-center gap-1.5 px-spacing-sm py-2 rounded-xl bg-secondary-container text-on-secondary-container shadow-sm active:scale-95 transition-transform" id="shareSheetBtn" type="button">
-          <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
-          <span class="font-label-sm text-label-sm">Exportar / Imprimir</span>
-        </button>
+        <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+          <button aria-label="Exportar Escala" class="flex items-center gap-1.5 px-spacing-sm py-2 rounded-xl bg-secondary-container text-on-secondary-container shadow-sm active:scale-95 transition-transform" id="shareSheetBtn" type="button">
+            <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+            <span class="font-label-sm text-label-sm">Exportar / Imprimir</span>
+          </button>
+          <button aria-label="Montar Nova Escala" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary text-on-primary shadow-sm hover:opacity-95 active:scale-95 transition-all text-left" data-path="montar-escala" type="button">
+            <span class="material-symbols-outlined text-[18px]">edit_calendar</span>
+            <div class="flex flex-col">
+              <span class="font-label-sm text-label-sm font-semibold leading-tight">Montar Nova Escala</span>
+              <span class="text-[10px] text-on-primary/80 leading-tight">distribuir ministros para o mês</span>
+            </div>
+          </button>
+        </div>
       </div>
 
       <!-- Filtros Rápidos de Horário das Missas -->
@@ -97,21 +106,14 @@
 
         <div class="flex items-start justify-between mt-1">
           <div>
-            <div class="flex items-center gap-2">
-              <span id="selectedMassTypeBadge" class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-primary/10 text-primary uppercase font-bold tracking-wider">Missa Solene</span>
-              <span id="selectedDateShortBadge" class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-secondary-container/60 text-on-secondary-container font-semibold">12/10/2025</span>
-            </div>
-            <h3 class="font-headline-sm text-headline-sm text-primary mt-1" id="selectedDateTitle">Domingo, 12/10/2025</h3>
+            <h3 class="font-headline-sm text-headline-sm text-primary" id="selectedDateTitle">Domingo, 12/10/2025</h3>
             <p class="font-body-md text-body-md text-on-surface font-medium flex items-center gap-1.5 mt-0.5" id="selectedMassSubtitle">
               <span class="material-symbols-outlined text-[18px] text-secondary">schedule</span>
               19:00h · Solenidade de N. Sra. Aparecida
             </p>
           </div>
           <div class="flex flex-col items-end">
-            <span id="selectedSlotRatio" class="font-headline-sm text-headline-sm text-primary font-bold">5 / 5</span>
-            <span id="selectedSlotStatus" class="font-label-sm text-label-sm text-tertiary font-medium flex items-center gap-0.5">
-              <span class="material-symbols-outlined text-[14px]">check_circle</span> Completa
-            </span>
+            <span id="selectedSlotRatio" class="px-2.5 py-1 rounded-lg bg-secondary-container text-on-secondary-container font-label-md text-label-md font-bold shadow-xs whitespace-nowrap">Ministros escalados: 5</span>
           </div>
         </div>
 
@@ -131,45 +133,6 @@
           <button class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-surface-container text-on-surface font-label-md text-label-md active:scale-95 transition-transform hover:bg-surface-container-high" id="printPdfBtn" type="button">
             <span class="material-symbols-outlined text-[18px] text-primary">picture_as_pdf</span>
             <span>Opções de Impressão</span>
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Painel de Gestão Rápida para Administrador -->
-    <section class="w-full mt-spacing-md no-print" id="admin-management-section">
-      <div class="bg-surface-container-high/60 rounded-2xl p-spacing-md flex flex-col gap-spacing-sm shadow-sm">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="px-2 py-0.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm tracking-wide uppercase font-bold">ADM</span>
-            <h4 class="font-title-md text-title-md text-on-surface">Gestão Pastoral</h4>
-          </div>
-          <span class="font-label-sm text-label-sm text-on-surface-variant">Ações de Coordenação</span>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          <button class="w-full flex items-center justify-between p-3 rounded-xl bg-primary text-on-primary shadow-sm hover:opacity-95 active:scale-98 transition-all text-left" data-path="montar-escala" type="button">
-            <div class="flex items-center gap-2.5">
-              <span class="p-2 rounded-lg bg-on-primary/10 flex items-center justify-center">
-                <span class="material-symbols-outlined text-[20px]">edit_calendar</span>
-              </span>
-              <div class="flex flex-col">
-                <span class="font-label-lg text-label-lg leading-tight">Montar Nova Escala</span>
-                <span class="font-body-sm text-body-sm text-on-primary/80">Distribuir ministros para o mês</span>
-              </div>
-            </div>
-            <span class="material-symbols-outlined text-[20px]">chevron_right</span>
-          </button>
-          <button class="w-full flex items-center justify-between p-3 rounded-xl bg-surface-container-lowest text-on-surface shadow-sm hover:bg-surface-container active:scale-98 transition-all text-left" data-path="membros-mesc" type="button">
-            <div class="flex items-center gap-2.5">
-              <span class="p-2 rounded-lg bg-surface-container-high text-primary flex items-center justify-center">
-                <span class="material-symbols-outlined text-[20px]">manage_accounts</span>
-              </span>
-              <div class="flex flex-col">
-                <span class="font-label-lg text-label-lg leading-tight">Gerir Membros Capela Divino</span>
-                <span class="font-body-sm text-body-sm text-on-surface-variant">Cadastro, status e setores</span>
-              </div>
-            </div>
-            <span class="material-symbols-outlined text-[20px] text-on-surface-variant">chevron_right</span>
           </button>
         </div>
       </div>

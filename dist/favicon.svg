@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <circle cx="50" cy="50" r="46" fill="#63031d"/>
-  <circle cx="50" cy="50" r="42" fill="none" stroke="#fece57" stroke-width="2"/>
-  <!-- Dove / Holy Spirit Icon -->
-  <path d="M50 22 C52 28 58 34 68 36 C64 42 56 46 50 54 C44 46 36 42 32 36 C42 34 48 28 50 22 Z" fill="#ffffff"/>
-  <path d="M50 54 C54 62 60 72 66 76 C58 76 52 70 50 64 C48 70 42 76 34 76 C40 72 46 62 50 54 Z" fill="#fece57"/>
-  <circle cx="50" cy="46" r="3" fill="#63031d"/>
-</svg>

@@ -13,7 +13,7 @@ A aplicação é estruturada sobre o framework **Astro** configurado para geraç
 2. **Componentização Modular**: A interface é dividida em componentes reutilizáveis (`src/components/views/`, `src/components/modals/`, `src/components/Header.astro`).
 3. **Reatividade Baseada em Eventos (Observer Pattern / Pub-Sub)**: O `store.js` atua como Single Source of Truth no cliente, emitindo eventos que sincronizam os componentes na tela.
 4. **Persistência Local Transparente (`localStorage`)**: Todas as alterações feitas pelos usuários persistem entre sessões no navegador.
-5. **Design System Litúrgico**: Cores primárias em vinho nobre (`#63031d`), dourado litúrgico, verde pastoral e tipografia elegante (*Plus Jakarta Sans* e *Source Serif 4*) configuradas nativamente via `@astrojs/tailwind`.
+5. **Design System Litúrgico**: Cores primárias no tom carmesim nobre (`#b3093f`), dourado litúrgico, verde pastoral e tipografia elegante (*Plus Jakarta Sans* e *Source Serif 4*) configuradas nativamente via `@astrojs/tailwind`.
 
 ---
 

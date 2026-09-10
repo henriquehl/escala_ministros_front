@@ -118,7 +118,6 @@ const INITIAL_MEMBERS = [
     id: 'm-1',
     name: 'Antônio Carlos Silveira',
     phone: '(11) 99999-0001',
-    community: 'Matriz São José Operário',
     status: 'ativo',
     experience: '15 anos de Ministério',
     schedule: 'Domingos: 08:00 e 19:00',
@@ -130,7 +129,6 @@ const INITIAL_MEMBERS = [
     id: 'm-2',
     name: 'Maria Aparecida Santos',
     phone: '(11) 98214-5501',
-    community: 'Matriz São José Operário',
     status: 'ativo',
     experience: '12 anos de Ministério',
     schedule: 'Domingos: 08:00 e 19:00',
@@ -142,7 +140,6 @@ const INITIAL_MEMBERS = [
     id: 'm-3',
     name: 'Maria Helena Fontes',
     phone: '(11) 99999-0002',
-    community: 'Matriz São José Operário',
     status: 'ativo',
     experience: '8 anos de Ministério',
     schedule: 'Domingos: 19:00',
@@ -154,7 +151,6 @@ const INITIAL_MEMBERS = [
     id: 'm-4',
     name: 'Roberto Prado',
     phone: '(11) 99999-0003',
-    community: 'Capela N. Sra. de Fátima',
     status: 'ativo',
     experience: '5 anos de Ministério',
     schedule: 'Sábados: 19:30 | Domingos: 10:00',
@@ -166,7 +162,6 @@ const INITIAL_MEMBERS = [
     id: 'm-5',
     name: 'Luciana Vasconcelos',
     phone: '(11) 99999-0004',
-    community: 'Matriz São José Operário',
     status: 'ativo',
     experience: '7 anos de Ministério',
     schedule: 'Domingos: 08:00 e 19:00',
@@ -178,7 +173,6 @@ const INITIAL_MEMBERS = [
     id: 'm-6',
     name: 'João Marcos Tavares',
     phone: '(11) 99999-0005',
-    community: 'Comunidade Sagrado Coração',
     status: 'ativo',
     experience: '10 anos de Ministério',
     schedule: 'Domingos: 19:00',
@@ -190,7 +184,6 @@ const INITIAL_MEMBERS = [
     id: 'm-7',
     name: 'Antônio Carlos Ribeiro',
     phone: '(11) 97130-9942',
-    community: 'Capela N. Sra. de Fátima',
     status: 'ativo',
     experience: 'Coord. Setor (14 anos)',
     schedule: 'Sábados: 19:30 | Altar & Enfermos',
@@ -202,7 +195,6 @@ const INITIAL_MEMBERS = [
     id: 'm-8',
     name: 'Gabriel de Souza Lima',
     phone: '(11) 94812-3329',
-    community: 'Comunidade Sagrado Coração',
     status: 'ativo',
     experience: '2 anos de Ministério',
     schedule: 'Domingos: 10:00 e 18:00',
@@ -214,7 +206,6 @@ const INITIAL_MEMBERS = [
     id: 'm-9',
     name: 'Maria Helena Duarte',
     phone: '(11) 96522-8700',
-    community: 'Matriz São José Operário',
     status: 'licenca',
     experience: 'Retorno previsto: Março 2025',
     schedule: 'Licença Médica',
@@ -226,7 +217,6 @@ const INITIAL_MEMBERS = [
     id: 'm-10',
     name: 'Francisco Andrade',
     phone: '(11) 98111-2233',
-    community: 'Matriz São José Operário',
     status: 'ativo',
     experience: '9 anos de Ministério',
     schedule: 'Domingos: 10:00 e 19:00',
@@ -238,7 +228,6 @@ const INITIAL_MEMBERS = [
     id: 'm-11',
     name: 'Maria Tereza Silveira',
     phone: '(11) 98444-5566',
-    community: 'Matriz São José Operário',
     status: 'ativo',
     experience: '11 anos de Ministério',
     schedule: 'Domingos: 10:00',
@@ -250,7 +239,6 @@ const INITIAL_MEMBERS = [
     id: 'm-12',
     name: 'Lucas Mendonça',
     phone: '(11) 98777-8899',
-    community: 'Capela São Judas Tadeu',
     status: 'ativo',
     experience: '4 anos de Ministério',
     schedule: 'Domingos: 10:00 e 19:00',
@@ -262,7 +250,6 @@ const INITIAL_MEMBERS = [
     id: 'm-13',
     name: 'Regina Célia Prado',
     phone: '(11) 98888-9900',
-    community: 'Matriz São José Operário',
     status: 'ativo',
     experience: '6 anos de Ministério',
     schedule: 'Domingos: 10:00',
@@ -274,7 +261,6 @@ const INITIAL_MEMBERS = [
     id: 'm-14',
     name: 'Gabriel Alencar',
     phone: '(11) 97766-5544',
-    community: 'Matriz São José Operário',
     status: 'ativo',
     experience: '3 anos de Ministério',
     schedule: 'Domingos: 08:00',
@@ -286,7 +272,6 @@ const INITIAL_MEMBERS = [
     id: 'm-15',
     name: 'Benedito Lima',
     phone: '(11) 97321-6543',
-    community: 'Capela N. Sra. de Fátima',
     status: 'ativo',
     experience: '5 anos de Ministério',
     schedule: 'Sábados: 19:30',
@@ -298,7 +283,6 @@ const INITIAL_MEMBERS = [
     id: 'm-16',
     name: 'Clara Fernandes',
     phone: '(11) 99123-4567',
-    community: 'Matriz São José Operário',
     status: 'ativo',
     experience: '8 anos de Ministério',
     schedule: 'Domingos: 08:00 e 19:00',
@@ -406,7 +390,21 @@ class Store {
   loadMembers() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_MEMBERS);
-      return saved ? JSON.parse(saved) : INITIAL_MEMBERS;
+      const list = saved ? JSON.parse(saved) : INITIAL_MEMBERS;
+      let hasChanges = false;
+      const sanitized = list.map((m) => {
+        if (m.community !== undefined) {
+          hasChanges = true;
+          const cleanMember = { ...m };
+          delete cleanMember.community;
+          return cleanMember;
+        }
+        return m;
+      });
+      if (hasChanges && saved) {
+        localStorage.setItem(STORAGE_KEY_MEMBERS, JSON.stringify(sanitized));
+      }
+      return sanitized;
     } catch (e) {
       console.warn('Erro ao carregar membros do localStorage', e);
       return INITIAL_MEMBERS;

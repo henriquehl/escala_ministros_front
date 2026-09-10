@@ -132,13 +132,12 @@ function renderCalendar() {
 
     if (matchingScale) {
       const ministerCount = matchingScale.ministers ? matchingScale.ministers.length : 0;
-      const isSolemn = matchingScale.isSolemnity;
 
       if (isSelected) {
         html += `
           <button class="calendar-day-btn flex flex-col items-center justify-center py-1.5 rounded-xl bg-primary text-on-primary shadow-md transform scale-105 active:scale-100 transition-all ring-offset-2 ring-primary" data-day="${day}" data-date="${dateStr}" type="button">
             <span class="font-title-md text-title-md text-on-primary font-bold">${day}</span>
-            <span class="inline-flex items-center px-1.5 py-0.2 rounded-full ${isSolemn ? 'bg-secondary-container text-on-secondary-container' : 'bg-secondary-container text-on-secondary-container'} font-label-sm text-[9px] font-bold">
+            <span class="inline-flex items-center px-1.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-[9px] font-bold shadow-xs">
               ${ministerCount} Ministros
             </span>
           </button>
@@ -146,8 +145,8 @@ function renderCalendar() {
       } else {
         html += `
           <button class="calendar-day-btn flex flex-col items-center justify-center py-1.5 rounded-xl bg-surface-container-low hover:bg-primary-fixed/40 transition-all group" data-day="${day}" data-date="${dateStr}" type="button">
-            <span class="font-title-md text-title-md text-on-surface group-hover:text-primary">${day}</span>
-            <span class="inline-flex items-center px-1 rounded-full ${isSolemn ? 'bg-secondary-container text-on-secondary-container font-semibold' : 'bg-primary-container text-on-primary'} font-label-sm text-[10px] scale-90">
+            <span class="font-title-md text-title-md text-on-surface group-hover:text-primary font-medium">${day}</span>
+            <span class="inline-flex items-center px-1.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-[10px] font-bold">
               ${ministerCount} Ministros
             </span>
           </button>
@@ -196,10 +195,7 @@ function renderCalendar() {
 function renderSelectedDayCard() {
   const titleEl = document.getElementById('selectedDateTitle');
   const massSubtitleEl = document.getElementById('selectedMassSubtitle');
-  const badgeTypeEl = document.getElementById('selectedMassTypeBadge');
-  const badgeDateEl = document.getElementById('selectedDateShortBadge');
   const countRatioEl = document.getElementById('selectedSlotRatio');
-  const statusCompleteEl = document.getElementById('selectedSlotStatus');
   const listEl = document.getElementById('ministersRosterList');
   const emptyStateEl = document.getElementById('selectedDayEmptyState');
   const cardSectionEl = document.getElementById('selectedRosterSection');
@@ -216,16 +212,10 @@ function renderSelectedDayCard() {
   const formattedFullDate = `${dayOfWeekName}, ${formattedDateDDMMAAAA}`;
 
   if (titleEl) titleEl.textContent = formattedFullDate;
-  if (badgeDateEl) badgeDateEl.textContent = formattedDateDDMMAAAA;
 
   if (!scale || !scale.ministers || scale.ministers.length === 0) {
-    if (badgeTypeEl) badgeTypeEl.textContent = 'Sem Escala Definida';
     if (massSubtitleEl) massSubtitleEl.innerHTML = `<span class="material-symbols-outlined text-[18px] text-outline">event_busy</span> Nenhuma celebração escalada para esta data.`;
-    if (countRatioEl) countRatioEl.textContent = '0 / 0';
-    if (statusCompleteEl) {
-      statusCompleteEl.innerHTML = `<span class="material-symbols-outlined text-[14px]">info</span> Disponível para agendamento`;
-      statusCompleteEl.className = 'font-label-sm text-label-sm text-on-surface-variant font-medium flex items-center gap-0.5';
-    }
+    if (countRatioEl) countRatioEl.textContent = 'Ministros escalados: 0';
     if (listEl) {
       const isAdmin = Boolean(window.appStore && window.appStore.currentUser && window.appStore.currentUser.isAdmin);
       const createBtnHtml = isAdmin ? `
@@ -246,10 +236,6 @@ function renderSelectedDayCard() {
   }
 
   // Preencher dados da celebração
-  if (badgeTypeEl) {
-    badgeTypeEl.textContent = scale.isSolemnity ? 'Missa Solene' : 'Missa Paroquial';
-  }
-
   if (massSubtitleEl) {
     massSubtitleEl.innerHTML = `
       <span class="material-symbols-outlined text-[18px] text-secondary">schedule</span>
@@ -258,38 +244,25 @@ function renderSelectedDayCard() {
   }
 
   const assignedCount = scale.ministers.length;
-  const maxSlots = scale.maxSlots || 4;
 
-  if (countRatioEl) countRatioEl.textContent = `${assignedCount} / ${maxSlots}`;
+  if (countRatioEl) countRatioEl.textContent = `Ministros escalados: ${assignedCount}`;
 
-  if (statusCompleteEl) {
-    if (assignedCount >= maxSlots) {
-      statusCompleteEl.innerHTML = `<span class="material-symbols-outlined text-[14px]">check_circle</span> Completa`;
-      statusCompleteEl.className = 'font-label-sm text-label-sm text-tertiary font-medium flex items-center gap-0.5';
-    } else {
-      statusCompleteEl.innerHTML = `<span class="material-symbols-outlined text-[14px]">pending</span> ${maxSlots - assignedCount} vaga(s) restante(s)`;
-      statusCompleteEl.className = 'font-label-sm text-label-sm text-secondary font-medium flex items-center gap-0.5';
-    }
-  }
-
-  // Renderizar Lista de Ministros
+  // Renderizar Lista de Ministros (Sem badge de confirmação e sem ícone de telefone)
   if (listEl) {
     listEl.innerHTML = scale.ministers.map((minister) => {
-      const isConfirmed = minister.confirmed !== false;
       const initials = minister.name.split(' ').map((n) => n[0]).slice(0, 2).join('');
-      const cleanPhone = (minister.phone || '').replace(/\D/g, '');
 
       return `
-        <div class="flex items-center justify-between p-2 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors">
+        <div class="flex items-center justify-between p-2 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors border-l-[3px] border-primary/70">
           <div class="flex items-center gap-3 min-w-0">
             ${
               minister.avatar
                 ? `<img class="w-11 h-11 rounded-full object-cover shadow-sm flex-shrink-0" src="${minister.avatar}" alt="${minister.name}">`
-                : `<div class="w-11 h-11 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-title-md text-title-md font-bold shadow-sm flex-shrink-0">${initials}</div>`
+                : `<div class="w-11 h-11 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-title-md text-title-md font-bold shadow-sm flex-shrink-0">${initials}</div>`
             }
             <div class="flex flex-col min-w-0">
               <div class="flex items-center gap-1.5">
-                <span class="font-title-md text-title-md text-on-surface truncate">${minister.name}</span>
+                <span class="font-title-md text-title-md text-on-surface truncate font-semibold">${minister.name}</span>
                 ${minister.isLeader ? `<span class="material-symbols-outlined text-primary text-[16px]" title="Coordenador de Turno">stars</span>` : ''}
               </div>
               <span class="font-label-sm text-label-sm ${minister.isLeader ? 'text-primary font-semibold' : 'text-on-surface-variant font-medium'} flex items-center gap-1">
@@ -297,21 +270,6 @@ function renderSelectedDayCard() {
                 ${minister.role || 'Ministro da Eucaristia'}
               </span>
             </div>
-          </div>
-          <div class="flex items-center gap-2 flex-shrink-0">
-            <span class="px-2 py-1 rounded-full ${isConfirmed ? 'bg-tertiary-fixed text-on-tertiary-fixed' : 'bg-secondary-fixed text-on-secondary-fixed'} font-label-sm text-label-sm flex items-center gap-1">
-              <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' ${isConfirmed ? 1 : 0};">
-                ${isConfirmed ? 'check' : 'hourglass_empty'}
-              </span>
-              ${isConfirmed ? 'Confirmado' : 'Pendente'}
-            </span>
-            ${
-              cleanPhone
-                ? `<a href="tel:${cleanPhone}" aria-label="Ligar para ${minister.name}" class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
-                    <span class="material-symbols-outlined text-[16px]">call</span>
-                   </a>`
-                : ''
-            }
           </div>
         </div>
       `;
