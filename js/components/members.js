@@ -150,8 +150,7 @@ function renderMembersList() {
     if (currentSearchTerm) {
       const matchName = m.name.toLowerCase().includes(currentSearchTerm);
       const matchPhone = (m.phone || '').includes(currentSearchTerm);
-      const matchSchedule = (m.schedule || '').toLowerCase().includes(currentSearchTerm);
-      return matchName || matchPhone || matchSchedule;
+      return matchName || matchPhone;
     }
 
     return true;
@@ -192,6 +191,22 @@ function renderMembersList() {
       opacityClass = 'opacity-80';
     }
 
+    const profileLabels = {
+      celebrant: 'Celebrante',
+      celebrante: 'Celebrante',
+      deacon: 'Diácono',
+      diacono: 'Diácono',
+      coordinator: 'Coordenador',
+      coordenador: 'Coordenador',
+      minister: 'Ministro',
+      ministro: 'Ministro'
+    };
+    const profileLabel = profileLabels[member.profile] || 'Ministro';
+    const isSpecialProfile = member.profile && !['ministro', 'minister'].includes(member.profile);
+    const profileTag = isSpecialProfile
+      ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-primary-fixed text-primary border border-primary/20 text-[10px] font-bold uppercase tracking-wider">${profileLabel}</span>`
+      : '';
+
     return `
       <div class="relative bg-surface-container-lowest rounded-2xl p-3.5 sm:p-4 border border-outline-variant/30 hover:border-primary/40 hover:shadow-md transition-all duration-200 flex flex-col justify-between gap-2.5 shadow-xs ${opacityClass}" id="member-card-${member.id}">
         <!-- Topo: Avatar, Nome, Experiência, Status e Ações -->
@@ -205,10 +220,13 @@ function renderMembersList() {
               }
             </div>
             <div class="min-w-0">
-              <h3 class="text-[14px] sm:text-[15px] font-bold text-on-surface truncate leading-tight">${member.name}</h3>
+              <div class="flex items-center gap-1.5">
+                <h3 class="text-[14px] sm:text-[15px] font-bold text-on-surface truncate leading-tight">${member.name}</h3>
+                ${profileTag}
+              </div>
               <p class="text-xs text-primary font-medium flex items-center gap-1 mt-0.5 truncate">
                 <span class="material-symbols-outlined text-[13px] shrink-0">verified_user</span>
-                <span class="truncate">${member.experience || 'Ministro MESC'}</span>
+                <span class="truncate">${member.experience || (member.profile === 'celebrante' || member.profile === 'celebrant' ? 'Sacerdote / Celebrante' : 'Ministro MESC')}</span>
               </p>
             </div>
           </div>
@@ -231,16 +249,20 @@ function renderMembersList() {
           </div>
         </div>
 
-        <!-- Linha Inferior de Informações: Horário Habitual e Contato -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pt-2 border-t border-outline-variant/20 text-xs text-on-surface-variant font-medium">
-          <div class="flex items-center gap-1.5 min-w-0" title="${member.schedule || 'Disponibilidade sob consulta'}">
-            <span class="material-symbols-outlined text-[15px] text-primary shrink-0">schedule</span>
-            <span class="truncate">${member.schedule || 'Disponibilidade sob consulta'}</span>
+        <!-- Linha Inferior de Informações: Contato e Início Pastoral -->
+        <div class="flex items-center justify-between gap-1.5 pt-2 border-t border-outline-variant/20 text-xs text-on-surface-variant font-medium">
+          <div class="flex items-center gap-1.5 min-w-0" title="${member.phone || 'Sem telefone'}">
+            <span class="material-symbols-outlined text-[15px] text-primary shrink-0">call</span>
+            <span class="truncate font-semibold text-on-surface">${member.phone || 'Sem contato'}</span>
           </div>
-          <div class="flex items-center gap-1.5 shrink-0" title="${member.phone || 'Sem telefone'}">
-            <span class="material-symbols-outlined text-[15px] text-emerald-600 shrink-0">chat</span>
-            <span>${member.phone || 'Sem telefone'}</span>
-          </div>
+          ${
+            member.startDate
+              ? `<div class="flex items-center gap-1 shrink-0 text-on-surface-variant/80">
+                   <span class="material-symbols-outlined text-[14px]">calendar_today</span>
+                   <span>Desde ${member.startDate.split('-')[0]}</span>
+                 </div>`
+              : ''
+          }
         </div>
       </div>
     `;
@@ -275,12 +297,14 @@ function openAddMemberModal() {
   const modalTitle = document.getElementById('modal-title');
   const nameInput = document.getElementById('input-name');
   const phoneInput = document.getElementById('input-phone');
+  const profileInput = document.getElementById('input-profile');
   const startDateInput = document.getElementById('input-start-date');
   const statusInput = document.getElementById('input-status-hidden');
 
   if (modalTitle) modalTitle.textContent = 'Cadastrar Novo Ministro';
   if (nameInput) nameInput.value = '';
   if (phoneInput) phoneInput.value = '';
+  if (profileInput) profileInput.value = 'minister';
   if (startDateInput) startDateInput.value = '';
   if (statusInput) statusInput.value = 'ativo';
 
@@ -303,12 +327,21 @@ window.openEditMemberModal = function(id) {
   const modalTitle = document.getElementById('modal-title');
   const nameInput = document.getElementById('input-name');
   const phoneInput = document.getElementById('input-phone');
+  const profileInput = document.getElementById('input-profile');
   const startDateInput = document.getElementById('input-start-date');
   const statusInput = document.getElementById('input-status-hidden');
 
   if (modalTitle) modalTitle.textContent = 'Editar Ministro';
   if (nameInput) nameInput.value = member.name || '';
   if (phoneInput) phoneInput.value = member.phone || '';
+  
+  // Normalizar valor do perfil para select
+  const currentProfile = member.profile === 'celebrante' ? 'celebrant'
+    : member.profile === 'diacono' ? 'deacon'
+    : member.profile === 'coordenador' ? 'coordinator'
+    : (member.profile || 'minister');
+  if (profileInput) profileInput.value = currentProfile;
+
   if (startDateInput) startDateInput.value = member.startDate || '';
   const currentStatus = member.status === 'licenca' ? 'licenca' : 'ativo';
   if (statusInput) statusInput.value = currentStatus;
@@ -347,23 +380,15 @@ function saveMemberForm() {
 
   const nameInput = document.getElementById('input-name');
   const phoneInput = document.getElementById('input-phone');
+  const profileInput = document.getElementById('input-profile');
   const startDateInput = document.getElementById('input-start-date');
   const statusInput = document.getElementById('input-status-hidden');
 
   const name = nameInput ? nameInput.value.trim() : '';
   const phone = phoneInput ? phoneInput.value.trim() : '';
+  const profile = profileInput ? profileInput.value : 'minister';
   const startDate = startDateInput ? startDateInput.value : '';
   const status = (statusInput && statusInput.value === 'licenca') ? 'licenca' : 'ativo';
-
-  // Coletar horários (se existirem checkboxes) ou manter existente/padrão
-  const checkedSchedules = [];
-  document.querySelectorAll('#modal-schedule-checkboxes input[type="checkbox"]:checked').forEach((cb) => {
-    checkedSchedules.push(cb.value);
-  });
-  const existingSchedule = (editingMemberId && window.appStore.getMemberById(editingMemberId)?.schedule);
-  const scheduleStr = checkedSchedules.length > 0
-    ? checkedSchedules.join(' | ')
-    : (existingSchedule || 'Todos os horários');
 
   // Calcular experiência se data de início for informada
   let calculatedExperience = undefined;
@@ -390,20 +415,20 @@ function saveMemberForm() {
     window.appStore.updateMember(editingMemberId, {
       name,
       phone,
+      profile,
       status,
       startDate: startDate || undefined,
-      experience: calculatedExperience || (currentMember && currentMember.experience) || 'Ministro MESC',
-      schedule: scheduleStr
+      experience: calculatedExperience || (currentMember && currentMember.experience) || 'Ministro MESC'
     });
     if (window.showToast) window.showToast('Dados do ministro atualizados com sucesso!');
   } else {
     window.appStore.addMember({
       name,
       phone,
+      profile,
       status,
       startDate: startDate || undefined,
-      experience: calculatedExperience || 'Novo Ministro',
-      schedule: scheduleStr
+      experience: calculatedExperience || (profile === 'celebrant' || profile === 'celebrante' ? 'Sacerdote / Celebrante' : 'Novo Ministro')
     });
     if (window.showToast) window.showToast('Novo ministro cadastrado na paróquia com bênçãos!');
   }

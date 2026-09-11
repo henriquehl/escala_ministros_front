@@ -122,7 +122,6 @@ const INITIAL_MEMBERS = [
     experience: '15 anos de Ministério',
     schedule: 'Domingos: 08:00 e 19:00',
     specialties: ['Coordenação', 'Altar Principal & Rito'],
-    scalesThisMonth: 2,
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCzxt_yGxBs8rXNgxx97LdaE-1MojNEJZYj_Dky6lpz9bbLYJjVCLRNEtkxFTWAiQvRS4wRA8fJxZCa7z2yrHfm4xhMOngvmEBAmeEVCZraQPTNi7KLkqChT33EcTI68t9W6VcIs4vOAXnzYtan4V8LfS3cq1sDFUaPwVUeoje1lj9-s7GYzkcE6arqxFXb1jEk3c4BaA5DnC97rwbXQZlxoXjatKsFT5UzajVeu-i5Ox_otka2gKj0nA'
   },
   {
@@ -133,7 +132,6 @@ const INITIAL_MEMBERS = [
     experience: '12 anos de Ministério',
     schedule: 'Domingos: 08:00 e 19:00',
     specialties: ['Nave Direita & Coro', 'Cálice 1'],
-    scalesThisMonth: 2,
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBO2tztieShl3qdkwDTY23xKTIRrkeJSLRCQbymD6RyfDDUypzxYLZBaLyJz-KZTEQ1Cv5issZUK8di09K6thtWr-D7CUwPMpVCiB3mEzXcle1TOGubBFF74KFHlMLfZU8XqHLiYazrOMfw80zn1fri9v8rZ7dGaZGT_UovwntfeXyRSGLypPZN5DOTQRIYb3vvfYi-VbaJjk-ZsAB19TZRWc5sbfirsda4ANsQ1SxZ9nq0uGm7BZ1AQg'
   },
   {
@@ -144,7 +142,6 @@ const INITIAL_MEMBERS = [
     experience: '8 anos de Ministério',
     schedule: 'Domingos: 19:00',
     specialties: ['Nave Direita & Coro'],
-    scalesThisMonth: 1,
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAuIoMxV182mAVtJs1bTDQRd874xQAlY5LkIbuXMoFm_6Ng7KIXHRguz5ssr2RzvIx0Si7UGF9R8j94uqXkfzeWmKSAlcvJMiLqPTUFA-UvSMl02kcqwp45opT3OKghLCCRHJ4vHShhPQ-o7uLnMrDhBkH49745Ycm1CSlhcuh47NZyi6OuGlKPvuU_BLUNXXv5NLdVAtJ6GpQGC3AX22xZufKDqpISxJ-V0GVVEs0-pym1sGRcldaHRw'
   },
   {
@@ -155,7 +152,6 @@ const INITIAL_MEMBERS = [
     experience: '5 anos de Ministério',
     schedule: 'Sábados: 19:30 | Domingos: 10:00',
     specialties: ['Nave Esquerda & Galeria'],
-    scalesThisMonth: 1,
     avatar: null // Initials RP
   },
   {
@@ -166,7 +162,6 @@ const INITIAL_MEMBERS = [
     experience: '7 anos de Ministério',
     schedule: 'Domingos: 08:00 e 19:00',
     specialties: ['Comunhão aos Enfermos'],
-    scalesThisMonth: 2,
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB5AIwVCf1sdgFhiPTOXfJHKouK3iXJPazwuXO_TyAiP3pVyvGGOLGY5_1d-oH9tuB0knIws9kPhmXiav4-Uj626s4Exc9ewSygihrjTm1YBJUqgHWLQ4tStDSymeswuzC8iTF3NdIRS2uUZp_-x5ylMPTAJSL-kwFcW2CLk4RGyKDy633oPShN2AoHXLp6hprVa5GtX9tOsuzWqcXi_z5zTr-oCUgi3BOYswJk679n6e2ysgd2oh4oIA'
   },
   {
@@ -177,7 +172,6 @@ const INITIAL_MEMBERS = [
     experience: '10 anos de Ministério',
     schedule: 'Domingos: 19:00',
     specialties: ['Sacristia & Alfaias'],
-    scalesThisMonth: 1,
     avatar: null // Initials JM
   },
   {
@@ -188,7 +182,6 @@ const INITIAL_MEMBERS = [
     experience: 'Coord. Setor (14 anos)',
     schedule: 'Sábados: 19:30 | Altar & Enfermos',
     specialties: ['Coordenação', 'Altar Principal'],
-    scalesThisMonth: 1,
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDMO4mHrUQawsafUppNVyJPI06wpk5OiCMvrd9UWb8I7Qc6vKXoEKMv4Zs5AcH-J8V5bXhLEmquvFz_K0CLce83LTfG32YbMrIWtP9Q93296A8KrzHsKZjWm-cb33h9Gttdf-5IPHySsm3QJ_ZvB7ZfAtCPDKK-1Wq6YlCW51SsGkYcgPBIo1cq4do6TOubBT6aK2uqAqoDjOQRmHqkKsGkFf_hn9Tp_Ro_5MgfvNaCasCcpXHqzbl9xA'
   },
   {
@@ -199,7 +192,6 @@ const INITIAL_MEMBERS = [
     experience: '2 anos de Ministério',
     schedule: 'Domingos: 10:00 e 18:00',
     specialties: ['Nave Central'],
-    scalesThisMonth: 0,
     avatar: null // Initials GS
   },
   {
@@ -210,7 +202,6 @@ const INITIAL_MEMBERS = [
     experience: 'Retorno previsto: Março 2025',
     schedule: 'Licença Médica',
     specialties: ['Oração Fraterna'],
-    scalesThisMonth: 0,
     avatar: null // Initials MD
   },
   {
@@ -221,7 +212,6 @@ const INITIAL_MEMBERS = [
     experience: '9 anos de Ministério',
     schedule: 'Domingos: 10:00 e 19:00',
     specialties: ['Coordenação', 'Cálice 1'],
-    scalesThisMonth: 2,
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCsHxdM1vRgCisJMeheYf4TaGHwf17_1zILg6K9eJbp8w2yBTn3Mw8RNMfnlQjuqv_qFqX3ulGDzaeXxbW_zTQU9qqFkz-ifnW1BstJQ1k5sEb-eteuPhtfceallVptJyQf525IA-ph_SrAYaGdM-G39GRfeZ00bGGpukvnDSZP7p6wYMV8Wooc5nCm7LdZQOOzqpBzH51taiiUg1s4a6e0X-04O5m3x0tdHJCQUTt0WcGPd1StMmrI_A'
   },
   {
@@ -232,7 +222,6 @@ const INITIAL_MEMBERS = [
     experience: '11 anos de Ministério',
     schedule: 'Domingos: 10:00',
     specialties: ['Cálice 1'],
-    scalesThisMonth: 1,
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBUl7SyWOKo43zLm1uJ1kRoYRbNtq52aXb2mS7oQtgFmUU8Z96TrT-BjuNLyb9-R3r9l5IhD2wL9igOibLLftsKvLjn1I79Ci311jpvGgLy76ncEpWc9m4hVUJAWIH0xpsTWhad7qexyY7rxeura8mH9aum5EIf41G214cP4r95tIT2bJQgVtAwXHQ-5uQrECn9I9Gam7Jykq_bYrFZMGTetJtSIANSPL65w1FQI5GVXUQoRO-bCUro0g'
   },
   {
@@ -243,7 +232,6 @@ const INITIAL_MEMBERS = [
     experience: '4 anos de Ministério',
     schedule: 'Domingos: 10:00 e 19:00',
     specialties: ['Cálice 2'],
-    scalesThisMonth: 2,
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAjKQa39MuPn9WIV8dSQFzUU2jkm_bq2fZTNzktesP765C7w87hg5hvSIpASrCenUWqvv0MEM1iwfXX4dGitEvMwZGgVopJkQBKKf7OKqfKt_5NDr1yzeZtA5--PA3u4RM7k1LxKxo_Vy7Wc-pMtI1p6OC9vV1sawFpVSWD4DhzFbwjrAxkZpWWpUebxQLR6YEBstedJTRhH2Pp0dWZ0RPCijH5JY8GjbMBTAQOUijnM1W6bR4DnuAfsg'
   },
   {
@@ -254,7 +242,6 @@ const INITIAL_MEMBERS = [
     experience: '6 anos de Ministério',
     schedule: 'Domingos: 10:00',
     specialties: ['Nave Central'],
-    scalesThisMonth: 1,
     avatar: null
   },
   {
@@ -265,7 +252,6 @@ const INITIAL_MEMBERS = [
     experience: '3 anos de Ministério',
     schedule: 'Domingos: 08:00',
     specialties: ['Nave Central'],
-    scalesThisMonth: 0,
     avatar: null
   },
   {
@@ -276,7 +262,6 @@ const INITIAL_MEMBERS = [
     experience: '5 anos de Ministério',
     schedule: 'Sábados: 19:30',
     specialties: ['Sacristia & Alfaias'],
-    scalesThisMonth: 1,
     avatar: null
   },
   {
@@ -287,7 +272,6 @@ const INITIAL_MEMBERS = [
     experience: '8 anos de Ministério',
     schedule: 'Domingos: 08:00 e 19:00',
     specialties: ['Altar Principal'],
-    scalesThisMonth: 3,
     avatar: null
   }
 ];
@@ -469,10 +453,28 @@ class Store {
     return this.members.find(m => m.id === id);
   }
 
+  getCelebrants() {
+    const fromMembers = this.members.filter(m => 
+      m.profile === 'celebrante' || 
+      m.profile === 'celebrant' || 
+      m.profile === 'diacono' || 
+      m.profile === 'deacon' || 
+      m.name.startsWith('Pe.') || 
+      m.name.startsWith('Dom ') || 
+      m.name.startsWith('Diác.')
+    );
+    if (fromMembers.length > 0) return fromMembers;
+    return [
+      { id: 'cel-pe-marcelo', name: 'Pe. Marcelo Rossi (Pároco)', profile: 'celebrant' },
+      { id: 'cel-pe-antonio', name: 'Pe. Antônio Vieira (Vigário)', profile: 'celebrant' },
+      { id: 'cel-dom-orlando', name: 'Dom Orlando (Bispo Convidado)', profile: 'celebrant' },
+      { id: 'cel-diac-francisco', name: 'Diác. Francisco Souza (Diácono)', profile: 'deacon' }
+    ];
+  }
+
   addMember(memberData) {
     const newMember = {
       id: 'm-' + Date.now(),
-      scalesThisMonth: 0,
       avatar: null,
       ...memberData
     };

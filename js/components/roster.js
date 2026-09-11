@@ -1,13 +1,13 @@
 /**
  * Componente: Montar e Gerir Escala (Assistente em 3 Passos)
  * Permite selecionar qualquer dia do calendário (Segunda a Domingo)
- * Passo 2: Escolha e cadastro do nome da celebração a partir de lista pré-definida
+ * Passo 2: Escolha da celebração, subtítulo opcional e celebrante principal
+ * Passo 3: Adição de ministros para a equipe (sem atribuições artificiais de funções litúrgicas)
  */
 
 let selectedRosterDate = '2025-10-19';
 let selectedRosterHour = '10:00';
 let assignedMinisters = [];
-const MAX_SLOTS = 6;
 
 const ROSTER_MONTH_NAMES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -77,6 +77,7 @@ function initRosterComponent() {
     window.appStore.subscribe((event) => {
       if (event === 'members' || event === 'scales') {
         renderRosterDateChips();
+        renderCelebrantSelect();
         renderCandidateMinisters();
       } else if (event === 'celebrations') {
         renderCelebrationSelect();
@@ -90,6 +91,7 @@ function initRosterComponent() {
       if (hourSelect) hourSelect.value = selectedRosterHour;
       renderRosterDateChips();
       renderCelebrationSelect();
+      renderCelebrantSelect();
       loadExistingScaleForSelectedDate();
       renderCandidateMinisters();
     }
@@ -98,6 +100,7 @@ function initRosterComponent() {
   // Render inicial
   renderRosterDateChips();
   renderCelebrationSelect();
+  renderCelebrantSelect();
   loadExistingScaleForSelectedDate();
   renderCandidateMinisters();
 }
@@ -115,6 +118,22 @@ function renderCelebrationSelect(selectedCelebrationName = '') {
   selectEl.innerHTML = celebrations.map((c) => {
     const isSelected = c === currentVal || (selectedCelebrationName && c.toLowerCase().includes(selectedCelebrationName.toLowerCase()));
     return `<option value="${c}" ${isSelected ? 'selected' : ''}>${c}</option>`;
+  }).join('');
+}
+
+/**
+ * Renderiza o <select> de Celebrante Principal dinamicamente
+ */
+function renderCelebrantSelect(selectedCelebrantValue = '') {
+  const celebranteSelect = document.getElementById('celebrante');
+  if (!celebranteSelect || !window.appStore) return;
+
+  const celebrants = window.appStore.getCelebrants();
+  const currentVal = selectedCelebrantValue || celebranteSelect.value;
+
+  celebranteSelect.innerHTML = celebrants.map((c) => {
+    const isSelected = c.id === currentVal || c.name === currentVal || (selectedCelebrantValue && c.name.toLowerCase().includes(selectedCelebrantValue.toLowerCase()));
+    return `<option value="${c.id || c.name}" ${isSelected ? 'selected' : ''}>${c.name}</option>`;
   }).join('');
 }
 
@@ -149,100 +168,85 @@ function initCelebrationControls() {
     toggleBtn.addEventListener('click', openModal);
   }
 
-  if (btnCancelNew) {
-    btnCancelNew.addEventListener('click', closeModal);
-  }
+  if (btnCloseModal) btnCloseModal.addEventListener('click', closeModal);
+  if (btnCancelNew) btnCancelNew.addEventListener('click', closeModal);
 
-  if (btnCloseModal) {
-    btnCloseModal.addEventListener('click', closeModal);
-  }
-
-  if (btnSaveNew && inputName) {
+  if (btnSaveNew) {
     btnSaveNew.addEventListener('click', () => {
-      const name = inputName.value.trim();
+      const name = inputName ? inputName.value.trim() : '';
       const category = inputCategory ? inputCategory.value : 'dominical';
+
       if (!name) {
-        if (window.showToast) window.showToast('Informe o nome da celebração.');
+        if (window.showToast) window.showToast('Por favor, digite o nome da celebração.');
         return;
       }
 
       if (window.appStore) {
-        window.appStore.addCelebration({
-          name,
-          category
-        });
+        let icon = 'church';
+        if (category === 'semanal') icon = 'wb_sunny';
+        else if (category === 'solenidade') icon = 'star';
+        else if (category === 'sacramento') icon = 'water_drop';
+        else if (category === 'especial') icon = 'favorite';
+
+        window.appStore.addCelebration({ name, category, icon });
         renderCelebrationSelect(name);
-      }
-
-      closeModal();
-      inputName.value = '';
-      if (inputCategory) inputCategory.value = 'dominical';
-
-      if (window.showToast) {
-        window.showToast(`Celebração "${name}" cadastrada com sucesso!`);
+        closeModal();
+        if (window.showToast) window.showToast(`Celebração "${name}" cadastrada com sucesso!`);
       }
     });
   }
 }
 
 /**
- * Renderiza o badge do mês e atualiza controles de data
+ * Renderiza os chips de data do mês selecionado
  */
 function renderRosterDateChips() {
-  const monthBadge = document.getElementById('roster-month-badge');
+  const container = document.getElementById('roster-date-chips');
+  if (!container) return;
+
   const parts = selectedRosterDate.split('-');
   const year = parseInt(parts[0], 10) || 2025;
   const month = parseInt(parts[1], 10) || 10;
 
-  if (monthBadge) {
-    monthBadge.innerHTML = `
-      <span class="material-symbols-outlined text-[14px]">event</span>
-      ${ROSTER_MONTH_NAMES[month - 1]} ${year}
-    `;
-  }
-
-  const container = document.getElementById('roster-date-chips');
-  if (!container) return;
-
   const daysInMonth = new Date(year, month, 0).getDate();
-  let chipsHtml = '';
+  const chips = [];
 
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    const dateObj = new Date(year, month - 1, d);
-    const dayOfWeek = WEEKDAY_NAMES_SHORT[dateObj.getDay()];
-    const isSunday = dateObj.getDay() === 0;
-    const isSaturday = dateObj.getDay() === 6;
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dt = new Date(year, month - 1, day);
+    const dayOfWeekShort = WEEKDAY_NAMES_SHORT[dt.getDay()];
+    const isSunday = dt.getDay() === 0;
+    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const isSelected = dateStr === selectedRosterDate;
 
-    // Verificar se já possui escala cadastrada no Store
-    const hasScale = window.appStore ? window.appStore.getScalesForMonth(year, month).some((s) => s.day === d) : false;
+    let chipClass = '';
+    let textClass = '';
+    let subTextClass = '';
 
-    let tagLabel = 'Semanal';
-    if (isSunday) tagLabel = 'Domingo';
-    else if (isSaturday) tagLabel = 'Sábado';
-    else if (hasScale) tagLabel = 'Escala';
+    if (isSelected) {
+      chipClass = 'active-date flex flex-col items-center justify-center min-w-[64px] py-2.5 px-2 rounded-xl bg-primary text-on-primary shadow-sm transition-all focus:outline-none flex-shrink-0 cursor-pointer';
+      textClass = 'font-label-sm text-[11px] text-primary-fixed font-bold';
+      subTextClass = 'font-label-sm text-[10px] text-primary-fixed';
+    } else if (isSunday) {
+      chipClass = 'flex flex-col items-center justify-center min-w-[64px] py-2.5 px-2 rounded-xl bg-surface-container-low text-on-surface font-semibold hover:bg-surface-container transition-all focus:outline-none flex-shrink-0 cursor-pointer';
+      textClass = 'font-label-sm text-[11px] text-primary font-bold';
+      subTextClass = 'font-label-sm text-[10px] opacity-70';
+    } else {
+      chipClass = 'flex flex-col items-center justify-center min-w-[64px] py-2.5 px-2 rounded-xl bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all focus:outline-none flex-shrink-0 cursor-pointer';
+      textClass = 'font-label-sm text-[11px]';
+      subTextClass = 'font-label-sm text-[10px] opacity-70';
+    }
 
-    const baseClass = isSelected
-      ? 'date-chip active-date flex flex-col items-center justify-center min-w-[64px] py-2.5 px-2 rounded-xl bg-primary text-on-primary shadow-sm transition-all focus:outline-none flex-shrink-0 cursor-pointer'
-      : hasScale
-        ? 'date-chip flex flex-col items-center justify-center min-w-[64px] py-2.5 px-2 rounded-xl bg-primary-fixed/30 text-on-surface hover:bg-primary-fixed/50 transition-all focus:outline-none flex-shrink-0 cursor-pointer border border-primary/20'
-        : isSunday
-          ? 'date-chip flex flex-col items-center justify-center min-w-[64px] py-2.5 px-2 rounded-xl bg-surface-container-low text-on-surface font-semibold hover:bg-surface-container transition-all focus:outline-none flex-shrink-0 cursor-pointer'
-          : 'date-chip flex flex-col items-center justify-center min-w-[64px] py-2.5 px-2 rounded-xl bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all focus:outline-none flex-shrink-0 cursor-pointer';
-
-    chipsHtml += `
-      <button class="${baseClass}" data-date="${dateStr}" id="chip-date-${dateStr}" type="button">
-        <span class="font-label-sm text-[11px] ${isSelected ? 'text-primary-fixed font-bold' : isSunday ? 'text-primary font-bold' : ''}">${dayOfWeek}</span>
-        <span class="font-title-md text-title-md mt-0.5 ${isSelected ? 'font-bold' : ''}">${String(d).padStart(2, '0')}</span>
-        <span class="font-label-sm text-[10px] ${isSelected ? 'text-primary-fixed' : hasScale ? 'text-primary font-semibold' : 'opacity-70'}">${tagLabel}</span>
+    chips.push(`
+      <button type="button" class="date-chip ${chipClass}" data-date="${dateStr}" id="chip-date-${dateStr}">
+        <span class="${textClass}">${dayOfWeekShort}</span>
+        <span class="font-title-md text-title-md font-bold leading-tight my-0.5">${day}</span>
+        <span class="${subTextClass}">${ROSTER_MONTH_NAMES[month - 1].substring(0, 3)}</span>
       </button>
-    `;
+    `);
   }
 
-  container.innerHTML = chipsHtml;
+  container.innerHTML = chips.join('');
 
-  // Adicionar ouvintes de clique aos chips
   container.querySelectorAll('.date-chip').forEach((chip) => {
     chip.addEventListener('click', () => {
       const date = chip.getAttribute('data-date');
@@ -337,10 +341,18 @@ function loadExistingScaleForSelectedDate() {
   if (!window.appStore) return;
 
   const existingScale = window.appStore.getScaleByDateAndHour(selectedRosterDate, selectedRosterHour);
+  const subtitleInput = document.getElementById('roster-subtitle');
 
   if (existingScale) {
-    assignedMinisters = [...(existingScale.ministers || [])];
+    assignedMinisters = (existingScale.ministers || []).map(m => ({
+      id: m.id,
+      name: m.name,
+      phone: m.phone || '',
+      avatar: m.avatar || null
+    }));
     renderCelebrationSelect(existingScale.celebrationName || 'Santa Missa Dominical');
+    renderCelebrantSelect(existingScale.celebrant || existingScale.celebrantId || '');
+    if (subtitleInput) subtitleInput.value = existingScale.subtitle || '';
   } else {
     // Sugestão de celebração com base no dia da semana
     const dateParts = selectedRosterDate.split('-');
@@ -357,15 +369,14 @@ function loadExistingScaleForSelectedDate() {
     else defaultCelebration = 'Santa Missa Semanal';
 
     renderCelebrationSelect(defaultCelebration);
+    renderCelebrantSelect();
+    if (subtitleInput) subtitleInput.value = '';
 
-    // Inicializar escala limpa pronta para adição ou sugestão de ministros disponíveis
-    const activeMembers = window.appStore.getMembers().filter((m) => m.status === 'ativo');
-    assignedMinisters = activeMembers.slice(0, 3).map((m, idx) => ({
+    // Inicializar equipe limpa de ministros disponíveis
+    const activeMembers = window.appStore.getMembers().filter((m) => m.status === 'ativo' && m.profile !== 'celebrante');
+    assignedMinisters = activeMembers.slice(0, 3).map((m) => ({
       id: m.id,
       name: m.name,
-      role: idx === 0 ? 'Coordenação' : idx === 1 ? 'Cálice 1' : 'Altar',
-      isLeader: idx === 0,
-      confirmed: true,
       phone: m.phone || '',
       avatar: m.avatar || null
     }));
@@ -383,46 +394,40 @@ function renderAssignedMinisters() {
   const counterBadge = document.getElementById('slot-counter');
 
   if (counterBadge) {
-    counterBadge.textContent = `${assignedMinisters.length} de ${MAX_SLOTS} Vagas Preenchidas`;
-    if (assignedMinisters.length >= MAX_SLOTS) {
-      counterBadge.className = 'font-label-sm text-label-sm bg-error-container text-on-error-container px-2 py-0.5 rounded-full font-bold';
-    } else {
-      counterBadge.className = 'font-label-sm text-label-sm bg-tertiary-fixed text-on-tertiary-fixed px-2 py-0.5 rounded-full font-bold';
-    }
+    const count = assignedMinisters.length;
+    counterBadge.textContent = `${count} Ministro${count === 1 ? '' : 's'} Escalado${count === 1 ? '' : 's'}`;
+    counterBadge.className = 'font-label-sm text-label-sm bg-tertiary-fixed text-on-tertiary-fixed px-2.5 py-0.5 rounded-full font-bold';
   }
 
   if (!container) return;
 
   if (assignedMinisters.length === 0) {
     container.innerHTML = `
-      <div class="p-4 text-center bg-surface-container-low rounded-lg text-on-surface-variant font-body-sm text-body-sm">
+      <div class="p-4 text-center bg-surface-container-low rounded-xl text-on-surface-variant font-body-sm text-body-sm border border-outline-variant/15">
         Nenhum ministro escalado ainda. Adicione ministros pela lista abaixo.
       </div>
     `;
     return;
   }
 
-  container.innerHTML = assignedMinisters.map((minister, idx) => {
+  container.innerHTML = assignedMinisters.map((minister) => {
     const initials = minister.name.split(' ').map((n) => n[0]).slice(0, 2).join('');
-    const roleTagClass = idx === 0 ? 'bg-primary-fixed text-on-primary-fixed' : idx <= 2 ? 'bg-secondary-fixed text-on-secondary-fixed' : 'bg-surface-container-high text-on-surface-variant';
+    const phoneDisplay = minister.phone ? `<span class="font-body-sm text-[12px] text-on-surface-variant flex items-center gap-1 mt-0.5"><span class="material-symbols-outlined text-[14px]">call</span>${minister.phone}</span>` : '';
 
     return `
-      <div class="minister-assigned flex items-center justify-between p-spacing-xs rounded-lg bg-surface-container-low animate-fade-in" data-id="${minister.id}">
-        <div class="flex items-center gap-spacing-xs min-w-0">
+      <div class="minister-assigned flex items-center justify-between p-3 rounded-xl bg-surface-container-low border border-outline-variant/15 animate-fade-in" data-id="${minister.id}">
+        <div class="flex items-center gap-3 min-w-0">
           ${
             minister.avatar
-              ? `<img class="w-10 h-10 rounded-full object-cover flex-shrink-0" src="${minister.avatar}" alt="${minister.name}">`
-              : `<div class="w-10 h-10 rounded-full bg-surface-container-high text-primary font-title-md text-title-md flex items-center justify-center flex-shrink-0 font-bold">${initials}</div>`
+              ? `<img class="w-10 h-10 rounded-full object-cover flex-shrink-0 border border-outline-variant/30" src="${minister.avatar}" alt="${minister.name}">`
+              : `<div class="w-10 h-10 rounded-full bg-primary-fixed text-primary font-title-md text-title-md flex items-center justify-center flex-shrink-0 font-bold">${initials}</div>`
           }
           <div class="min-w-0">
-            <h4 class="font-label-lg text-label-lg text-on-surface truncate">${minister.name}</h4>
-            <div class="flex items-center gap-1.5 mt-0.5">
-              <span class="font-label-sm text-label-sm ${roleTagClass} px-1.5 py-0.5 rounded font-medium">${minister.role || 'Ministro'}</span>
-              <span class="font-body-sm text-body-sm text-on-surface-variant text-[11px]">${idx + 1}ª atribuição</span>
-            </div>
+            <h4 class="font-label-lg text-label-lg text-on-surface font-semibold truncate">${minister.name}</h4>
+            ${phoneDisplay}
           </div>
         </div>
-        <button type="button" class="w-9 h-9 flex items-center justify-center rounded-full text-on-surface-variant hover:text-error hover:bg-error-container transition-colors" onclick="removeAssignedMinister('${minister.id}')" aria-label="Remover ${minister.name}">
+        <button type="button" class="w-9 h-9 flex items-center justify-center rounded-full text-on-surface-variant hover:text-error hover:bg-error-container/40 transition-colors" onclick="removeAssignedMinister('${minister.id}')" aria-label="Remover ${minister.name}">
           <span class="material-symbols-outlined text-[20px]">close</span>
         </button>
       </div>
@@ -437,37 +442,31 @@ window.removeAssignedMinister = function(id) {
   assignedMinisters = assignedMinisters.filter((m) => m.id !== id);
   renderAssignedMinisters();
   renderCandidateMinisters();
-  if (window.showToast) window.showToast('Ministro desmarcado da escala.');
+  if (window.showToast) window.showToast('Ministro removido da equipe.');
 };
 
 /**
  * Adiciona ministro candidato à escala
  */
 window.assignCandidateMinister = function(id) {
-  if (assignedMinisters.length >= MAX_SLOTS) {
-    if (window.showToast) window.showToast(`Limite máximo de ${MAX_SLOTS} ministros atingido!`);
-    return;
-  }
-
   const member = window.appStore ? window.appStore.getMemberById(id) : null;
   if (!member) return;
 
-  const defaultRoles = ['Coordenação', 'Cálice 1', 'Cálice 2', 'Nave Central', 'Nave Lateral', 'Enfermos & Apoio'];
-  const assignedRole = defaultRoles[assignedMinisters.length] || 'Nave';
+  if (assignedMinisters.some(m => m.id === id)) {
+    if (window.showToast) window.showToast(`${member.name} já está na escala.`);
+    return;
+  }
 
   assignedMinisters.push({
     id: member.id,
     name: member.name,
-    role: assignedRole,
-    isLeader: assignedMinisters.length === 0,
-    confirmed: true,
     phone: member.phone || '',
     avatar: member.avatar || null
   });
 
   renderAssignedMinisters();
   renderCandidateMinisters();
-  if (window.showToast) window.showToast(`${member.name} escalado(a) com sucesso!`);
+  if (window.showToast) window.showToast(`${member.name} adicionado(a) à equipe!`);
 };
 
 /**
@@ -478,7 +477,7 @@ function renderCandidateMinisters(searchTerm = '') {
   const baseCountEl = document.getElementById('active-base-count');
   if (!container || !window.appStore) return;
 
-  const allMembers = window.appStore.getMembers().filter((m) => m.status !== 'licenca');
+  const allMembers = window.appStore.getMembers().filter((m) => m.status !== 'licenca' && m.profile !== 'celebrante');
   const assignedIds = new Set(assignedMinisters.map((m) => m.id));
 
   if (baseCountEl) {
@@ -504,25 +503,18 @@ function renderCandidateMinisters(searchTerm = '') {
 
   container.innerHTML = available.map((member) => {
     const initials = member.name.split(' ').map((n) => n[0]).slice(0, 2).join('');
-    const scalesCount = member.scalesThisMonth || 0;
-    const isOverloaded = scalesCount >= 3;
 
     return `
-      <div class="candidate-row flex items-center justify-between p-2 rounded-lg bg-surface-container-lowest ${isOverloaded ? 'opacity-85' : ''}">
+      <div class="candidate-row flex items-center justify-between p-2 rounded-lg bg-surface-container-lowest hover:bg-surface-container-low transition-colors">
         <div class="flex items-center gap-2 min-w-0">
-          <div class="w-8 h-8 rounded-full ${isOverloaded ? 'bg-surface-container-high text-on-surface-variant' : 'bg-tertiary-fixed text-on-tertiary-fixed'} font-label-md text-label-md flex items-center justify-center flex-shrink-0 font-bold">
+          <div class="w-8 h-8 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-md text-label-md flex items-center justify-center flex-shrink-0 font-bold">
             ${initials}
           </div>
           <div class="min-w-0">
-            <div class="font-label-md text-label-md text-on-surface truncate">${member.name}</div>
+            <div class="font-label-md text-label-md text-on-surface truncate font-medium">${member.name}</div>
             <div class="flex items-center gap-1.5 mt-0.5">
-              ${
-                isOverloaded
-                  ? `<span class="font-label-sm text-[10px] text-on-secondary-container bg-secondary-container px-1.5 py-0.2 rounded font-semibold">${scalesCount} escalas no mês</span>
-                     <span class="font-body-sm text-[11px] text-on-surface-variant truncate">Atenção equilíbrio</span>`
-                  : `<span class="font-label-sm text-[10px] text-tertiary-container bg-tertiary-fixed px-1.5 py-0.2 rounded font-semibold">Disponível</span>
-                     <span class="font-body-sm text-[11px] text-on-surface-variant truncate">${scalesCount} escala(s)</span>`
-              }
+              <span class="font-label-sm text-[10px] text-tertiary-container bg-tertiary-fixed px-1.5 py-0.2 rounded font-semibold">Disponível</span>
+              <span class="font-body-sm text-[11px] text-on-surface-variant truncate">${member.phone || 'Sem telefone'}</span>
             </div>
           </div>
         </div>
@@ -548,7 +540,11 @@ function saveCurrentRoster(notifyWhatsApp = false) {
   const celebrationName = celebrationSelect ? (celebrationSelect.value || celebrationSelect.options[celebrationSelect.selectedIndex]?.text) : 'Santa Missa';
 
   const celebranteSelect = document.getElementById('celebrante');
-  const celebranteText = celebranteSelect ? celebranteSelect.options[celebranteSelect.selectedIndex].text : 'Pe. Marcelo Rossi (Pároco)';
+  const celebrantName = celebranteSelect ? celebranteSelect.options[celebranteSelect.selectedIndex]?.text : 'Pe. Marcelo Rossi (Pároco)';
+  const celebrantId = celebranteSelect ? celebranteSelect.value : '';
+
+  const subtitleInput = document.getElementById('roster-subtitle');
+  const subtitle = subtitleInput ? subtitleInput.value.trim() : '';
 
   const dateParts = selectedRosterDate.split('-');
   const year = parseInt(dateParts[0], 10);
@@ -569,9 +565,9 @@ function saveCurrentRoster(notifyWhatsApp = false) {
     title: `${dayOfWeekFullName}, ${formattedDateDDMMAAAA}`,
     time: selectedRosterHour,
     celebrationName,
-    celebrant: celebranteText,
-    isSolemnity: celebrationName.toLowerCase().includes('solenidade') || celebrationName.toLowerCase().includes('padroeira'),
-    maxSlots: MAX_SLOTS,
+    subtitle: subtitle || undefined,
+    celebrant: celebrantName,
+    celebrantId: celebrantId || undefined,
     ministers: assignedMinisters
   };
 

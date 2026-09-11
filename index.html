@@ -660,15 +660,18 @@
 
             </div>
 
+            <!-- Subtítulo / Tema Litúrgico Complementar (Opcional) -->
+            <div>
+              <label class="block font-label-md text-label-md text-on-surface mb-1 font-semibold" for="roster-subtitle">Subtítulo / Tema Litúrgico <span class="text-on-surface-variant font-normal text-[12px]">(opcional)</span></label>
+              <input type="text" id="roster-subtitle" placeholder="Ex: Bodas de Prata, 1ª Sexta-feira, Cor Litúrgica..." class="w-full bg-surface-container-low text-on-surface font-body-md text-body-md rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container font-medium border border-outline-variant/20">
+            </div>
+
             <!-- Seleção do Celebrante Principal -->
             <div>
-              <label class="block font-label-md text-label-md text-on-surface mb-1 font-semibold" for="celebrante">Celebrante principal</label>
+              <label class="block font-label-md text-label-md text-on-surface mb-1 font-semibold" for="celebrante">Celebrante Principal</label>
               <div class="relative">
                 <select class="w-full bg-surface-container-low text-on-surface font-body-md text-body-md rounded-xl p-3 pr-10 appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container font-medium border border-outline-variant/20" id="celebrante">
-                  <option value="padre_marcelo">Pe. Marcelo Rossi (Pároco)</option>
-                  <option value="padre_antonio">Pe. Antônio Vieira (Vigário)</option>
-                  <option value="dom_orlando">Dom Orlando (Bispo Convidado)</option>
-                  <option value="diacono_joao">Diác. João Carlos (Celebração da Palavra)</option>
+                  <!-- Populado dinamicamente via js/components/roster.js a partir dos membros celebrantes -->
                 </select>
                 <span class="material-symbols-outlined absolute right-3 top-3 text-on-surface-variant pointer-events-none text-[20px]">expand_more</span>
               </div>
@@ -680,10 +683,10 @@
         <div class="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 border border-outline-variant/30 shadow-sm">
           <div class="flex items-center justify-between mb-spacing-xs">
             <span class="font-label-sm text-[11px] text-primary uppercase tracking-wider font-bold bg-primary-fixed/40 px-2.5 py-0.5 rounded-full">Passo 3 de 3</span>
-            <span class="font-label-sm text-label-sm bg-tertiary-fixed text-on-tertiary-fixed px-2.5 py-0.5 rounded-full font-bold" id="slot-counter">4 de 6 Vagas Preenchidas</span>
+            <span class="font-label-sm text-label-sm bg-tertiary-fixed text-on-tertiary-fixed px-2.5 py-0.5 rounded-full font-bold" id="slot-counter">0 Ministros Escalados</span>
           </div>
           <h2 class="font-headline-sm text-headline-sm text-on-surface">Ministros Escalados</h2>
-          <p class="font-body-sm text-body-sm text-on-surface-variant mb-spacing-md">Funções predefinidas para a liturgia desta missa.</p>
+          <p class="font-body-sm text-body-sm text-on-surface-variant mb-spacing-md">Ministros escalados para servir nesta celebração.</p>
           
           <!-- Escalados Roster (Dinâmico) -->
           <div class="space-y-spacing-xs mb-spacing-md" id="escalados-list">
@@ -827,6 +830,21 @@
           </div>
         </div>
 
+
+        <!-- Perfil / Função Pastoral -->
+        <div class="space-y-1">
+          <label class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider font-semibold" for="input-profile">Perfil / Função Pastoral</label>
+          <div class="relative">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px]">badge</span>
+            <select class="w-full h-12 pl-10 pr-10 bg-surface-container-low rounded-xl font-body-md text-body-md text-on-surface focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 focus:outline-none shadow-sm appearance-none border border-outline-variant/20" id="input-profile">
+              <option value="minister" selected>Ministro (MESC)</option>
+              <option value="celebrant">Celebrante / Sacerdote</option>
+              <option value="deacon">Diácono</option>
+              <option value="coordinator">Coordenador(a)</option>
+            </select>
+            <span class="absolute right-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px] pointer-events-none">expand_more</span>
+          </div>
+        </div>
 
         <!-- Data de Início no Ministério (Opcional) -->
         <div class="space-y-1">

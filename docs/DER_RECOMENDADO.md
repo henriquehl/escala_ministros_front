@@ -1,6 +1,6 @@
 # 📊 Recomendação de DER (Diagrama de Entidade-Relacionamento)
 
-Este documento apresenta a modelagem de dados recomendada para o ecossistema da **Escala Virtual (Capela Divino Espírito Santo)**, padronizada com nomenclatura técnica em **inglês** para tabelas e colunas, baseada na estrutura real da aplicação (*Store / Membros / Eventos*) e preparada para bancos de dados relacionais (*PostgreSQL*, *SQLite*, *Supabase* ou *MySQL*).
+Este documento apresenta a modelagem de dados recomendada para o ecossistema da **Escala Virtual (Capela Divino Espírito Santo)**, padronizada com nomenclatura técnica em **inglês** para tabelas e colunas, baseada na estrutura real da aplicação (*Store / Membros / Eventos / Categorias*) e preparada para bancos de dados relacionais (*PostgreSQL*, *SQLite*, *Supabase* ou *MySQL*).
 
 ---
 
@@ -8,11 +8,19 @@ Este documento apresenta a modelagem de dados recomendada para o ecossistema da 
 
 ```mermaid
 erDiagram
+    CATEGORY ||--o{ CELEBRATION : "categoriza"
     USER ||--o{ EVENT : "gerencia"
     MEMBER ||--o{ EVENT : "preside (celebrante principal)"
     MEMBER ||--o{ EVENT_MEMBER : "participa de"
     EVENT ||--|{ EVENT_MEMBER : "composto por"
     CELEBRATION ||--o{ EVENT : "define rito de"
+
+    CATEGORY {
+        string id PK "Identificador único da categoria (UUID/cat-X)"
+        string name UK "Nome da categoria litúrgica (ex: Dominical, Semanal)"
+        string description "Descrição da finalidade da categoria"
+        datetime created_at "Data e hora de cadastro"
+    }
 
     USER {
         string id PK "Identificador único (UUID ou slug)"
@@ -27,7 +35,7 @@ erDiagram
         string id PK "Identificador único do membro (UUID/m-X)"
         string name "Nome completo do membro"
         string phone "Telefone / WhatsApp com DDD"
-        string profile "Perfil/função: 'ministro', 'celebrante', 'coordenador', 'diacono'"
+        string profile "Perfil/função: 'minister', 'celebrant', 'coordinator', 'deacon'"
         string status "Situação pastoral: 'ativo', 'licenca'"
         date start_date "Data de início na pastoral (opcional)"
         string avatar_url "URL da foto ou avatar"
@@ -38,7 +46,7 @@ erDiagram
     CELEBRATION {
         string id PK "Identificador único da celebração (UUID/cel-X)"
         string name UK "Nome da celebração litúrgica"
-        string category "Categoria: 'dominical', 'semanal', 'solenidade', 'sacramento', 'especial'"
+        string category_id FK "Chave estrangeira de CATEGORY"
         datetime created_at "Data e hora de cadastro"
     }
 
@@ -66,7 +74,31 @@ erDiagram
 
 ## 📋 2. Dicionário de Dados
 
-### 2.1. Tabela `MEMBER` (`members`)
+### 2.1. Tabela `CATEGORY` (`categories`)
+Catálogo de categorias litúrgicas que classificam os tipos de celebrações.
+
+| Campo | Tipo Recomendado | Nulo? | Chave | Descrição & Regras de Negócio |
+| :--- | :--- | :---: | :---: | :--- |
+| `id` | `VARCHAR(36)` / `UUID` | **NÃO** | **PK** | Identificador único da categoria (ex: `cat-dominical`, `cat-solenidade`). |
+| `name` | `VARCHAR(100)` | **NÃO** | **UK** | Nome da categoria litúrgica (ex: *"Dominical"*, *"Semanal"*, *"Solenidade"*, *"Sacramento"*, *"Especial"*). |
+| `description` | `TEXT` | SIM | - | Descrição detalhada sobre o significado ou preceito da categoria. |
+| `created_at` | `TIMESTAMP` | **NÃO** | - | Data e hora de inclusão da categoria no cadastro. |
+
+---
+
+### 2.2. Tabela `CELEBRATION` (`celebrations`)
+Catálogo padronizado de ritos e celebrações da paróquia vinculados a uma categoria.
+
+| Campo | Tipo Recomendado | Nulo? | Chave | Descrição & Regras de Negócio |
+| :--- | :--- | :---: | :---: | :--- |
+| `id` | `VARCHAR(36)` / `UUID` | **NÃO** | **PK** | Identificador único da celebração. |
+| `name` | `VARCHAR(150)` | **NÃO** | **UK** | Nome da celebração litúrgica (ex: *"Santa Missa Dominical"*). |
+| `category_id` | `VARCHAR(36)` | SIM | **FK** | Chave estrangeira para a tabela `categories`. |
+| `created_at` | `TIMESTAMP` | **NÃO** | - | Data e hora de cadastro da celebração. |
+
+---
+
+### 2.3. Tabela `MEMBER` (`members`)
 Armazena todos os membros cadastrados na pastoral com suas informações de contato, perfil/função pastoral e situação.
 
 | Campo | Tipo Recomendado | Nulo? | Chave | Descrição & Regras de Negócio |
@@ -74,7 +106,7 @@ Armazena todos os membros cadastrados na pastoral com suas informações de cont
 | `id` | `VARCHAR(36)` / `UUID` | **NÃO** | **PK** | Identificador único do membro. |
 | `name` | `VARCHAR(150)` | **NÃO** | - | Nome completo do membro. |
 | `phone` | `VARCHAR(25)` | SIM | - | Telefone com DDD e formato WhatsApp: `(11) 99999-0000`. |
-| `profile` | `VARCHAR(50)` | **NÃO** | - | Perfil/Função ministerial (ex: `'ministro'`, `'celebrante'`, `'coordenador'`, `'diacono'`). Padrão: `'ministro'`. |
+| `profile` | `VARCHAR(50)` | **NÃO** | - | Perfil/Função ministerial (domínio: `'minister'`, `'celebrant'`, `'coordinator'`, `'deacon'`). Padrão: `'minister'`. |
 | `status` | `VARCHAR(20)` | **NÃO** | - | Domínio: `'ativo'`, `'licenca'`. |
 | `start_date` | `DATE` | SIM | - | Data em que ingressou na pastoral (opcional). |
 | `avatar_url` | `TEXT` | SIM | - | URL da foto de perfil ou `null` (gera avatar com iniciais). |
@@ -83,19 +115,7 @@ Armazena todos os membros cadastrados na pastoral com suas informações de cont
 
 ---
 
-### 2.2. Tabela `CELEBRATION` (`celebrations`)
-Catálogo padronizado de tipos de celebrações da paróquia.
-
-| Campo | Tipo Recomendado | Nulo? | Chave | Descrição & Regras de Negócio |
-| :--- | :--- | :---: | :---: | :--- |
-| `id` | `VARCHAR(36)` / `UUID` | **NÃO** | **PK** | Identificador único da celebração. |
-| `name` | `VARCHAR(150)` | **NÃO** | **UK** | Nome da celebração litúrgica (ex: *"Santa Missa Dominical"*). |
-| `category` | `VARCHAR(30)` | **NÃO** | - | Domínio: `'dominical'`, `'semanal'`, `'solenidade'`, `'sacramento'`, `'especial'`. |
-| `created_at` | `TIMESTAMP` | **NÃO** | - | Data e hora de cadastro da celebração. |
-
----
-
-### 2.3. Tabela `EVENT` (`events`)
+### 2.4. Tabela `EVENT` (`events`)
 Representa a celebração em determinada data e hora para a qual membros são convocados na escala.
 
 | Campo | Tipo Recomendado | Nulo? | Chave | Descrição & Regras de Negócio |
@@ -112,7 +132,7 @@ Representa a celebração em determinada data e hora para a qual membros são co
 
 ---
 
-### 2.4. Tabela `EVENT_MEMBER` (`event_members`)
+### 2.5. Tabela `EVENT_MEMBER` (`event_members`)
 Tabela associativa pura que vincula os membros da equipe escalados para o evento.
 
 | Campo | Tipo Recomendado | Nulo? | Chave | Descrição & Regras de Negócio |
@@ -124,7 +144,7 @@ Tabela associativa pura que vincula os membros da equipe escalados para o evento
 
 ---
 
-### 2.5. Tabela `USER` (`users`)
+### 2.6. Tabela `USER` (`users`)
 Representa o usuário autenticado no sistema.
 
 | Campo | Tipo Recomendado | Nulo? | Chave | Descrição |
@@ -140,24 +160,27 @@ Representa o usuário autenticado no sistema.
 
 ## 🔗 3. Cardinalidades e Regras de Negócio
 
-1. **`MEMBER` 1 : N `EVENT` (Celebrante Principal)**:
+1. **`CATEGORY` 1 : N `CELEBRATION`**:
+   - Uma categoria litúrgica (ex: *"Dominical"*) classifica múltiplas celebrações cadastradas na paróquia.
+
+2. **`CELEBRATION` 1 : N `EVENT`**:
+   - Uma celebração do catálogo define o nome e rito de múltiplos eventos no calendário.
+
+3. **`MEMBER` 1 : N `EVENT` (Celebrante Principal)**:
    - Um membro (com perfil `'celebrante'`, `'diacono'` ou `'ministro'`) pode presidir diversos eventos litúrgicos como presidente principal (`celebrant_id`).
 
-2. **`MEMBER` 1 : N `EVENT_MEMBER` (Equipe Ministerial)**:
+4. **`MEMBER` 1 : N `EVENT_MEMBER` (Equipe Ministerial)**:
    - Um membro pode participar de nenhum, um ou vários eventos ao longo do mês/ano.
    - O total de escalas do membro no mês é calculado dinamicamente via agregação (`COUNT`) na tabela `event_members` para alertar sobrecarga ministerial (ex: ≥ 3 escalas).
 
-3. **`EVENT` 1 : N `EVENT_MEMBER`**:
+5. **`EVENT` 1 : N `EVENT_MEMBER`**:
    - Um evento é composto por membros escalados vinculados via `event_members`.
    - A remoção de um evento em cascata remove os registros correspondentes em `event_members`.
 
-4. **`CELEBRATION` 1 : N `EVENT`**:
-   - Uma celebração do catálogo define o nome e categoria litúrgica de múltiplos eventos no calendário.
-
-5. **`USER` 1 : N `EVENT`**:
+6. **`USER` 1 : N `EVENT`**:
    - Um usuário administrador cria e gerencia múltiplos eventos/escalas.
 
-6. **Restrições de Unicidade**:
+7. **Restrições de Unicidade**:
    - `UNIQUE(event_id, member_id)`: Um membro não pode ser adicionado em duplicidade no mesmo evento.
    - `UNIQUE(date, time)`: Não pode haver mais de um evento para o mesmo horário e data na mesma capela.
 
@@ -166,12 +189,28 @@ Representa o usuário autenticado no sistema.
 ## 💾 4. Script DDL Sugerido (PostgreSQL / SQLite)
 
 ```sql
--- 1. Tabela de Membros
+-- 1. Tabela de Categorias (Categories)
+CREATE TABLE categories (
+    id VARCHAR(36) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 2. Tabela de Celebrações (Celebrations)
+CREATE TABLE celebrations (
+    id VARCHAR(36) PRIMARY KEY,
+    name VARCHAR(150) NOT NULL UNIQUE,
+    category_id VARCHAR(36) REFERENCES categories(id) ON DELETE SET NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 3. Tabela de Membros (Members)
 CREATE TABLE members (
     id VARCHAR(36) PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     phone VARCHAR(25),
-    profile VARCHAR(50) NOT NULL DEFAULT 'ministro',
+    profile VARCHAR(50) NOT NULL DEFAULT 'minister' CHECK (profile IN ('minister', 'celebrant', 'coordinator', 'deacon')),
     status VARCHAR(20) NOT NULL DEFAULT 'ativo' CHECK (status IN ('ativo', 'licenca')),
     start_date DATE,
     avatar_url TEXT,
@@ -179,15 +218,7 @@ CREATE TABLE members (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. Tabela de Celebrações
-CREATE TABLE celebrations (
-    id VARCHAR(36) PRIMARY KEY,
-    name VARCHAR(150) NOT NULL UNIQUE,
-    category VARCHAR(30) NOT NULL CHECK (category IN ('dominical', 'semanal', 'solenidade', 'sacramento', 'especial')),
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
--- 3. Tabela de Usuários
+-- 4. Tabela de Usuários (Users)
 CREATE TABLE users (
     id VARCHAR(36) PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
@@ -197,7 +228,7 @@ CREATE TABLE users (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- 4. Tabela de Eventos (Escalas)
+-- 5. Tabela de Eventos / Escalas (Events)
 CREATE TABLE events (
     id VARCHAR(60) PRIMARY KEY,
     date DATE NOT NULL,
@@ -211,7 +242,7 @@ CREATE TABLE events (
     CONSTRAINT unq_event_date_time UNIQUE (date, time)
 );
 
--- 5. Tabela Associativa Evento-Membro
+-- 6. Tabela Associativa Evento-Membro (Event Members)
 CREATE TABLE event_members (
     id VARCHAR(36) PRIMARY KEY,
     event_id VARCHAR(60) NOT NULL REFERENCES events(id) ON DELETE CASCADE,
@@ -220,13 +251,14 @@ CREATE TABLE event_members (
     CONSTRAINT unq_event_member UNIQUE (event_id, member_id)
 );
 
--- 6. Índices para Otimização de Consultas
+-- 7. Índices para Otimização de Consultas (Indexes)
+CREATE INDEX idx_celebrations_category ON celebrations(category_id);
 CREATE INDEX idx_events_date ON events(date);
-CREATE INDEX idx_events_celebrant ON events(celebrant_id);
-CREATE INDEX idx_event_members_event ON event_members(event_id);
-CREATE INDEX idx_event_members_member ON event_members(member_id);
-CREATE INDEX idx_members_status ON members(status);
-CREATE INDEX idx_members_profile ON members(profile);
+CREATE INDEX idx_events_celebrante ON events(celebrant_id);
+CREATE INDEX idx_evento_membros_evento ON event_members(event_id);
+CREATE INDEX idx_evento_membros_membro ON event_members(member_id);
+CREATE INDEX idx_membros_status ON members(status);
+CREATE INDEX idx_membros_profile ON members(profile);
 ```
 
 ---
@@ -235,8 +267,9 @@ CREATE INDEX idx_members_profile ON members(profile);
 
 | Entidade no DER | Chave / Estrutura no `store.js` | Métodos Relacionados |
 | :--- | :--- | :--- |
-| **`MEMBER`** | `STORAGE_KEY_MEMBERS` (`mesc_portal_members_v2`) | `getMembers()`, `getMemberById()`, `addMember()`, `updateMember()`, `deleteMember()` |
+| **`CATEGORY`** | `STORAGE_KEY_CATEGORIES` (Categorias litúrgicas) | `getCategories()`, `getCategoryById()` |
 | **`CELEBRATION`** | `STORAGE_KEY_CELEBRATIONS` (`mesc_portal_celebrations_v2`) | `getCelebrations()`, `getCelebrationObjects()`, `addCelebration()`, `updateCelebration()`, `deleteCelebration()` |
+| **`MEMBER`** | `STORAGE_KEY_MEMBERS` (`mesc_portal_members_v2`) | `getMembers()`, `getMemberById()`, `addMember()`, `updateMember()`, `deleteMember()` |
 | **`EVENT`** | `STORAGE_KEY_SCALES` (`mesc_portal_scales_v2`) | `getScalesForMonth()`, `getScaleByDateAndHour()`, `saveScale()`, `deleteScale()` |
-| **`EVENT_MEMBER`** | `scale.ministers` (array de membros vinculados ao evento) | Adição/remoção de ministros no Passo 3 (`assignCandidateMinister`, `removeAssignedMinister`) |
+| **`EVENT_MEMBER`** | `scale.ministers` (array de membros vinculados ao evento) | `assignCandidateMinister()`, `removeAssignedMinister()` |
 | **`USER`** | `STORAGE_KEY_USER` (`mesc_portal_user_v2`) | `getCurrentUser()`, `login()`, `logout()` |
