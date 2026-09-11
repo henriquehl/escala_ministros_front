@@ -123,47 +123,60 @@ function renderCelebrationSelect(selectedCelebrationName = '') {
  */
 function initCelebrationControls() {
   const toggleBtn = document.getElementById('btn-toggle-new-celebration');
-  const container = document.getElementById('new-celebration-container');
+  const modal = document.getElementById('roster-celebration-modal');
   const inputName = document.getElementById('new-celebration-name');
+  const inputCategory = document.getElementById('new-celebration-category');
   const btnSaveNew = document.getElementById('btn-save-new-celebration');
   const btnCancelNew = document.getElementById('btn-cancel-new-celebration');
+  const btnCloseModal = document.getElementById('btn-close-roster-celebration-modal');
 
-  if (toggleBtn && container) {
-    toggleBtn.addEventListener('click', () => {
-      const isHidden = container.classList.contains('hidden');
-      if (isHidden) {
-        container.classList.remove('hidden');
-        if (inputName) {
-          inputName.value = '';
-          inputName.focus();
-        }
-      } else {
-        container.classList.add('hidden');
+  const openModal = () => {
+    if (modal) {
+      modal.classList.remove('hidden');
+      if (inputName) {
+        inputName.value = '';
+        setTimeout(() => inputName.focus(), 50);
       }
-    });
+      if (inputCategory) inputCategory.value = 'dominical';
+    }
+  };
+
+  const closeModal = () => {
+    if (modal) modal.classList.add('hidden');
+  };
+
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', openModal);
   }
 
-  if (btnCancelNew && container) {
-    btnCancelNew.addEventListener('click', () => {
-      container.classList.add('hidden');
-    });
+  if (btnCancelNew) {
+    btnCancelNew.addEventListener('click', closeModal);
+  }
+
+  if (btnCloseModal) {
+    btnCloseModal.addEventListener('click', closeModal);
   }
 
   if (btnSaveNew && inputName) {
     btnSaveNew.addEventListener('click', () => {
       const name = inputName.value.trim();
+      const category = inputCategory ? inputCategory.value : 'dominical';
       if (!name) {
         if (window.showToast) window.showToast('Informe o nome da celebração.');
         return;
       }
 
       if (window.appStore) {
-        window.appStore.addCelebration(name);
+        window.appStore.addCelebration({
+          name,
+          category
+        });
         renderCelebrationSelect(name);
       }
 
-      if (container) container.classList.add('hidden');
+      closeModal();
       inputName.value = '';
+      if (inputCategory) inputCategory.value = 'dominical';
 
       if (window.showToast) {
         window.showToast(`Celebração "${name}" cadastrada com sucesso!`);
@@ -540,6 +553,7 @@ function saveCurrentRoster(notifyWhatsApp = false) {
   const dateParts = selectedRosterDate.split('-');
   const year = parseInt(dateParts[0], 10);
   const month = parseInt(dateParts[1], 10);
+  const day = parseInt(dateParts[2], 10);
   const dt = new Date(year, month - 1, day);
   const dayOfWeek = WEEKDAY_NAMES_SHORT[dt.getDay()];
   const dayOfWeekFullName = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'][dt.getDay()];

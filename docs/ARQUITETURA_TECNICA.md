@@ -67,6 +67,10 @@ A navegação ocorre por meio de rotas baseadas em hash fragment (`#/`).
 │       ├── export.js            # Exportação PDF e WhatsApp
 │       ├── app.js               # Toast e inicializador
 │       └── components/          # Controladores JS dos componentes
+├── docs/
+│   ├── ARQUITETURA_TECNICA.md   # Arquitetura e padrões do sistema
+│   ├── DER_RECOMENDADO.md       # Diagrama de Entidade-Relacionamento (Mermaid)
+│   └── MANUAL_DO_USUARIO.md     # Guia de uso e funcionalidades
 ├── src/
 │   ├── layouts/
 │   │   └── Layout.astro         # Layout base global

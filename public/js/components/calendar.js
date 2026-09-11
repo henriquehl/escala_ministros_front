@@ -114,13 +114,14 @@ function renderCalendar() {
   // 1. Dias do mês anterior
   for (let x = firstDayIndex; x > 0; x--) {
     const dayNum = prevMonthDays - x + 1;
-    html += `<div class="py-2.5 rounded-xl text-on-surface-variant/40 font-body-sm text-body-sm opacity-50">${dayNum}</div>`;
+    html += `<div class="h-12 sm:h-14 w-full rounded-2xl flex items-center justify-center text-outline/30 text-xs sm:text-sm select-none opacity-40">${dayNum}</div>`;
   }
 
   // 2. Dias do mês corrente
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const dayScales = monthScales.filter((s) => s.day === day);
+    const isSunday = (firstDayIndex + day - 1) % 7 === 0;
 
     // Filtrar por horário se selecionado
     const matchingScale = dayScales.find((s) => {
@@ -131,38 +132,32 @@ function renderCalendar() {
     const isSelected = day === selectedDay;
 
     if (matchingScale) {
-      const ministerCount = matchingScale.ministers ? matchingScale.ministers.length : 0;
-
       if (isSelected) {
         html += `
-          <button class="calendar-day-btn flex flex-col items-center justify-center py-1.5 rounded-xl bg-primary text-on-primary shadow-md transform scale-105 active:scale-100 transition-all ring-offset-2 ring-primary" data-day="${day}" data-date="${dateStr}" type="button">
-            <span class="font-title-md text-title-md text-on-primary font-bold">${day}</span>
-            <span class="inline-flex items-center px-1.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-[9px] font-bold shadow-xs">
-              ${ministerCount} Ministros
-            </span>
+          <button class="calendar-day-btn relative h-12 sm:h-14 w-full rounded-2xl bg-primary text-on-primary shadow-md flex flex-col items-center justify-center p-1 transition-all active:scale-95 ring-2 ring-primary ring-offset-2 ring-offset-surface-container-lowest" data-day="${day}" data-date="${dateStr}" type="button">
+            <span class="text-sm sm:text-base font-bold text-on-primary leading-none">${day}</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-on-primary mt-1 shadow-xs"></span>
           </button>
         `;
       } else {
         html += `
-          <button class="calendar-day-btn flex flex-col items-center justify-center py-1.5 rounded-xl bg-surface-container-low hover:bg-primary-fixed/40 transition-all group" data-day="${day}" data-date="${dateStr}" type="button">
-            <span class="font-title-md text-title-md text-on-surface group-hover:text-primary font-medium">${day}</span>
-            <span class="inline-flex items-center px-1.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-[10px] font-bold">
-              ${ministerCount} Ministros
-            </span>
+          <button class="calendar-day-btn relative h-12 sm:h-14 w-full rounded-2xl bg-surface-container-low/80 hover:bg-primary-fixed/40 border border-outline-variant/30 flex flex-col items-center justify-center p-1 transition-all group active:scale-95" data-day="${day}" data-date="${dateStr}" type="button">
+            <span class="text-sm sm:text-base font-semibold ${isSunday ? 'text-primary' : 'text-on-surface'} group-hover:text-primary leading-none">${day}</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-primary mt-1 group-hover:scale-125 transition-transform"></span>
           </button>
         `;
       }
     } else {
       if (isSelected) {
         html += `
-          <button class="calendar-day-btn flex flex-col items-center justify-center py-1.5 rounded-xl bg-primary text-on-primary shadow-md transform scale-105" data-day="${day}" data-date="${dateStr}" type="button">
-            <span class="font-title-md text-title-md text-on-primary font-bold">${day}</span>
+          <button class="calendar-day-btn relative h-12 sm:h-14 w-full rounded-2xl bg-primary text-on-primary shadow-md flex flex-col items-center justify-center p-1 transition-all active:scale-95" data-day="${day}" data-date="${dateStr}" type="button">
+            <span class="text-sm sm:text-base font-bold text-on-primary leading-none">${day}</span>
           </button>
         `;
       } else {
         html += `
-          <button class="calendar-day-btn py-2.5 rounded-xl text-on-surface font-body-sm text-body-sm hover:bg-surface-container-low transition-colors" data-day="${day}" data-date="${dateStr}" type="button">
-            ${day}
+          <button class="calendar-day-btn relative h-12 sm:h-14 w-full rounded-2xl hover:bg-surface-container-low/70 flex flex-col items-center justify-center p-1 text-on-surface/80 transition-colors" data-day="${day}" data-date="${dateStr}" type="button">
+            <span class="text-sm sm:text-base font-medium ${isSunday ? 'text-primary/70 font-semibold' : 'text-on-surface/75'} leading-none">${day}</span>
           </button>
         `;
       }
@@ -173,7 +168,7 @@ function renderCalendar() {
   const totalCells = firstDayIndex + daysInMonth;
   const nextMonthCells = totalCells <= 35 ? 35 - totalCells : 42 - totalCells;
   for (let n = 1; n <= nextMonthCells; n++) {
-    html += `<div class="py-2.5 rounded-xl text-on-surface-variant/40 font-body-sm text-body-sm opacity-50">${n}</div>`;
+    html += `<div class="h-12 sm:h-14 w-full rounded-2xl flex items-center justify-center text-outline/30 text-xs sm:text-sm select-none opacity-40">${n}</div>`;
   }
 
   gridEl.innerHTML = html;
@@ -197,8 +192,6 @@ function renderSelectedDayCard() {
   const massSubtitleEl = document.getElementById('selectedMassSubtitle');
   const countRatioEl = document.getElementById('selectedSlotRatio');
   const listEl = document.getElementById('ministersRosterList');
-  const emptyStateEl = document.getElementById('selectedDayEmptyState');
-  const cardSectionEl = document.getElementById('selectedRosterSection');
 
   const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
   const scale = window.appStore ? window.appStore.getScaleByDateAndHour(dateStr, activeTimeFilter) : null;
@@ -214,19 +207,21 @@ function renderSelectedDayCard() {
   if (titleEl) titleEl.textContent = formattedFullDate;
 
   if (!scale || !scale.ministers || scale.ministers.length === 0) {
-    if (massSubtitleEl) massSubtitleEl.innerHTML = `<span class="material-symbols-outlined text-[18px] text-outline">event_busy</span> Nenhuma celebração escalada para esta data.`;
-    if (countRatioEl) countRatioEl.textContent = 'Ministros escalados: 0';
+    if (massSubtitleEl) massSubtitleEl.innerHTML = `<span class="material-symbols-outlined text-[16px] text-outline">event_busy</span> Nenhuma celebração escalada para este dia.`;
+    if (countRatioEl) {
+      countRatioEl.innerHTML = `<span class="material-symbols-outlined text-[15px] leading-none">person_off</span><span>Sem ministros escalados</span>`;
+    }
     if (listEl) {
       const isAdmin = Boolean(window.appStore && window.appStore.currentUser && window.appStore.currentUser.isAdmin);
       const createBtnHtml = isAdmin ? `
-        <button type="button" class="mt-3 px-4 py-2 rounded-xl bg-primary text-on-primary font-label-md text-label-md" data-path="montar-escala">
+        <button type="button" class="mt-3 px-4 py-2 rounded-xl bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors active:scale-95" data-path="montar-escala">
           Montar Escala para este Dia
         </button>
       ` : '';
 
       listEl.innerHTML = `
-        <div class="text-center py-6 px-4 bg-surface-container-low rounded-xl">
-          <span class="material-symbols-outlined text-4xl text-outline mb-2">calendar_add_on</span>
+        <div class="col-span-full text-center py-8 px-4 bg-surface-container-low/50 rounded-2xl border border-outline-variant/20">
+          <span class="material-symbols-outlined text-4xl text-outline/60 mb-2">calendar_add_on</span>
           <p class="font-body-md text-body-md text-on-surface">Nenhum ministro escalado para este dia.</p>
           ${createBtnHtml}
         </div>
@@ -237,36 +232,39 @@ function renderSelectedDayCard() {
 
   // Preencher dados da celebração
   if (massSubtitleEl) {
+    const celebrantText = scale.celebrant ? ` · ${scale.celebrant}` : '';
     massSubtitleEl.innerHTML = `
-      <span class="material-symbols-outlined text-[18px] text-secondary">schedule</span>
-      ${scale.time}h · ${scale.celebrationName || 'Celebração da Eucaristia'}
+      <span class="material-symbols-outlined text-[16px] text-secondary">schedule</span>
+      <span>${scale.time}h · <strong>${scale.celebrationName || 'Santa Missa'}</strong>${celebrantText}</span>
     `;
   }
 
   const assignedCount = scale.ministers.length;
 
-  if (countRatioEl) countRatioEl.textContent = `Ministros escalados: ${assignedCount}`;
+  if (countRatioEl) {
+    countRatioEl.innerHTML = `<span class="material-symbols-outlined text-[15px] leading-none">group</span><span>${assignedCount} Ministro${assignedCount === 1 ? '' : 's'} Escalado${assignedCount === 1 ? '' : 's'}</span>`;
+  }
 
-  // Renderizar Lista de Ministros (Sem badge de confirmação e sem ícone de telefone)
+  // Renderizar Lista de Ministros (Grid moderna em 2 colunas)
   if (listEl) {
     listEl.innerHTML = scale.ministers.map((minister) => {
       const initials = minister.name.split(' ').map((n) => n[0]).slice(0, 2).join('');
 
       return `
-        <div class="flex items-center justify-between p-2 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors border-l-[3px] border-primary/70">
+        <div class="flex items-center justify-between p-3 rounded-2xl bg-surface-container-low/70 hover:bg-surface-container transition-all border border-outline-variant/20 shadow-xs">
           <div class="flex items-center gap-3 min-w-0">
             ${
               minister.avatar
-                ? `<img class="w-11 h-11 rounded-full object-cover shadow-sm flex-shrink-0" src="${minister.avatar}" alt="${minister.name}">`
-                : `<div class="w-11 h-11 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-title-md text-title-md font-bold shadow-sm flex-shrink-0">${initials}</div>`
+                ? `<img class="w-10 h-10 rounded-full object-cover shadow-sm flex-shrink-0 border border-outline-variant/30" src="${minister.avatar}" alt="${minister.name}">`
+                : `<div class="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-sm shadow-sm flex-shrink-0">${initials}</div>`
             }
             <div class="flex flex-col min-w-0">
               <div class="flex items-center gap-1.5">
-                <span class="font-title-md text-title-md text-on-surface truncate font-semibold">${minister.name}</span>
+                <span class="text-sm font-bold text-on-surface truncate">${minister.name}</span>
                 ${minister.isLeader ? `<span class="material-symbols-outlined text-primary text-[16px]" title="Coordenador de Turno">stars</span>` : ''}
               </div>
-              <span class="font-label-sm text-label-sm ${minister.isLeader ? 'text-primary font-semibold' : 'text-on-surface-variant font-medium'} flex items-center gap-1">
-                <span class="material-symbols-outlined text-[14px]">${minister.isLeader ? 'order_play' : 'groups'}</span>
+              <span class="text-xs ${minister.isLeader ? 'text-primary font-semibold' : 'text-on-surface-variant font-medium'} flex items-center gap-1 mt-0.5 truncate">
+                <span class="material-symbols-outlined text-[13px]">${minister.isLeader ? 'workspace_premium' : 'church'}</span>
                 ${minister.role || 'Ministro da Eucaristia'}
               </span>
             </div>

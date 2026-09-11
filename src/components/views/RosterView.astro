@@ -4,9 +4,9 @@
 <div id="view-montar-escala" class="view-container w-full pt-32 md:pt-24 pb-12 px-margin-screen">
   <div class="flex flex-col w-full space-y-spacing-md max-w-4xl mx-auto">
     <!-- Passo 1 -->
-    <div class="bg-surface-container-lowest rounded-xl p-spacing-md shadow-sm">
+    <div class="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 border border-outline-variant/30 shadow-sm">
       <div class="flex items-center justify-between mb-spacing-xs">
-        <span class="font-label-md text-label-md text-primary uppercase tracking-wider font-bold">Passo 1 de 3</span>
+        <span class="font-label-sm text-[11px] text-primary uppercase tracking-wider font-bold bg-primary-fixed/40 px-2.5 py-0.5 rounded-full">Passo 1 de 3</span>
         <div class="flex items-center gap-2">
           <span class="inline-flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm bg-surface-container-high px-2 py-0.5 rounded-full" id="roster-month-badge">
             <span class="material-symbols-outlined text-[14px]">event</span>
@@ -53,9 +53,9 @@
     </div>
 
     <!-- Passo 2 -->
-    <div class="bg-surface-container-lowest rounded-xl p-spacing-md shadow-sm">
+    <div class="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 border border-outline-variant/30 shadow-sm">
       <div class="flex items-center justify-between mb-spacing-xs">
-        <span class="font-label-md text-label-md text-primary uppercase tracking-wider font-bold">Passo 2 de 3</span>
+        <span class="font-label-sm text-[11px] text-primary uppercase tracking-wider font-bold bg-primary-fixed/40 px-2.5 py-0.5 rounded-full">Passo 2 de 3</span>
         <span class="material-symbols-outlined text-secondary text-[20px]">auto_stories</span>
       </div>
       <h2 class="font-headline-sm text-headline-sm text-on-surface">Nome da Celebração &amp; Presidência</h2>
@@ -74,32 +74,18 @@
 
           <!-- Select da Lista Pré-definida -->
           <div class="relative">
-            <select class="w-full bg-surface-container-low text-on-surface font-body-md text-body-md rounded-lg p-3 pr-10 appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container font-medium" id="celebration-select">
+            <select class="w-full bg-surface-container-low text-on-surface font-body-md text-body-md rounded-xl p-3 pr-10 appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container font-medium border border-outline-variant/20" id="celebration-select">
               <!-- Populado dinamicamente via js/components/roster.js -->
             </select>
             <span class="material-symbols-outlined absolute right-3 top-3 text-on-surface-variant pointer-events-none text-[20px]">expand_more</span>
-          </div>
-
-          <!-- Formulário Inline para Cadastrar Novo Nome (Expansível) -->
-          <div id="new-celebration-container" class="hidden mt-2 p-3 bg-surface-container-low rounded-xl border border-primary/20 animate-fade-in">
-            <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1" for="new-celebration-name">Cadastrar Novo Nome de Celebração</label>
-            <div class="flex items-center gap-2">
-              <input type="text" id="new-celebration-name" placeholder="Ex: Missa de Ação de Graças..." class="flex-1 bg-surface text-on-surface font-body-sm text-body-sm rounded-lg p-2.5 border border-outline/20 focus:outline-none focus:ring-2 focus:ring-primary/30">
-              <button type="button" id="btn-save-new-celebration" class="px-3.5 py-2.5 bg-primary text-on-primary rounded-lg font-label-sm text-label-sm font-semibold hover:opacity-95 transition-opacity">
-                Salvar
-              </button>
-              <button type="button" id="btn-cancel-new-celebration" class="px-2.5 py-2.5 text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm">
-                Cancelar
-              </button>
-            </div>
           </div>
         </div>
 
         <!-- Seleção do Celebrante Principal -->
         <div>
-          <label class="block font-label-md text-label-md text-on-surface mb-1" for="celebrante">Celebrante principal</label>
+          <label class="block font-label-md text-label-md text-on-surface mb-1 font-semibold" for="celebrante">Celebrante principal</label>
           <div class="relative">
-            <select class="w-full bg-surface-container-low text-on-surface font-body-md text-body-md rounded-lg p-3 pr-10 appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container" id="celebrante">
+            <select class="w-full bg-surface-container-low text-on-surface font-body-md text-body-md rounded-xl p-3 pr-10 appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container font-medium border border-outline-variant/20" id="celebrante">
               <option value="padre_marcelo">Pe. Marcelo Rossi (Pároco)</option>
               <option value="padre_antonio">Pe. Antônio Vieira (Vigário)</option>
               <option value="dom_orlando">Dom Orlando (Bispo Convidado)</option>
@@ -112,10 +98,10 @@
     </div>
 
     <!-- Passo 3 -->
-    <div class="bg-surface-container-lowest rounded-xl p-spacing-md shadow-sm">
+    <div class="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 border border-outline-variant/30 shadow-sm">
       <div class="flex items-center justify-between mb-spacing-xs">
-        <span class="font-label-md text-label-md text-primary uppercase tracking-wider font-bold">Passo 3 de 3</span>
-        <span class="font-label-sm text-label-sm bg-tertiary-fixed text-on-tertiary-fixed px-2 py-0.5 rounded-full font-bold" id="slot-counter">4 de 6 Vagas Preenchidas</span>
+        <span class="font-label-sm text-[11px] text-primary uppercase tracking-wider font-bold bg-primary-fixed/40 px-2.5 py-0.5 rounded-full">Passo 3 de 3</span>
+        <span class="font-label-sm text-label-sm bg-tertiary-fixed text-on-tertiary-fixed px-2.5 py-0.5 rounded-full font-bold" id="slot-counter">4 de 6 Vagas Preenchidas</span>
       </div>
       <h2 class="font-headline-sm text-headline-sm text-on-surface">Ministros Escalados</h2>
       <p class="font-body-sm text-body-sm text-on-surface-variant mb-spacing-md">Funções predefinidas para a liturgia desta missa.</p>
@@ -126,15 +112,15 @@
       </div>
 
       <!-- Add Minister Filter & Search -->
-      <div class="bg-surface-container-low rounded-xl p-spacing-sm">
+      <div class="bg-surface-container-low/70 rounded-xl p-spacing-sm border border-outline-variant/20">
         <div class="flex items-center justify-between mb-spacing-xs">
-          <h3 class="font-title-md text-title-md text-on-surface">Adicionar Ministros</h3>
+          <h3 class="font-title-md text-title-md text-on-surface font-semibold">Adicionar Ministros</h3>
           <span id="active-base-count" class="font-label-sm text-label-sm text-on-surface-variant">Base Ativa (28)</span>
         </div>
         <!-- Search Bar -->
         <div class="relative mb-spacing-xs">
           <span class="material-symbols-outlined absolute left-3 top-2.5 text-on-surface-variant text-[20px]">search</span>
-          <input class="w-full bg-surface-container-lowest text-on-surface font-body-sm text-body-sm rounded-lg py-2.5 pl-10 pr-3 focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-sm" id="minister-search" placeholder="Buscar por nome ou setor..." type="text"/>
+          <input class="w-full bg-surface-container-lowest text-on-surface font-body-sm text-body-sm rounded-lg py-2.5 pl-10 pr-3 focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-sm border border-outline-variant/30" id="minister-search" placeholder="Buscar por nome ou telefone..." type="text"/>
         </div>
         <!-- Candidate Minister List (Dinâmico) -->
         <div class="space-y-spacing-xs max-h-56 overflow-y-auto pr-1" id="candidate-ministers-list">
@@ -146,7 +132,7 @@
     <!-- Action Section -->
     <div class="pt-spacing-xs space-y-spacing-xs">
       <!-- Primary CTA: Save -->
-      <button class="w-full h-13 py-3.5 px-4 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg shadow-sm flex items-center justify-center gap-2 hover:bg-primary-container active:scale-[0.99] transition-all" id="btn-save-roster" type="button">
+      <button class="w-full h-12 py-3 px-4 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg shadow-sm flex items-center justify-center gap-2 hover:bg-primary-container active:scale-[0.99] transition-all" id="btn-save-roster" type="button">
         <span class="material-symbols-outlined text-[20px]">check_circle</span>
         Salvar Escala
       </button>
@@ -160,6 +146,60 @@
         <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
         Opções de Impressão e PDF
       </button>
+    </div>
+  </div>
+
+  <!-- Popup Modal: Cadastrar Novo Nome de Celebração -->
+  <div id="roster-celebration-modal" class="fixed inset-0 z-50 bg-inverse-surface/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity duration-200 hidden">
+    <div class="w-full sm:max-w-md bg-surface-container-lowest rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto space-y-4 animate-fade-in border border-outline-variant/30">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-3 border-b border-outline-variant/20">
+        <div>
+          <h3 class="text-lg font-bold text-on-surface">Cadastrar Celebração</h3>
+          <p class="text-xs text-on-surface-variant font-medium">Cadastre e use imediatamente nesta escala</p>
+        </div>
+        <button class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors" id="btn-close-roster-celebration-modal" type="button" aria-label="Fechar janela">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+
+      <!-- Form Fields -->
+      <div class="space-y-3.5">
+        <div class="space-y-1">
+          <label class="block font-label-sm text-label-sm text-on-surface uppercase tracking-wider font-semibold" for="new-celebration-name">Nome da Celebração</label>
+          <div class="relative">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px]">church</span>
+            <input type="text" id="new-celebration-name" placeholder="Ex: Missa de Bodas de Prata" class="w-full h-12 pl-10 pr-3.5 bg-surface-container-low rounded-xl font-body-md text-body-md text-on-surface focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 focus:outline-none shadow-sm border border-outline-variant/20">
+          </div>
+        </div>
+
+        <!-- Categoria Litúrgica -->
+        <div class="space-y-1">
+          <label class="block font-label-sm text-label-sm text-on-surface uppercase tracking-wider font-semibold" for="new-celebration-category">Categoria Litúrgica</label>
+          <div class="relative">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px]">category</span>
+            <select class="w-full h-12 pl-10 pr-10 bg-surface-container-low rounded-xl font-body-md text-body-md text-on-surface focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 focus:outline-none shadow-sm appearance-none border border-outline-variant/20" id="new-celebration-category">
+              <option value="dominical" selected="">Dominical (Preceito)</option>
+              <option value="semanal">Semanal (Ferial)</option>
+              <option value="solenidade">Solenidade Especial</option>
+              <option value="sacramento">Sacramento (Batismo, Matrimônio, Crisma)</option>
+              <option value="especial">Especial / Devocional / Exéquias</option>
+            </select>
+            <span class="absolute right-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px] pointer-events-none">expand_more</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Actions -->
+      <div class="pt-2 flex items-center gap-2">
+        <button type="button" id="btn-cancel-new-celebration" class="flex-1 h-11 rounded-xl bg-surface-container-high text-on-surface font-label-md text-label-md hover:bg-surface-variant transition-colors">
+          Cancelar
+        </button>
+        <button type="button" id="btn-save-new-celebration" class="flex-1 h-11 rounded-xl bg-primary text-on-primary font-label-md text-label-md shadow-md hover:bg-primary-container transition-colors flex items-center justify-center gap-1.5 font-semibold">
+          <span class="material-symbols-outlined text-[18px]">save</span>
+          Salvar Celebração
+        </button>
+      </div>
     </div>
   </div>
 </div>

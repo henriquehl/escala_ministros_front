@@ -104,9 +104,9 @@ function renderCelebrationsStats() {
   const statDominicaisEl = document.getElementById('stat-dominicais-count');
   const statSolenesEl = document.getElementById('stat-solenes-count');
 
-  if (totalHeroEl) totalHeroEl.textContent = `${stats.total} Celebrações Cadastradas`;
+  if (totalHeroEl) totalHeroEl.textContent = 'Catálogo de Celebrações';
   if (regularHeroEl) {
-    regularHeroEl.textContent = `${stats.dominicais} dominicais · ${stats.semanais} semanais · ${stats.solenesEEspeciais} solenes/especiais`;
+    regularHeroEl.textContent = `${stats.total} celebrações cadastradas na pastoral`;
   }
   if (statDominicaisEl) statDominicaisEl.textContent = String(stats.dominicais).padStart(2, '0');
   if (statSolenesEl) statSolenesEl.textContent = String(stats.solenesEEspeciais).padStart(2, '0');
@@ -242,21 +242,6 @@ function renderCelebrationsList() {
           </span>
         </div>
 
-        <!-- Detalhes & Descrição Litúrgica -->
-        <div class="grid grid-cols-1 gap-1.5 pt-1">
-          <div class="flex items-start gap-2 text-on-surface-variant font-body-sm text-body-sm bg-surface-container-low px-2.5 py-1.5 rounded-lg">
-            <span class="material-symbols-outlined text-[16px] text-primary shrink-0 mt-0.5">info</span>
-            <span class="leading-relaxed line-clamp-2">${cel.description || 'Celebração litúrgica paroquial padronizada.'}</span>
-          </div>
-          <div class="flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm bg-surface-container-low px-2.5 py-1.5 rounded-lg">
-            <div class="flex items-center gap-1.5 truncate">
-              <span class="material-symbols-outlined text-[16px] text-tertiary">groups</span>
-              <span class="truncate">Mínimo sugerido: <strong>${cel.minMinisters || 2} ministros</strong></span>
-            </div>
-            <span class="font-label-sm text-label-sm text-primary font-semibold">Capela Divino Espírito Santo</span>
-          </div>
-        </div>
-
         <!-- Ações do Administrador -->
         ${actionButtons}
       </div>
@@ -294,14 +279,10 @@ function openAddCelebrationModal() {
   const modalTitle = document.getElementById('celebration-modal-title');
   const nameInput = document.getElementById('input-cel-name');
   const categoryInput = document.getElementById('input-cel-category');
-  const descInput = document.getElementById('input-cel-description');
-  const ministersInput = document.getElementById('input-cel-ministers');
 
   if (modalTitle) modalTitle.textContent = 'Cadastrar Nova Celebração';
   if (nameInput) nameInput.value = '';
   if (categoryInput) categoryInput.value = 'dominical';
-  if (descInput) descInput.value = '';
-  if (ministersInput) ministersInput.value = '4';
 
   if (modal) modal.classList.remove('hidden');
 }
@@ -321,14 +302,10 @@ window.openEditCelebrationModal = function(id) {
   const modalTitle = document.getElementById('celebration-modal-title');
   const nameInput = document.getElementById('input-cel-name');
   const categoryInput = document.getElementById('input-cel-category');
-  const descInput = document.getElementById('input-cel-description');
-  const ministersInput = document.getElementById('input-cel-ministers');
 
   if (modalTitle) modalTitle.textContent = 'Editar Celebração';
   if (nameInput) nameInput.value = cel.name || '';
   if (categoryInput) categoryInput.value = cel.category || 'dominical';
-  if (descInput) descInput.value = cel.description || '';
-  if (ministersInput) ministersInput.value = cel.minMinisters || '2';
 
   if (modal) modal.classList.remove('hidden');
 };
@@ -347,13 +324,9 @@ function saveCelebrationForm() {
 
   const nameInput = document.getElementById('input-cel-name');
   const categoryInput = document.getElementById('input-cel-category');
-  const descInput = document.getElementById('input-cel-description');
-  const ministersInput = document.getElementById('input-cel-ministers');
 
   const name = (nameInput.value || '').trim();
   const category = categoryInput ? categoryInput.value : 'especial';
-  const description = (descInput ? descInput.value : '').trim();
-  const minMinisters = parseInt(ministersInput ? ministersInput.value : '2', 10) || 2;
 
   if (!name) {
     if (window.showToast) window.showToast('Por favor, informe o nome da celebração.');
@@ -371,18 +344,14 @@ function saveCelebrationForm() {
     window.appStore.updateCelebration(editingCelebrationId, {
       name,
       category,
-      icon,
-      description,
-      minMinisters
+      icon
     });
     if (window.showToast) window.showToast(`Celebração "${name}" atualizada com sucesso!`);
   } else {
     window.appStore.addCelebration({
       name,
       category,
-      icon,
-      description,
-      minMinisters
+      icon
     });
     if (window.showToast) window.showToast(`Celebração "${name}" cadastrada com sucesso!`);
   }

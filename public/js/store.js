@@ -473,7 +473,6 @@ class Store {
     const newMember = {
       id: 'm-' + Date.now(),
       scalesThisMonth: 0,
-      specialties: ['Nave Central'],
       avatar: null,
       ...memberData
     };

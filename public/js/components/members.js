@@ -176,62 +176,72 @@ function renderMembersList() {
     let opacityClass = '';
 
     if (member.status === 'ativo') {
-      statusBadge = `<span class="px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-[11px] shrink-0 font-semibold tracking-wide">Ativo</span>`;
+      statusBadge = `
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-[11px] font-semibold leading-none">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          Ativo
+        </span>
+      `;
     } else {
-      statusBadge = `<span class="px-2.5 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-[11px] shrink-0 font-medium tracking-wide">Licença</span>`;
+      statusBadge = `
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant border border-outline-variant/30 text-[11px] font-medium leading-none">
+          <span class="w-1.5 h-1.5 rounded-full bg-outline"></span>
+          Licença
+        </span>
+      `;
       opacityClass = 'opacity-80';
     }
 
-    // Botões de Ação apenas para Administradores
-    const actionButtons = isAdmin ? `
-      <div class="flex items-center justify-end gap-1.5 pt-2 border-t border-surface-container-high/60 mt-0.5">
-        <button type="button" class="h-7.5 px-2.5 rounded-lg bg-surface-container-high hover:bg-primary hover:text-on-primary text-on-surface font-label-sm text-[12px] font-medium flex items-center gap-1 transition-all shadow-2xs" onclick="openEditMemberModal('${member.id}')">
-          <span class="material-symbols-outlined text-[15px]">edit</span>
-          Editar
-        </button>
-        <button type="button" class="h-7.5 w-7.5 rounded-lg text-outline hover:bg-error-container hover:text-on-error-container flex items-center justify-center transition-all" title="Excluir ministro" onclick="deleteMemberAction('${member.id}', '${member.name.replace("'", "\\'")}')">
-          <span class="material-symbols-outlined text-[17px]">delete</span>
-        </button>
-      </div>
-    ` : '';
-
     return `
-      <div class="relative bg-surface-container-lowest rounded-xl p-3 sm:p-3.5 border border-surface-container-high border-l-[3.5px] border-l-[#b3093f] hover:border-primary/40 hover:shadow-md transition-all duration-200 flex flex-col justify-between gap-2.5 shadow-xs ${opacityClass}" id="member-card-${member.id}">
-        <!-- Cabeçalho: Avatar, Nome, Experiência, Status -->
-        <div class="flex items-start justify-between gap-2">
-          <div class="flex items-center gap-2.5 min-w-0">
-            <div class="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-surface-container flex items-center justify-center ring-1 ring-surface-container-high">
+      <div class="relative bg-surface-container-lowest rounded-2xl p-3.5 sm:p-4 border border-outline-variant/30 hover:border-primary/40 hover:shadow-md transition-all duration-200 flex flex-col justify-between gap-2.5 shadow-xs ${opacityClass}" id="member-card-${member.id}">
+        <!-- Topo: Avatar, Nome, Experiência, Status e Ações -->
+        <div class="flex items-start justify-between gap-2.5">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-surface-container flex items-center justify-center border border-outline-variant/30 shadow-xs">
               ${
                 member.avatar
                   ? `<img class="w-full h-full object-cover" src="${member.avatar}" alt="${member.name}">`
-                  : `<div class="w-full h-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-bold text-xs">${initials}</div>`
+                  : `<div class="w-full h-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-xs">${initials}</div>`
               }
             </div>
             <div class="min-w-0">
-              <h3 class="font-title-sm text-[14.5px] text-on-surface truncate font-semibold leading-tight">${member.name}</h3>
-              <p class="font-body-sm text-[12px] text-on-surface-variant flex items-center gap-1 mt-0.5 truncate">
-                <span class="material-symbols-outlined text-[13px] text-primary shrink-0">verified_user</span>
-                <span class="truncate text-[11.5px] text-primary font-medium">${member.experience || 'Ministro MESC'}</span>
+              <h3 class="text-[14px] sm:text-[15px] font-bold text-on-surface truncate leading-tight">${member.name}</h3>
+              <p class="text-xs text-primary font-medium flex items-center gap-1 mt-0.5 truncate">
+                <span class="material-symbols-outlined text-[13px] shrink-0">verified_user</span>
+                <span class="truncate">${member.experience || 'Ministro MESC'}</span>
               </p>
             </div>
           </div>
-          ${statusBadge}
+
+          <!-- Status & Botões de Ação do Admin -->
+          <div class="flex items-center gap-1 shrink-0">
+            ${statusBadge}
+            ${
+              isAdmin ? `
+                <div class="flex items-center gap-0.5 ml-1">
+                  <button type="button" class="w-7 h-7 rounded-lg text-outline hover:bg-surface-container-high hover:text-primary flex items-center justify-center transition-all" title="Editar ministro" onclick="openEditMemberModal('${member.id}')">
+                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                  </button>
+                  <button type="button" class="w-7 h-7 rounded-lg text-outline hover:bg-error-container hover:text-on-error-container flex items-center justify-center transition-all" title="Excluir ministro" onclick="deleteMemberAction('${member.id}', '${member.name.replace("'", "\\'")}')">
+                    <span class="material-symbols-outlined text-[16px]">delete</span>
+                  </button>
+                </div>
+              ` : ''
+            }
+          </div>
         </div>
 
-        <!-- Micro-chips de Informações: Horário e Contato -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-0.5">
-          <div class="flex items-center gap-1.5 text-on-surface-variant text-[11.5px] bg-surface-container-low px-2 py-1 rounded-lg truncate" title="${member.schedule || 'Disponibilidade sob consulta'}">
+        <!-- Linha Inferior de Informações: Horário Habitual e Contato -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pt-2 border-t border-outline-variant/20 text-xs text-on-surface-variant font-medium">
+          <div class="flex items-center gap-1.5 min-w-0" title="${member.schedule || 'Disponibilidade sob consulta'}">
             <span class="material-symbols-outlined text-[15px] text-primary shrink-0">schedule</span>
-            <span class="truncate font-medium">${member.schedule || 'Sob consulta'}</span>
+            <span class="truncate">${member.schedule || 'Disponibilidade sob consulta'}</span>
           </div>
-          <div class="flex items-center gap-1.5 text-on-surface-variant text-[11.5px] bg-surface-container-low px-2 py-1 rounded-lg truncate" title="${member.phone || 'Sem telefone'}">
+          <div class="flex items-center gap-1.5 shrink-0" title="${member.phone || 'Sem telefone'}">
             <span class="material-symbols-outlined text-[15px] text-emerald-600 shrink-0">chat</span>
-            <span class="truncate font-medium">${member.phone || 'Sem telefone'}</span>
+            <span>${member.phone || 'Sem telefone'}</span>
           </div>
         </div>
-
-        <!-- Ações do Administrador (Botões Editar / Excluir) -->
-        ${actionButtons}
       </div>
     `;
   }).join('');

@@ -3,134 +3,137 @@
 ---
 <div id="view-calendario-missas" class="view-container w-full pt-32 md:pt-24 pb-12 px-margin-screen">
   <div class="flex flex-col w-full pb-8 max-w-4xl mx-auto">
-    <!-- Topo da Seção & Exportar -->
-    <section class="flex flex-col gap-spacing-xs mb-spacing-md">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div class="flex items-center gap-spacing-xs">
-          <span class="p-2 rounded-xl bg-primary-fixed text-primary flex items-center justify-center shadow-sm">
-            <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
-          </span>
-          <div>
-            <h1 class="font-headline-sm text-headline-sm text-primary leading-tight">Calendário de Escalas</h1>
-            <p class="font-body-sm text-body-sm text-on-surface-variant">Selecione uma data litúrgica para conferir as presenças</p>
+    <!-- Header Minimalista e Moderno de Calendário -->
+    <section class="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 border border-outline-variant/30 shadow-sm mb-spacing-md flex flex-col gap-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+        <!-- Título & Subtítulo -->
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-xl bg-primary-fixed/60 flex items-center justify-center text-primary flex-shrink-0">
+            <span class="material-symbols-outlined text-[22px]">calendar_today</span>
+          </div>
+          <div class="min-w-0">
+            <h1 class="text-base sm:text-lg font-bold text-on-surface tracking-tight leading-tight">Calendário de Escalas</h1>
+            <p class="text-xs text-on-surface-variant font-medium mt-0.5">Selecione uma data para conferir ou montar escalas</p>
           </div>
         </div>
-        <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-          <button aria-label="Exportar Escala" class="flex items-center gap-1.5 px-spacing-sm py-2 rounded-xl bg-secondary-container text-on-secondary-container shadow-sm active:scale-95 transition-transform" id="shareSheetBtn" type="button">
-            <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
-            <span class="font-label-sm text-label-sm">Exportar / Imprimir</span>
+
+        <!-- Ações Rápidas Minimalistas -->
+        <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap flex-shrink-0">
+          <button aria-label="Exportar Escala" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface-container-low hover:bg-surface-container-high text-on-surface border border-outline-variant/30 font-label-sm text-label-sm shadow-sm active:scale-95 transition-all" id="shareSheetBtn" type="button">
+            <span class="material-symbols-outlined text-[18px] text-primary">picture_as_pdf</span>
+            <span>Exportar PDF</span>
           </button>
-          <button aria-label="Montar Nova Escala" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary text-on-primary shadow-sm hover:opacity-95 active:scale-95 transition-all text-left" data-path="montar-escala" type="button">
+          <button aria-label="Montar Nova Escala" class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-primary text-on-primary font-label-sm text-label-sm shadow-sm hover:opacity-95 active:scale-95 transition-all" data-path="montar-escala" type="button">
             <span class="material-symbols-outlined text-[18px]">edit_calendar</span>
-            <div class="flex flex-col">
-              <span class="font-label-sm text-label-sm font-semibold leading-tight">Montar Nova Escala</span>
-              <span class="text-[10px] text-on-primary/80 leading-tight">distribuir ministros para o mês</span>
-            </div>
+            <span>Montar Escala</span>
           </button>
         </div>
       </div>
 
-      <!-- Filtros Rápidos de Horário das Missas -->
-      <div id="calendar-time-filters" class="flex items-center gap-2 overflow-x-auto py-1 no-scrollbar -mx-margin-screen px-margin-screen">
-        <button class="filter-chip px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md whitespace-nowrap shadow-sm transition-all" data-horario="todos" type="button">
+      <!-- Filtros Rápidos de Horário das Missas (Chips Minimalistas) -->
+      <div id="calendar-time-filters" class="flex items-center gap-2 overflow-x-auto pt-2 border-t border-outline-variant/20 no-scrollbar">
+        <button class="filter-chip px-3.5 py-1 rounded-full bg-primary text-on-primary font-label-sm text-label-sm whitespace-nowrap shadow-sm transition-all" data-horario="todos" type="button">
           Todos os Horários
         </button>
-        <button class="filter-chip px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface font-label-md text-label-md whitespace-nowrap active:scale-95 transition-all" data-horario="08:00" type="button">
+        <button class="filter-chip px-3.5 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm whitespace-nowrap active:scale-95 transition-all" data-horario="08:00" type="button">
           08:00h
         </button>
-        <button class="filter-chip px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface font-label-md text-label-md whitespace-nowrap active:scale-95 transition-all" data-horario="10:00" type="button">
+        <button class="filter-chip px-3.5 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm whitespace-nowrap active:scale-95 transition-all" data-horario="10:00" type="button">
           10:00h
         </button>
-        <button class="filter-chip px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface font-label-md text-label-md whitespace-nowrap active:scale-95 transition-all" data-horario="19:00" type="button">
+        <button class="filter-chip px-3.5 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm whitespace-nowrap active:scale-95 transition-all" data-horario="19:00" type="button">
           19:00h
         </button>
       </div>
     </section>
 
     <!-- Calendário Mensal Principal -->
-    <section class="w-full bg-surface-container-lowest rounded-2xl p-spacing-sm shadow-sm flex flex-col gap-spacing-sm">
+    <section class="w-full bg-surface-container-lowest rounded-2xl p-4 sm:p-6 border border-outline-variant/30 shadow-sm flex flex-col gap-4">
       <!-- Cabeçalho de Navegação do Mês -->
-      <div class="flex items-center justify-between px-1">
-        <div class="flex items-center gap-2">
-          <h2 id="calendar-month-name" class="font-headline-md text-headline-md text-on-surface">Outubro</h2>
-          <span id="calendar-year-badge" class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">2025</span>
+      <div class="flex items-center justify-between pb-3 border-b border-outline-variant/20">
+        <div class="flex items-center gap-2.5">
+          <h2 id="calendar-month-name" class="text-xl sm:text-2xl font-bold text-on-surface tracking-tight">Outubro</h2>
+          <span id="calendar-year-badge" class="px-2.5 py-0.5 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm font-semibold border border-outline-variant/30">2025</span>
         </div>
-        <div class="flex items-center gap-1">
-          <button id="btn-prev-month" aria-label="Mês anterior" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors" type="button">
-            <span class="material-symbols-outlined text-[22px]">chevron_left</span>
+        <div class="flex items-center gap-1.5">
+          <button id="btn-prev-month" aria-label="Mês anterior" class="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low border border-outline-variant/20 transition-all active:scale-95" type="button">
+            <span class="material-symbols-outlined text-[20px]">chevron_left</span>
           </button>
-          <button id="btn-next-month" aria-label="Próximo mês" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors" type="button">
-            <span class="material-symbols-outlined text-[22px]">chevron_right</span>
+          <button id="btn-next-month" aria-label="Próximo mês" class="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface hover:bg-surface-container-low border border-outline-variant/20 transition-all active:scale-95" type="button">
+            <span class="material-symbols-outlined text-[20px]">chevron_right</span>
           </button>
         </div>
       </div>
 
       <!-- Dias da semana -->
-      <div class="grid grid-cols-7 gap-1 text-center font-label-sm text-label-sm text-on-surface-variant py-1">
-        <span>DOM</span>
-        <span>SEG</span>
-        <span>TER</span>
-        <span>QUA</span>
-        <span>QUI</span>
-        <span>SEX</span>
-        <span>SÁB</span>
+      <div class="grid grid-cols-7 gap-1 sm:gap-2 text-center font-label-sm text-label-sm py-1">
+        <span class="text-primary font-bold">DOM</span>
+        <span class="text-on-surface-variant/80 font-semibold">SEG</span>
+        <span class="text-on-surface-variant/80 font-semibold">TER</span>
+        <span class="text-on-surface-variant/80 font-semibold">QUA</span>
+        <span class="text-on-surface-variant/80 font-semibold">QUI</span>
+        <span class="text-on-surface-variant/80 font-semibold">SEX</span>
+        <span class="text-on-surface-variant/80 font-semibold">SÁB</span>
       </div>
 
       <!-- Grade Dinâmica de Dias -->
-      <div class="grid grid-cols-7 gap-1 text-center font-body-md text-body-md" id="calendarGrid">
+      <div class="grid grid-cols-7 gap-1.5 sm:gap-2 text-center" id="calendarGrid">
         <!-- Renderizado dinamicamente via js/components/calendar.js -->
       </div>
 
-      <!-- Legenda Litúrgica Discreta -->
-      <div class="flex items-center justify-center gap-spacing-md pt-2 border-t border-surface-container-high">
+      <!-- Legenda Litúrgica Minimalista -->
+      <div class="flex items-center justify-center gap-4 sm:gap-6 pt-3 border-t border-outline-variant/20 flex-wrap">
         <div class="flex items-center gap-1.5">
-          <span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
-          <span class="font-label-sm text-label-sm text-on-surface-variant">Missa &amp; Escala</span>
+          <span class="w-2 h-2 rounded-full bg-primary"></span>
+          <span class="text-xs text-on-surface-variant font-medium">Missa com Escala</span>
         </div>
         <div class="flex items-center gap-1.5">
-          <span class="w-2.5 h-2.5 rounded-full bg-secondary-container"></span>
-          <span class="font-label-sm text-label-sm text-on-surface-variant">Solenidade Especial</span>
+          <span class="w-2 h-2 rounded-full bg-secondary"></span>
+          <span class="text-xs text-on-surface-variant font-medium">Solenidade / Festa</span>
         </div>
         <div class="flex items-center gap-1.5">
-          <span class="w-2.5 h-2.5 rounded-full bg-surface-container-highest"></span>
-          <span class="font-label-sm text-label-sm text-on-surface-variant">Dia Comum</span>
+          <span class="w-2 h-2 rounded-full bg-surface-container-highest"></span>
+          <span class="text-xs text-on-surface-variant font-medium">Sem Escala</span>
         </div>
       </div>
     </section>
 
     <!-- Card Interativo Detalhado do Dia Selecionado -->
     <section class="w-full mt-spacing-md flex flex-col gap-spacing-sm" id="selectedRosterSection">
-      <div class="bg-surface-container-lowest rounded-2xl p-spacing-md shadow-sm flex flex-col gap-spacing-sm relative overflow-hidden">
-        <!-- Fita Litúrgica Dourada no Topo -->
-        <div class="absolute top-0 left-0 right-0 h-1.5 liturgical-ribbon"></div>
+      <div class="bg-surface-container-lowest rounded-2xl p-4 sm:p-6 border border-outline-variant/30 shadow-sm flex flex-col gap-4 relative overflow-hidden">
+        <!-- Fita Litúrgica no Topo -->
+        <div class="absolute top-0 left-0 right-0 h-1 liturgical-ribbon"></div>
 
-        <div class="flex items-start justify-between mt-1">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1">
           <div>
-            <h3 class="font-headline-sm text-headline-sm text-primary" id="selectedDateTitle">Domingo, 12/10/2025</h3>
-            <p class="font-body-md text-body-md text-on-surface font-medium flex items-center gap-1.5 mt-0.5" id="selectedMassSubtitle">
-              <span class="material-symbols-outlined text-[18px] text-secondary">schedule</span>
+            <h3 class="text-lg sm:text-xl font-bold text-primary tracking-tight" id="selectedDateTitle">Domingo, 12/10/2025</h3>
+            <p class="text-xs sm:text-sm text-on-surface-variant font-medium flex items-center gap-1.5 mt-0.5" id="selectedMassSubtitle">
+              <span class="material-symbols-outlined text-[16px] text-secondary">schedule</span>
               19:00h · Solenidade de N. Sra. Aparecida
             </p>
           </div>
-          <div class="flex flex-col items-end">
-            <span id="selectedSlotRatio" class="px-2.5 py-1 rounded-lg bg-secondary-container text-on-secondary-container font-label-md text-label-md font-bold shadow-xs whitespace-nowrap">Ministros escalados: 5</span>
+          <div class="flex items-center">
+            <span id="selectedSlotRatio" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-primary-fixed/50 text-primary font-label-sm text-label-sm font-bold border border-primary-fixed whitespace-nowrap">
+              <span class="material-symbols-outlined text-[15px] leading-none">group</span>
+              <span>5 Ministros Escalados</span>
+            </span>
           </div>
         </div>
 
-        <div class="h-px bg-surface-container-high w-full"></div>
+        <div class="h-px bg-outline-variant/20 w-full"></div>
 
-        <!-- Lista Dinâmica de Ministros Escalados -->
-        <div class="flex flex-col gap-3" id="ministersRosterList">
+        <!-- Lista Dinâmica de Ministros Escalados (Grid 2 colunas responsiva) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5" id="ministersRosterList">
           <!-- Renderizado via js/components/calendar.js -->
         </div>
 
-        <!-- Botões de Ação Direta no Card (Com "Copiar lembrete") -->
-        <div class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-surface-container-high no-print">
-          <button class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-surface-container text-on-surface font-label-md text-label-md active:scale-95 transition-transform hover:bg-surface-container-high" id="copyWhatsappBtn" type="button">
+        <!-- Botões de Ação Direta no Card -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-3 border-t border-outline-variant/20 no-print">
+          <button class="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md border border-outline-variant/30 active:scale-95 transition-all shadow-xs" id="copyWhatsappBtn" type="button">
             <span class="material-symbols-outlined text-[18px] text-primary">content_copy</span>
-            <span>Copiar lembrete</span>
+            <span>Copiar Lembrete</span>
           </button>
-          <button class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-surface-container text-on-surface font-label-md text-label-md active:scale-95 transition-transform hover:bg-surface-container-high" id="printPdfBtn" type="button">
+          <button class="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md border border-outline-variant/30 active:scale-95 transition-all shadow-xs" id="printPdfBtn" type="button">
             <span class="material-symbols-outlined text-[18px] text-primary">picture_as_pdf</span>
             <span>Opções de Impressão</span>
           </button>
