@@ -82,10 +82,10 @@ Na aba **"Membros"**:
 2. **Busca e Filtros**:
    - Digite no campo de busca para encontrar ministros por nome, comunidade ou telefone.
    - Use os chips de filtro (*Todos, Ativos, Licença, Matriz, Comunidades*).
-3. **Adicionar Ministro (Administrador)**:
-   - Clique em **"Adicionar Novo Ministro"**.
+3. **Adicionar Membro (Administrador)**:
+   - Clique em **"Adicionar Novo Membro"**.
    - Preencha: Nome completo, telefone/WhatsApp, comunidade de origem, horários habituais e situação (*Ativo* ou *Licença*).
-   - Clique em **"Salvar Ministro"**.
+   - Clique em **"Salvar"**.
 4. **Editar ou Excluir**:
    - Clique em **"Editar"** no card do ministro para alterar qualquer informação.
    - Clique no ícone de lixeira para remover o ministro após confirmação.

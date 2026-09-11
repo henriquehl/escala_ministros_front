@@ -4,7 +4,7 @@
  */
 
 const STORAGE_KEY_MEMBERS = 'mesc_portal_members_v2';
-const STORAGE_KEY_SCALES = 'mesc_portal_scales_v2';
+const STORAGE_KEY_SCALES = 'mesc_portal_scales_v3';
 const STORAGE_KEY_USER = 'mesc_portal_user_v2';
 const STORAGE_KEY_CELEBRATIONS = 'mesc_portal_celebrations_v2';
 
@@ -307,9 +307,9 @@ const INITIAL_SCALES = [
     dayOfWeek: 'DOM',
     time: '19:00',
     title: 'Domingo, 12/10/2025',
-    celebrationName: 'Solenidade de N. Sra. Aparecida (Padroeira do Brasil)',
-    celebrant: 'Pe. Marcelo Rossi (Pároco) e Pe. Antônio Vieira',
-    isSolemnity: true,
+    celebrationName: 'Missa semanal de quarta-feira',
+    celebrant: 'Pe. Abcde',
+    isSolemnity: false,
     maxSlots: 5,
     ministers: [
       { id: 'm-1', name: 'Antônio Carlos Silveira', role: 'Altar Principal & Rito', isLeader: true, confirmed: true, phone: '(11) 99999-0001', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCzxt_yGxBs8rXNgxx97LdaE-1MojNEJZYj_Dky6lpz9bbLYJjVCLRNEtkxFTWAiQvRS4wRA8fJxZCa7z2yrHfm4xhMOngvmEBAmeEVCZraQPTNi7KLkqChT33EcTI68t9W6VcIs4vOAXnzYtan4V8LfS3cq1sDFUaPwVUeoje1lj9-s7GYzkcE6arqxFXb1jEk3c4BaA5DnC97rwbXQZlxoXjatKsFT5UzajVeu-i5Ox_otka2gKj0nA' },
@@ -407,8 +407,20 @@ class Store {
   // Persistência de Escalas
   loadScales() {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY_SCALES);
-      return saved ? JSON.parse(saved) : INITIAL_SCALES;
+      const saved = localStorage.getItem(STORAGE_KEY_SCALES) || localStorage.getItem('mesc_portal_scales_v2');
+      if (!saved) return INITIAL_SCALES;
+      const parsed = JSON.parse(saved);
+      return parsed.map((scale) => {
+        if (scale.id === 'scale-2025-10-12-1900' || (scale.celebrationName && scale.celebrationName.includes('Aparecida'))) {
+          return {
+            ...scale,
+            celebrationName: 'Missa semanal de quarta-feira',
+            celebrant: 'Pe. Abcde',
+            isSolemnity: false
+          };
+        }
+        return scale;
+      });
     } catch (e) {
       console.warn('Erro ao carregar escalas do localStorage', e);
       return INITIAL_SCALES;
@@ -618,7 +630,14 @@ class Store {
           isDefault: false
         };
       }
-      return c;
+      const cat = c.category || (c.category_id ? c.category_id.replace('cat-', '') : 'especial');
+      return {
+        ...c,
+        category: cat,
+        icon: c.icon || (cat === 'semanal' ? 'wb_sunny' : cat === 'solenidade' ? 'star' : cat === 'sacramento' ? 'water_drop' : 'church'),
+        minMinisters: c.minMinisters || (cat === 'dominical' || cat === 'solenidade' ? 4 : 2),
+        description: c.description || 'Celebração litúrgica paroquial.'
+      };
     });
   }
 

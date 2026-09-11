@@ -102,7 +102,7 @@ class Router {
             headerTitleEl.textContent = 'MEMBROS CAPELA DIVINO';
             break;
           case 'celebracoes':
-            headerTitleEl.textContent = 'CELEBRAÇÕES LITÚRGICAS';
+            headerTitleEl.textContent = 'CELEBRAÇÕES';
             break;
           case 'montar-escala':
             headerTitleEl.textContent = 'GERIR ESCALAS';

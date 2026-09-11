@@ -232,10 +232,10 @@ function renderSelectedDayCard() {
 
   // Preencher dados da celebração
   if (massSubtitleEl) {
-    const celebrantText = scale.celebrant ? ` · ${scale.celebrant}` : '';
+    const celebrantText = scale.celebrant ? ` - ${scale.celebrant}` : '';
     massSubtitleEl.innerHTML = `
       <span class="material-symbols-outlined text-[16px] text-secondary">schedule</span>
-      <span>${scale.time}h · <strong>${scale.celebrationName || 'Santa Missa'}</strong>${celebrantText}</span>
+      <span>${scale.time}h - <strong>${scale.celebrationName || 'Santa Missa'}</strong>${celebrantText}</span>
     `;
   }
 
@@ -265,7 +265,7 @@ function renderSelectedDayCard() {
               </div>
               <span class="text-xs ${minister.isLeader ? 'text-primary font-semibold' : 'text-on-surface-variant font-medium'} flex items-center gap-1 mt-0.5 truncate">
                 <span class="material-symbols-outlined text-[13px]">${minister.isLeader ? 'workspace_premium' : 'church'}</span>
-                ${minister.role || 'Ministro da Eucaristia'}
+                ${minister.role || 'Ministro'}
               </span>
             </div>
           </div>

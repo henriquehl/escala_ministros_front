@@ -106,7 +106,7 @@ function renderCelebrationsStats() {
 
   if (totalHeroEl) totalHeroEl.textContent = 'Catálogo de Celebrações';
   if (regularHeroEl) {
-    regularHeroEl.textContent = `${stats.total} celebrações cadastradas na pastoral`;
+    regularHeroEl.textContent = `${stats.total} celebraç${stats.total === 1 ? 'ão cadastrada' : 'ões cadastradas'} na pastoral`;
   }
   if (statDominicaisEl) statDominicaisEl.textContent = String(stats.dominicais).padStart(2, '0');
   if (statSolenesEl) statSolenesEl.textContent = String(stats.solenesEEspeciais).padStart(2, '0');
@@ -127,45 +127,55 @@ function renderCelebrationsStats() {
 }
 
 /**
- * Retorna o ícone e a cor do badge com base na categoria litúrgica
+ * Retorna o ícone e as classes visuais do badge com base na categoria litúrgica
  */
 function getCategoryBadgeInfo(category) {
   switch (category) {
     case 'dominical':
       return {
         label: 'Dominical',
-        badgeClass: 'bg-primary/10 text-primary',
-        icon: 'church'
+        badgeClass: 'bg-primary/10 text-primary border border-primary/20',
+        dotClass: 'bg-primary',
+        icon: 'church',
+        desc: 'Preceito Paroquial'
       };
     case 'semanal':
       return {
         label: 'Semanal',
-        badgeClass: 'bg-tertiary-fixed text-on-tertiary-fixed',
-        icon: 'wb_sunny'
+        badgeClass: 'bg-emerald-50 text-emerald-700 border border-emerald-200/60',
+        dotClass: 'bg-emerald-500',
+        icon: 'wb_sunny',
+        desc: 'Missa Ferial'
       };
     case 'solenidade':
       return {
         label: 'Solenidade',
-        badgeClass: 'bg-secondary-container text-on-secondary-container font-bold',
-        icon: 'star'
+        badgeClass: 'bg-amber-50 text-amber-800 border border-amber-300/60',
+        dotClass: 'bg-amber-500',
+        icon: 'star',
+        desc: 'Festa e Solenidade'
       };
     case 'sacramento':
       return {
         label: 'Sacramento',
-        badgeClass: 'bg-primary-fixed text-on-primary-fixed-variant',
-        icon: 'water_drop'
+        badgeClass: 'bg-blue-50 text-blue-700 border border-blue-200/60',
+        dotClass: 'bg-blue-500',
+        icon: 'water_drop',
+        desc: 'Rito Sacramental'
       };
     default:
       return {
-        label: 'Especial / Devocional',
-        badgeClass: 'bg-surface-container-highest text-on-surface-variant',
-        icon: 'favorite'
+        label: 'Especial',
+        badgeClass: 'bg-surface-container-high text-on-surface-variant border border-outline-variant/30',
+        dotClass: 'bg-outline',
+        icon: 'favorite',
+        desc: 'Devocional / Votiva'
       };
   }
 }
 
 /**
- * Renderiza a lista de cartões de celebrações
+ * Renderiza a lista de cartões de celebrações (Grid 2 colunas responsivo, idêntico a membros)
  */
 function renderCelebrationsList() {
   const container = document.getElementById('celebrations-list-container');
@@ -194,10 +204,10 @@ function renderCelebrationsList() {
 
   if (filtered.length === 0) {
     container.innerHTML = `
-      <div class="p-8 text-center bg-surface-container-lowest rounded-xl shadow-sm">
+      <div class="col-span-full p-8 text-center bg-surface-container-lowest rounded-xl shadow-sm">
         <span class="material-symbols-outlined text-4xl text-outline mb-2">church</span>
         <p class="font-body-md text-body-md text-on-surface">Nenhuma celebração encontrada com estes critérios.</p>
-        <button type="button" class="mt-3 px-4 py-2 rounded-xl bg-surface-container-high text-primary font-label-md text-label-md" onclick="clearCelebrationsSearch()">
+        <button type="button" class="mt-3 px-4 py-2 rounded-xl bg-surface-container-high text-primary font-label-md text-label-md hover:bg-surface-container transition-colors" onclick="clearCelebrationsSearch()">
           Limpar Filtros
         </button>
       </div>
@@ -208,42 +218,59 @@ function renderCelebrationsList() {
   container.innerHTML = filtered.map((cel) => {
     const badgeInfo = getCategoryBadgeInfo(cel.category);
     const iconToUse = cel.icon || badgeInfo.icon;
-
-    // Botões de Ação apenas para Administradores
-    const actionButtons = isAdmin ? `
-      <div class="flex items-center justify-end gap-2 pt-spacing-xs">
-        <button type="button" class="h-9 px-3 rounded-lg bg-surface-container-high hover:bg-surface-variant text-on-surface font-label-sm text-label-sm flex items-center gap-1.5 transition-colors" onclick="openEditCelebrationModal('${cel.id}')">
-          <span class="material-symbols-outlined text-[16px]">edit</span>
-          Editar
-        </button>
-        <button type="button" class="h-9 px-2.5 rounded-lg text-outline hover:bg-error-container hover:text-on-error-container font-label-sm text-label-sm flex items-center gap-1 transition-colors" onclick="deleteCelebrationAction('${cel.id}', '${cel.name.replace("'", "\\'")}')">
-          <span class="material-symbols-outlined text-[18px]">delete</span>
-        </button>
-      </div>
-    ` : '';
+    const minMinisters = cel.minMinisters || (cel.category === 'dominical' || cel.category === 'solenidade' ? 4 : 2);
 
     return `
-      <div class="relative bg-surface-container-lowest rounded-xl p-spacing-md shadow-sm flex flex-col space-y-spacing-xs" id="celebration-card-${cel.id}">
-        <div class="flex items-start justify-between gap-spacing-sm">
-          <div class="flex items-center gap-spacing-sm min-w-0">
-            <div class="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-primary-fixed/40 text-primary flex items-center justify-center shadow-xs">
-              <span class="material-symbols-outlined text-[24px]">${iconToUse}</span>
+      <div class="relative bg-surface-container-lowest rounded-2xl p-3.5 sm:p-4 border border-outline-variant/30 hover:border-primary/40 hover:shadow-md transition-all duration-200 flex flex-col justify-between gap-2.5 shadow-xs" id="celebration-card-${cel.id}">
+        <!-- Topo: Avatar Litúrgico, Nome, Descrição/Subtítulo, Badge de Categoria e Ações Admin -->
+        <div class="flex items-start justify-between gap-2.5">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-primary-fixed/60 text-primary flex items-center justify-center border border-outline-variant/30 shadow-xs">
+              <span class="material-symbols-outlined text-[20px]">${iconToUse}</span>
             </div>
             <div class="min-w-0">
-              <h3 class="font-title-md text-title-md text-on-surface truncate">${cel.name}</h3>
-              <p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
-                <span class="material-symbols-outlined text-[14px]">auto_stories</span>
-                <span class="truncate">${badgeInfo.label}</span>
+              <div class="flex items-center gap-1.5">
+                <h3 class="text-[14px] sm:text-[15px] font-bold text-on-surface truncate leading-tight">${cel.name}</h3>
+              </div>
+              <p class="text-xs text-primary font-medium flex items-center gap-1 mt-0.5 truncate">
+                <span class="material-symbols-outlined text-[13px] shrink-0">auto_stories</span>
+                <span class="truncate">${badgeInfo.desc}</span>
               </p>
             </div>
           </div>
-          <span class="px-2.5 py-0.5 rounded-full ${badgeInfo.badgeClass} font-label-sm text-label-sm shrink-0">
-            ${badgeInfo.label}
-          </span>
+
+          <!-- Badge de Categoria & Botões de Ação do Admin -->
+          <div class="flex items-center gap-1 shrink-0">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${badgeInfo.badgeClass} text-[11px] font-semibold leading-none">
+              <span class="w-1.5 h-1.5 rounded-full ${badgeInfo.dotClass}"></span>
+              ${badgeInfo.label}
+            </span>
+            ${
+              isAdmin ? `
+                <div class="flex items-center gap-0.5 ml-1">
+                  <button type="button" class="w-7 h-7 rounded-lg text-outline hover:bg-surface-container-high hover:text-primary flex items-center justify-center transition-all" title="Editar celebração" onclick="openEditCelebrationModal('${cel.id}')">
+                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                  </button>
+                  <button type="button" class="w-7 h-7 rounded-lg text-outline hover:bg-error-container hover:text-on-error-container flex items-center justify-center transition-all" title="Excluir celebração" onclick="deleteCelebrationAction('${cel.id}', '${cel.name.replace("'", "\\'")}')">
+                    <span class="material-symbols-outlined text-[16px]">delete</span>
+                  </button>
+                </div>
+              ` : ''
+            }
+          </div>
         </div>
 
-        <!-- Ações do Administrador -->
-        ${actionButtons}
+        <!-- Linha Inferior de Informações: Ministros Sugeridos e Categoria -->
+        <div class="flex items-center justify-between gap-1.5 pt-2 border-t border-outline-variant/20 text-xs text-on-surface-variant font-medium">
+          <div class="flex items-center gap-1.5 min-w-0" title="${minMinisters} ministros na escala sugerida">
+            <span class="material-symbols-outlined text-[15px] text-primary shrink-0">groups</span>
+            <span class="truncate font-semibold text-on-surface">${minMinisters} ministros sugeridos</span>
+          </div>
+          <div class="flex items-center gap-1 shrink-0 text-on-surface-variant/80">
+            <span class="material-symbols-outlined text-[14px]">church</span>
+            <span>${badgeInfo.label}</span>
+          </div>
+        </div>
       </div>
     `;
   }).join('');
@@ -279,10 +306,12 @@ function openAddCelebrationModal() {
   const modalTitle = document.getElementById('celebration-modal-title');
   const nameInput = document.getElementById('input-cel-name');
   const categoryInput = document.getElementById('input-cel-category');
+  const ministersInput = document.getElementById('input-cel-ministers');
 
   if (modalTitle) modalTitle.textContent = 'Cadastrar Nova Celebração';
   if (nameInput) nameInput.value = '';
   if (categoryInput) categoryInput.value = 'dominical';
+  if (ministersInput) ministersInput.value = '4';
 
   if (modal) modal.classList.remove('hidden');
 }
@@ -302,10 +331,12 @@ window.openEditCelebrationModal = function(id) {
   const modalTitle = document.getElementById('celebration-modal-title');
   const nameInput = document.getElementById('input-cel-name');
   const categoryInput = document.getElementById('input-cel-category');
+  const ministersInput = document.getElementById('input-cel-ministers');
 
   if (modalTitle) modalTitle.textContent = 'Editar Celebração';
   if (nameInput) nameInput.value = cel.name || '';
   if (categoryInput) categoryInput.value = cel.category || 'dominical';
+  if (ministersInput) ministersInput.value = String(cel.minMinisters || (cel.category === 'dominical' || cel.category === 'solenidade' ? 4 : 2));
 
   if (modal) modal.classList.remove('hidden');
 };
@@ -324,9 +355,11 @@ function saveCelebrationForm() {
 
   const nameInput = document.getElementById('input-cel-name');
   const categoryInput = document.getElementById('input-cel-category');
+  const ministersInput = document.getElementById('input-cel-ministers');
 
-  const name = (nameInput.value || '').trim();
+  const name = nameInput ? nameInput.value.trim() : '';
   const category = categoryInput ? categoryInput.value : 'especial';
+  const minMinisters = ministersInput ? parseInt(ministersInput.value, 10) : (category === 'dominical' || category === 'solenidade' ? 4 : 2);
 
   if (!name) {
     if (window.showToast) window.showToast('Por favor, informe o nome da celebração.');
@@ -344,14 +377,16 @@ function saveCelebrationForm() {
     window.appStore.updateCelebration(editingCelebrationId, {
       name,
       category,
-      icon
+      icon,
+      minMinisters
     });
     if (window.showToast) window.showToast(`Celebração "${name}" atualizada com sucesso!`);
   } else {
     window.appStore.addCelebration({
       name,
       category,
-      icon
+      icon,
+      minMinisters
     });
     if (window.showToast) window.showToast(`Celebração "${name}" cadastrada com sucesso!`);
   }
@@ -367,13 +402,21 @@ window.deleteCelebrationAction = function(id, name) {
     return;
   }
 
-  const confirmed = window.confirm(`Tem certeza que deseja excluir a celebração "${name}"?`);
-  if (!confirmed) return;
-
-  window.appStore.deleteCelebration(id);
-  if (window.showToast) window.showToast(`Celebração "${name}" removida com sucesso!`);
-  renderCelebrationsStats();
-  renderCelebrationsList();
+  if (confirm(`Deseja realmente remover "${name}" do catálogo de celebrações?`)) {
+    const card = document.getElementById(`celebration-card-${id}`);
+    if (card) {
+      card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      card.style.opacity = '0';
+      card.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        window.appStore.deleteCelebration(id);
+        if (window.showToast) window.showToast(`Celebração "${name}" removida com sucesso!`);
+      }, 300);
+    } else {
+      window.appStore.deleteCelebration(id);
+      if (window.showToast) window.showToast(`Celebração "${name}" removida com sucesso!`);
+    }
+  }
 };
 
 document.addEventListener('DOMContentLoaded', () => {

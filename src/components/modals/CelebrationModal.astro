@@ -1,13 +1,18 @@
 ---
-// Modal: Cadastrar e Editar Celebração Litúrgica
+// Modal / Drawer: Cadastrar e Editar Celebração Litúrgica
 ---
 <div class="fixed inset-0 z-50 bg-inverse-surface/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity duration-200 hidden" id="celebration-modal">
-  <div class="w-full sm:max-w-lg bg-surface-container-lowest rounded-t-2xl sm:rounded-2xl p-spacing-lg shadow-2xl max-h-[90vh] overflow-y-auto space-y-spacing-md">
+  <div class="w-full sm:max-w-lg bg-surface-container-lowest rounded-t-2xl sm:rounded-2xl p-spacing-lg shadow-xl max-h-[90vh] overflow-y-auto space-y-spacing-md">
     <!-- Modal Header -->
-    <div class="flex items-center justify-between pb-2 border-b border-surface-container-high">
-      <div>
-        <h3 class="font-headline-sm text-headline-sm text-on-surface" id="celebration-modal-title">Cadastrar Nova Celebração</h3>
-        <p class="font-body-sm text-body-sm text-on-surface-variant">Preencha as informações litúrgicas da celebração</p>
+    <div class="flex items-center justify-between pb-1 border-b border-surface-container-high">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center">
+          <span class="material-symbols-outlined text-[22px]">church</span>
+        </div>
+        <div>
+          <h3 class="font-headline-sm text-headline-sm text-on-surface leading-tight" id="celebration-modal-title">Cadastrar Nova Celebração</h3>
+          <p class="font-body-sm text-body-sm text-on-surface-variant">Catálogo Litúrgico Paroquial</p>
+        </div>
       </div>
       <button class="w-9 h-9 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors" id="close-celebration-modal-btn" type="button" aria-label="Fechar janela">
         <span class="material-symbols-outlined text-[20px]">close</span>
@@ -15,7 +20,7 @@
     </div>
 
     <!-- Modal Form -->
-    <form class="space-y-spacing-md" id="celebration-form">
+    <form class="space-y-spacing-sm" id="celebration-form">
       <!-- Nome da Celebração -->
       <div class="space-y-1">
         <label class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider font-semibold" for="input-cel-name">Nome da Celebração</label>
@@ -30,7 +35,7 @@
         <label class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider font-semibold" for="input-cel-category">Categoria Litúrgica</label>
         <div class="relative">
           <span class="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px]">category</span>
-          <select class="w-full h-12 pl-10 pr-10 bg-surface-container-low rounded-xl font-body-md text-body-md text-on-surface focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 focus:outline-none shadow-sm appearance-none" id="input-cel-category">
+          <select class="w-full h-12 pl-10 pr-10 bg-surface-container-low rounded-xl font-body-md text-body-md text-on-surface focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 focus:outline-none shadow-sm appearance-none border border-outline-variant/20" id="input-cel-category">
             <option value="dominical" selected="">Dominical (Preceito)</option>
             <option value="semanal">Semanal (Ferial)</option>
             <option value="solenidade">Solenidade Especial</option>

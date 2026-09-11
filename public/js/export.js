@@ -117,7 +117,7 @@ window.exportSingleDayPdf = function(scaleData) {
     <tr>
       <td style="text-align: center; font-weight: bold; width: 36px;">${idx + 1}</td>
       <td style="font-weight: 600;">${m.name} ${m.isLeader ? '<span style="color:#b3093f; font-size: 8.5pt;">(Coordenador)</span>' : ''}</td>
-      <td>${m.role || 'Ministro da Eucaristia'}</td>
+      <td>${m.role || 'Ministro'}</td>
       <td style="text-align: center;">${m.phone || '-'}</td>
     </tr>
   `).join('');

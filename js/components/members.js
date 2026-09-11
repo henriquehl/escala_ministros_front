@@ -114,9 +114,9 @@ function renderMembersStats() {
   const statActiveEl = document.getElementById('stat-active-count');
   const statLeaveEl = document.getElementById('stat-leave-count');
 
-  if (totalHeroEl) totalHeroEl.textContent = 'Quadro de Ministros';
+  if (totalHeroEl) totalHeroEl.textContent = 'Quadro de Membros';
   if (activeHeroEl) {
-    activeHeroEl.textContent = `${stats.total} ministro${stats.total === 1 ? '' : 's'} cadastrado${stats.total === 1 ? '' : 's'} na pastoral`;
+    activeHeroEl.textContent = `${stats.total} membro${stats.total === 1 ? '' : 's'} cadastrado${stats.total === 1 ? '' : 's'}`;
   }
   if (statActiveEl) statActiveEl.textContent = String(stats.active).padStart(2, '0');
   if (statLeaveEl) statLeaveEl.textContent = String(stats.leave).padStart(2, '0');
@@ -301,7 +301,7 @@ function openAddMemberModal() {
   const startDateInput = document.getElementById('input-start-date');
   const statusInput = document.getElementById('input-status-hidden');
 
-  if (modalTitle) modalTitle.textContent = 'Cadastrar Novo Ministro';
+  if (modalTitle) modalTitle.textContent = 'Cadastrar Novo Membro';
   if (nameInput) nameInput.value = '';
   if (phoneInput) phoneInput.value = '';
   if (profileInput) profileInput.value = 'minister';
