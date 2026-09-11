@@ -1,6 +1,6 @@
 # 📊 Recomendação de DER (Diagrama de Entidade-Relacionamento)
 
-Este documento apresenta a modelagem de dados recomendada para o ecossistema da **Escala Virtual (Capela Divino Espírito Santo)**, padronizada com nomenclatura técnica em **inglês** para tabelas e colunas, baseada na estrutura real da aplicação (*Store / Membros / Eventos / Categorias*) e preparada para bancos de dados relacionais (*PostgreSQL*, *SQLite*, *Supabase* ou *MySQL*).
+Este documento apresenta a modelagem de dados recomendada para o ecossistema da **Escala Virtual (Capela Divino Espírito Santo)**, padronizada com nomenclatura técnica em **inglês** para tabelas e colunas, com identificadores **numéricos inteiros** (`BIGINT` / `INTEGER` / `BIGSERIAL`) e preparada para bancos de dados relacionais (*PostgreSQL*, *SQLite*, *Supabase* ou *MySQL*).
 
 ---
 
@@ -16,14 +16,14 @@ erDiagram
     CELEBRATION ||--o{ EVENT : "define rito de"
 
     CATEGORY {
-        string id PK "Identificador único da categoria (UUID/cat-X)"
+        bigint id PK "Identificador único numérico da categoria (1, 2, 3...)"
         string name UK "Nome da categoria litúrgica (ex: Dominical, Semanal)"
         string description "Descrição da finalidade da categoria"
         datetime created_at "Data e hora de cadastro"
     }
 
     USER {
-        string id PK "Identificador único (UUID ou slug)"
+        bigint id PK "Identificador único numérico do usuário"
         string name "Nome completo do usuário"
         string email UK "E-mail de acesso ou login"
         string role "Cargo/função: Administrador, Coordenador"
@@ -32,7 +32,7 @@ erDiagram
     }
 
     MEMBER {
-        string id PK "Identificador único do membro (UUID/m-X)"
+        bigint id PK "Identificador único numérico do membro"
         string name "Nome completo do membro"
         string phone "Telefone / WhatsApp com DDD"
         string profile "Perfil/função: 'minister', 'celebrant', 'coordinator', 'deacon'"
@@ -44,28 +44,28 @@ erDiagram
     }
 
     CELEBRATION {
-        string id PK "Identificador único da celebração (UUID/cel-X)"
+        bigint id PK "Identificador único numérico da celebração"
         string name UK "Nome da celebração litúrgica"
-        string category_id FK "Chave estrangeira de CATEGORY"
+        bigint category_id FK "Chave estrangeira numérica de CATEGORY"
         datetime created_at "Data e hora de cadastro"
     }
 
     EVENT {
-        string id PK "Identificador único do evento (ex: event-2025-10-19-1000)"
+        bigint id PK "Identificador único numérico do evento"
         date date "Data da celebração (AAAA-MM-DD)"
         string time "Horário da celebração (ex: 10:00, 19:30)"
-        string celebration_id FK "Chave estrangeira de CELEBRATION"
-        string celebrant_id FK "Chave estrangeira de MEMBER (Celebrante principal)"
-        string user_id FK "Chave estrangeira do USER responsável"
+        bigint celebration_id FK "Chave estrangeira numérica de CELEBRATION"
+        bigint celebrant_id FK "Chave estrangeira numérica de MEMBER (Celebrante)"
+        bigint user_id FK "Chave estrangeira numérica do USER responsável"
         string subtitle "Subtítulo / detalhe complementar do evento (opcional)"
         datetime created_at "Data e hora de criação do evento"
         datetime updated_at "Data e hora da última alteração"
     }
 
     EVENT_MEMBER {
-        string id PK "Identificador único do vínculo (UUID)"
-        string event_id FK "Chave estrangeira de EVENT"
-        string member_id FK "Chave estrangeira de MEMBER"
+        bigint id PK "Identificador único numérico do vínculo"
+        bigint event_id FK "Chave estrangeira numérica de EVENT"
+        bigint member_id FK "Chave estrangeira numérica de MEMBER"
         datetime created_at "Data e hora de vinculação"
     }
 ```
@@ -79,7 +79,7 @@ Catálogo de categorias litúrgicas que classificam os tipos de celebrações.
 
 | Campo | Tipo Recomendado | Nulo? | Chave | Descrição & Regras de Negócio |
 | :--- | :--- | :---: | :---: | :--- |
-| `id` | `VARCHAR(36)` / `UUID` | **NÃO** | **PK** | Identificador único da categoria (ex: `cat-dominical`, `cat-solenidade`). |
+| `id` | `BIGSERIAL` / `BIGINT` | **NÃO** | **PK** | Identificador único numérico (ex: `1`, `2`, `3`). |
 | `name` | `VARCHAR(100)` | **NÃO** | **UK** | Nome da categoria litúrgica (ex: *"Dominical"*, *"Semanal"*, *"Solenidade"*, *"Sacramento"*, *"Especial"*). |
 | `description` | `TEXT` | SIM | - | Descrição detalhada sobre o significado ou preceito da categoria. |
 | `created_at` | `TIMESTAMP` | **NÃO** | - | Data e hora de inclusão da categoria no cadastro. |
@@ -91,9 +91,9 @@ Catálogo padronizado de ritos e celebrações da paróquia vinculados a uma cat
 
 | Campo | Tipo Recomendado | Nulo? | Chave | Descrição & Regras de Negócio |
 | :--- | :--- | :---: | :---: | :--- |
-| `id` | `VARCHAR(36)` / `UUID` | **NÃO** | **PK** | Identificador único da celebração. |
+| `id` | `BIGSERIAL` / `BIGINT` | **NÃO** | **PK** | Identificador único numérico da celebração. |
 | `name` | `VARCHAR(150)` | **NÃO** | **UK** | Nome da celebração litúrgica (ex: *"Santa Missa Dominical"*). |
-| `category_id` | `VARCHAR(36)` | SIM | **FK** | Chave estrangeira para a tabela `categories`. |
+| `category_id` | `BIGINT` | SIM | **FK** | Chave estrangeira numérica para a tabela `categories`. |
 | `created_at` | `TIMESTAMP` | **NÃO** | - | Data e hora de cadastro da celebração. |
 
 ---
@@ -103,7 +103,7 @@ Armazena todos os membros cadastrados na pastoral com suas informações de cont
 
 | Campo | Tipo Recomendado | Nulo? | Chave | Descrição & Regras de Negócio |
 | :--- | :--- | :---: | :---: | :--- |
-| `id` | `VARCHAR(36)` / `UUID` | **NÃO** | **PK** | Identificador único do membro. |
+| `id` | `BIGSERIAL` / `BIGINT` | **NÃO** | **PK** | Identificador único numérico do membro. |
 | `name` | `VARCHAR(150)` | **NÃO** | - | Nome completo do membro. |
 | `phone` | `VARCHAR(25)` | SIM | - | Telefone com DDD e formato WhatsApp: `(11) 99999-0000`. |
 | `profile` | `VARCHAR(50)` | **NÃO** | - | Perfil/Função ministerial (domínio: `'minister'`, `'celebrant'`, `'coordinator'`, `'deacon'`). Padrão: `'minister'`. |
@@ -120,12 +120,12 @@ Representa a celebração em determinada data e hora para a qual membros são co
 
 | Campo | Tipo Recomendado | Nulo? | Chave | Descrição & Regras de Negócio |
 | :--- | :--- | :---: | :---: | :--- |
-| `id` | `VARCHAR(60)` | **NÃO** | **PK** | Identificador único gerado (ex: `event-2025-10-19-1000`). |
+| `id` | `BIGSERIAL` / `BIGINT` | **NÃO** | **PK** | Identificador único numérico do evento. |
 | `date` | `DATE` | **NÃO** | **IDX** | Data da celebração (`AAAA-MM-DD`). |
 | `time` | `VARCHAR(10)` | **NÃO** | - | Horário no formato `HH:mm` (ex: `10:00`, `19:30`). |
-| `celebration_id` | `VARCHAR(36)` | SIM | **FK** | Referência para a tabela `celebrations`. |
-| `celebrant_id` | `VARCHAR(36)` | SIM | **FK** | Referência para a tabela `members` (celebrante/presidente principal da celebração). |
-| `user_id` | `VARCHAR(36)` | SIM | **FK** | Referência para a tabela `users` (usuário responsável pelo evento). |
+| `celebration_id` | `BIGINT` | SIM | **FK** | Referência numérica para a tabela `celebrations`. |
+| `celebrant_id` | `BIGINT` | SIM | **FK** | Referência numérica para a tabela `members` (celebrante/presidente principal da celebração). |
+| `user_id` | `BIGINT` | SIM | **FK** | Referência numérica para a tabela `users` (usuário responsável pelo evento). |
 | `subtitle` | `VARCHAR(150)` | SIM | - | Subtítulo ou tema complementar do evento (ex: *"Bodas de Prata"*, *"1ª Sexta-feira"*). |
 | `created_at` | `TIMESTAMP` | **NÃO** | - | Data e hora de criação do evento. |
 | `updated_at` | `TIMESTAMP` | SIM | - | Data e hora da última alteração. |
@@ -137,9 +137,9 @@ Tabela associativa pura que vincula os membros da equipe escalados para o evento
 
 | Campo | Tipo Recomendado | Nulo? | Chave | Descrição & Regras de Negócio |
 | :--- | :--- | :---: | :---: | :--- |
-| `id` | `VARCHAR(36)` / `UUID` | **NÃO** | **PK** | Identificador único do vínculo. |
-| `event_id` | `VARCHAR(60)` | **NÃO** | **FK, IDX** | Chave estrangeira da tabela `events`. |
-| `member_id` | `VARCHAR(36)` | **NÃO** | **FK, IDX** | Chave estrangeira da tabela `members`. |
+| `id` | `BIGSERIAL` / `BIGINT` | **NÃO** | **PK** | Identificador único numérico do vínculo. |
+| `event_id` | `BIGINT` | **NÃO** | **FK, IDX** | Chave estrangeira numérica da tabela `events`. |
+| `member_id` | `BIGINT` | **NÃO** | **FK, IDX** | Chave estrangeira numérica da tabela `members`. |
 | `created_at` | `TIMESTAMP` | **NÃO** | - | Data e hora em que o membro foi vinculado ao evento. |
 
 ---
@@ -149,7 +149,7 @@ Representa o usuário autenticado no sistema.
 
 | Campo | Tipo Recomendado | Nulo? | Chave | Descrição |
 | :--- | :--- | :---: | :---: | :--- |
-| `id` | `VARCHAR(36)` | **NÃO** | **PK** | Identificador único do usuário. |
+| `id` | `BIGSERIAL` / `BIGINT` | **NÃO** | **PK** | Identificador único numérico do usuário. |
 | `name` | `VARCHAR(150)` | **NÃO** | - | Nome de exibição. |
 | `email` | `VARCHAR(150)` | **NÃO** | **UK** | E-mail de identificação e login. |
 | `role` | `VARCHAR(80)` | **NÃO** | - | Cargo/função no sistema (ex: `"Coordenador Paroquial"`, `"Administrador"`). |
@@ -161,13 +161,13 @@ Representa o usuário autenticado no sistema.
 ## 🔗 3. Cardinalidades e Regras de Negócio
 
 1. **`CATEGORY` 1 : N `CELEBRATION`**:
-   - Uma categoria litúrgica (ex: *"Dominical"*) classifica múltiplas celebrações cadastradas na paróquia.
+   - Uma categoria litúrgica classifica múltiplas celebrações cadastradas na paróquia.
 
 2. **`CELEBRATION` 1 : N `EVENT`**:
    - Uma celebração do catálogo define o nome e rito de múltiplos eventos no calendário.
 
 3. **`MEMBER` 1 : N `EVENT` (Celebrante Principal)**:
-   - Um membro (com perfil `'celebrante'`, `'diacono'` ou `'ministro'`) pode presidir diversos eventos litúrgicos como presidente principal (`celebrant_id`).
+   - Um membro (com perfil `'celebrant'`, `'deacon'` ou `'minister'`) pode presidir diversos eventos litúrgicos como presidente principal (`celebrant_id`).
 
 4. **`MEMBER` 1 : N `EVENT_MEMBER` (Equipe Ministerial)**:
    - Um membro pode participar de nenhum, um ou vários eventos ao longo do mês/ano.
@@ -191,7 +191,7 @@ Representa o usuário autenticado no sistema.
 ```sql
 -- 1. Tabela de Categorias (Categories)
 CREATE TABLE categories (
-    id VARCHAR(36) PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -199,15 +199,15 @@ CREATE TABLE categories (
 
 -- 2. Tabela de Celebrações (Celebrations)
 CREATE TABLE celebrations (
-    id VARCHAR(36) PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     name VARCHAR(150) NOT NULL UNIQUE,
-    category_id VARCHAR(36) REFERENCES categories(id) ON DELETE SET NULL,
+    category_id BIGINT REFERENCES categories(id) ON DELETE SET NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 3. Tabela de Membros (Members)
 CREATE TABLE members (
-    id VARCHAR(36) PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     phone VARCHAR(25),
     profile VARCHAR(50) NOT NULL DEFAULT 'minister' CHECK (profile IN ('minister', 'celebrant', 'coordinator', 'deacon')),
@@ -220,7 +220,7 @@ CREATE TABLE members (
 
 -- 4. Tabela de Usuários (Users)
 CREATE TABLE users (
-    id VARCHAR(36) PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     role VARCHAR(80) NOT NULL DEFAULT 'Coordenador',
@@ -230,12 +230,12 @@ CREATE TABLE users (
 
 -- 5. Tabela de Eventos / Escalas (Events)
 CREATE TABLE events (
-    id VARCHAR(60) PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     date DATE NOT NULL,
     time VARCHAR(10) NOT NULL,
-    celebration_id VARCHAR(36) REFERENCES celebrations(id) ON DELETE SET NULL,
-    celebrant_id VARCHAR(36) REFERENCES members(id) ON DELETE SET NULL,
-    user_id VARCHAR(36) REFERENCES users(id) ON DELETE SET NULL,
+    celebration_id BIGINT REFERENCES celebrations(id) ON DELETE SET NULL,
+    celebrant_id BIGINT REFERENCES members(id) ON DELETE SET NULL,
+    user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
     subtitle VARCHAR(150),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -244,9 +244,9 @@ CREATE TABLE events (
 
 -- 6. Tabela Associativa Evento-Membro (Event Members)
 CREATE TABLE event_members (
-    id VARCHAR(36) PRIMARY KEY,
-    event_id VARCHAR(60) NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-    member_id VARCHAR(36) NOT NULL REFERENCES members(id) ON DELETE RESTRICT,
+    id BIGSERIAL PRIMARY KEY,
+    event_id BIGINT NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    member_id BIGINT NOT NULL REFERENCES members(id) ON DELETE RESTRICT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT unq_event_member UNIQUE (event_id, member_id)
 );
@@ -260,16 +260,3 @@ CREATE INDEX idx_evento_membros_membro ON event_members(member_id);
 CREATE INDEX idx_membros_status ON members(status);
 CREATE INDEX idx_membros_profile ON members(profile);
 ```
-
----
-
-## 🚀 5. Mapeamento Direto com o Store Atual
-
-| Entidade no DER | Chave / Estrutura no `store.js` | Métodos Relacionados |
-| :--- | :--- | :--- |
-| **`CATEGORY`** | `STORAGE_KEY_CATEGORIES` (Categorias litúrgicas) | `getCategories()`, `getCategoryById()` |
-| **`CELEBRATION`** | `STORAGE_KEY_CELEBRATIONS` (`mesc_portal_celebrations_v2`) | `getCelebrations()`, `getCelebrationObjects()`, `addCelebration()`, `updateCelebration()`, `deleteCelebration()` |
-| **`MEMBER`** | `STORAGE_KEY_MEMBERS` (`mesc_portal_members_v2`) | `getMembers()`, `getMemberById()`, `addMember()`, `updateMember()`, `deleteMember()` |
-| **`EVENT`** | `STORAGE_KEY_SCALES` (`mesc_portal_scales_v2`) | `getScalesForMonth()`, `getScaleByDateAndHour()`, `saveScale()`, `deleteScale()` |
-| **`EVENT_MEMBER`** | `scale.ministers` (array de membros vinculados ao evento) | `assignCandidateMinister()`, `removeAssignedMinister()` |
-| **`USER`** | `STORAGE_KEY_USER` (`mesc_portal_user_v2`) | `getCurrentUser()`, `login()`, `logout()` |
