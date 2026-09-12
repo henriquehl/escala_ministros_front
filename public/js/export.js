@@ -27,11 +27,9 @@ function calculateArrivalTime(timeStr) {
 /**
  * Formata o lembrete no padrão solicitado:
  * ESCALA:
- * Joãozinho;
- * Mariazinha;
- * Zezinho;
- *
- * Não se esqueçam do nosso compromisso de hoje, às 18:45, Paróquia São José
+ * Antônio Carlos Silveira / @(11) 99999-0001;
+ * 
+ * Não se esqueçam do nosso compromisso de hoje, às 18:45, Capela Divino Espírito Santo
  */
 function formatScaleReminderText(scale) {
   if (!scale) return '';
@@ -42,8 +40,22 @@ function formatScaleReminderText(scale) {
   let text = `ESCALA:\n`;
 
   if (scale.ministers && scale.ministers.length > 0) {
+    const allMembers = window.appStore ? window.appStore.getMembers() : [];
+
     scale.ministers.forEach((m) => {
-      text += `${m.name};\n`;
+      let phone = m.phone;
+      if (!phone && allMembers.length > 0) {
+        const found = allMembers.find((mem) => mem.id === m.id || mem.name.toLowerCase() === m.name.toLowerCase());
+        if (found && found.phone) {
+          phone = found.phone;
+        }
+      }
+
+      if (phone) {
+        text += `${m.name} / @${phone};\n`;
+      } else {
+        text += `${m.name};\n`;
+      }
     });
   } else {
     text += `(Nenhum ministro escalado);\n`;
