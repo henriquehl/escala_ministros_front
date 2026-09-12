@@ -248,16 +248,14 @@ function renderSelectedDayCard() {
   // Renderizar Lista de Ministros (Grid moderna em 2 colunas)
   if (listEl) {
     listEl.innerHTML = scale.ministers.map((minister) => {
-      const initials = minister.name.split(' ').map((n) => n[0]).slice(0, 2).join('');
+      const initials = window.getInitials ? window.getInitials(minister.name) : minister.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase();
 
       return `
         <div class="flex items-center justify-between p-3 rounded-2xl bg-surface-container-low/70 hover:bg-surface-container transition-all border border-outline-variant/20 shadow-xs">
           <div class="flex items-center gap-3 min-w-0">
-            ${
-              minister.avatar
-                ? `<img class="w-10 h-10 rounded-full object-cover shadow-sm flex-shrink-0 border border-outline-variant/30" src="${minister.avatar}" alt="${minister.name}">`
-                : `<div class="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-sm shadow-sm flex-shrink-0">${initials}</div>`
-            }
+            <div class="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-sm shadow-sm flex-shrink-0 border border-primary/20">
+              ${initials}
+            </div>
             <div class="flex flex-col min-w-0">
               <div class="flex items-center gap-1.5">
                 <span class="text-sm font-bold text-on-surface truncate">${minister.name}</span>

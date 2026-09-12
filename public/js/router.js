@@ -139,7 +139,7 @@ class Router {
         if (isDesktop) {
           link.className = 'nav-tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-primary text-on-primary font-label-md text-label-md shadow-sm transition-all';
         } else {
-          link.className = 'nav-tab-link flex items-center gap-1 py-1.5 px-3 rounded-xl bg-primary/10 text-primary font-label-sm text-label-sm font-semibold transition-all';
+          link.className = 'nav-tab-link flex items-center gap-1 py-1.5 px-2 rounded-xl bg-primary/10 text-primary font-label-sm text-label-sm font-semibold transition-all whitespace-nowrap shrink-0';
         }
 
         if (icon) {
@@ -150,7 +150,7 @@ class Router {
         if (isDesktop) {
           link.className = 'nav-tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-md text-label-md transition-all';
         } else {
-          link.className = 'nav-tab-link flex items-center gap-1 py-1.5 px-3 rounded-xl text-on-surface-variant hover:text-on-surface transition-all';
+          link.className = 'nav-tab-link flex items-center gap-1 py-1.5 px-2 rounded-xl text-on-surface-variant hover:text-on-surface transition-all whitespace-nowrap shrink-0';
         }
 
         if (icon) {

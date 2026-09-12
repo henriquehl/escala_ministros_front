@@ -411,17 +411,15 @@ function renderAssignedMinisters() {
   }
 
   container.innerHTML = assignedMinisters.map((minister) => {
-    const initials = minister.name.split(' ').map((n) => n[0]).slice(0, 2).join('');
+    const initials = window.getInitials ? window.getInitials(minister.name) : minister.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase();
     const phoneDisplay = minister.phone ? `<span class="font-body-sm text-[12px] text-on-surface-variant flex items-center gap-1 mt-0.5"><span class="material-symbols-outlined text-[14px]">call</span>${minister.phone}</span>` : '';
 
     return `
       <div class="minister-assigned flex items-center justify-between p-3 rounded-xl bg-surface-container-low border border-outline-variant/15 animate-fade-in" data-id="${minister.id}">
         <div class="flex items-center gap-3 min-w-0">
-          ${
-            minister.avatar
-              ? `<img class="w-10 h-10 rounded-full object-cover flex-shrink-0 border border-outline-variant/30" src="${minister.avatar}" alt="${minister.name}">`
-              : `<div class="w-10 h-10 rounded-full bg-primary-fixed text-primary font-title-md text-title-md flex items-center justify-center flex-shrink-0 font-bold">${initials}</div>`
-          }
+          <div class="w-10 h-10 rounded-full bg-primary-fixed text-primary font-title-md text-title-md flex items-center justify-center flex-shrink-0 font-bold border border-primary/20">
+            ${initials}
+          </div>
           <div class="min-w-0">
             <h4 class="font-label-lg text-label-lg text-on-surface font-semibold truncate">${minister.name}</h4>
             ${phoneDisplay}
@@ -502,12 +500,12 @@ function renderCandidateMinisters(searchTerm = '') {
   }
 
   container.innerHTML = available.map((member) => {
-    const initials = member.name.split(' ').map((n) => n[0]).slice(0, 2).join('');
+    const initials = window.getInitials ? window.getInitials(member.name) : member.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase();
 
     return `
       <div class="candidate-row flex items-center justify-between p-2 rounded-lg bg-surface-container-lowest hover:bg-surface-container-low transition-colors">
         <div class="flex items-center gap-2 min-w-0">
-          <div class="w-8 h-8 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-md text-label-md flex items-center justify-center flex-shrink-0 font-bold">
+          <div class="w-8 h-8 rounded-full bg-primary-fixed text-primary font-label-md text-label-md flex items-center justify-center flex-shrink-0 font-bold border border-primary/20">
             ${initials}
           </div>
           <div class="min-w-0">

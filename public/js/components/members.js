@@ -170,7 +170,7 @@ function renderMembersList() {
   }
 
   container.innerHTML = filtered.map((member) => {
-    const initials = member.name.split(' ').map((n) => n[0]).slice(0, 2).join('');
+    const initials = window.getInitials ? window.getInitials(member.name) : member.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase();
     let statusBadge = '';
     let opacityClass = '';
 
@@ -209,15 +209,11 @@ function renderMembersList() {
 
     return `
       <div class="relative bg-surface-container-lowest rounded-2xl p-3.5 sm:p-4 border border-outline-variant/30 hover:border-primary/40 hover:shadow-md transition-all duration-200 flex flex-col justify-between gap-2.5 shadow-xs ${opacityClass}" id="member-card-${member.id}">
-        <!-- Topo: Avatar, Nome, Experiência, Status e Ações -->
+        <!-- Topo: Avatar com Iniciais, Nome, Experiência, Status e Ações -->
         <div class="flex items-start justify-between gap-2.5">
           <div class="flex items-center gap-3 min-w-0">
-            <div class="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-surface-container flex items-center justify-center border border-outline-variant/30 shadow-xs">
-              ${
-                member.avatar
-                  ? `<img class="w-full h-full object-cover" src="${member.avatar}" alt="${member.name}">`
-                  : `<div class="w-full h-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-xs">${initials}</div>`
-              }
+            <div class="w-10 h-10 rounded-full shrink-0 bg-primary-fixed text-primary flex items-center justify-center font-bold text-sm shadow-xs border border-primary/20">
+              ${initials}
             </div>
             <div class="min-w-0">
               <div class="flex items-center gap-1.5">

@@ -3,6 +3,19 @@
  * Gerencia persistência em localStorage e emissão de eventos reativos
  */
 
+/**
+ * Retorna as iniciais do nome de forma consistente (ex: "Francisco Andrade" -> "FA")
+ */
+window.getInitials = function(name) {
+  if (!name) return '--';
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '--';
+  if (parts.length === 1) {
+    return parts[0].substring(0, 2).toUpperCase();
+  }
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+};
+
 const STORAGE_KEY_MEMBERS = 'mesc_portal_members_v2';
 const STORAGE_KEY_SCALES = 'mesc_portal_scales_v3';
 const STORAGE_KEY_USER = 'mesc_portal_user_v2';
