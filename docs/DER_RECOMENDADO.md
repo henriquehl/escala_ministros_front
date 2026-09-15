@@ -29,10 +29,15 @@ erDiagram
     USER {
         bigint id PK "Identificador único numérico do usuário"
         string name "Nome completo do usuário"
-        string email UK "E-mail de acesso ou login"
-        string role "Cargo/função: Administrador, Coordenador"
+        string username UK "Nome de usuário / identificador de login"
+        string email UK "E-mail de acesso e notificações"
+        string password_hash "Hash criptográfico da senha (argon2 / bcrypt)"
+        string role "Papel no sistema: 'admin', 'coordinator', 'visitor'"
+        string status "Situação da conta: 'ativo', 'inativo'"
+        string avatar_url "URL da foto de perfil ou avatar (opcional)"
         datetime last_login_at "Data/hora do último login"
         datetime created_at "Data e hora de cadastro"
+        datetime updated_at "Data e hora da última alteração"
     }
 
     USER_CHURCH {
@@ -100,16 +105,22 @@ Armazena as paróquias, capelas ou comunidades cadastradas no sistema, viabiliza
 ---
 
 ### 2.2. Tabela `USER` (`users`)
-Representa o usuário autenticado no sistema (administrador ou coordenador).
+Representa o usuário autenticado no sistema (administrador, coordenador ou visitante).
 
 | Campo | Tipo Recomendado | Nulo? | Chave | Descrição |
 | :--- | :--- | :---: | :---: | :--- |
 | `id` | `BIGSERIAL` / `BIGINT` | **NÃO** | **PK** | Identificador único numérico do usuário. |
-| `name` | `VARCHAR(150)` | **NÃO** | - | Nome de exibição. |
-| `email` | `VARCHAR(150)` | **NÃO** | **UK** | E-mail de identificação e login. |
-| `role` | `VARCHAR(80)` | **NÃO** | - | Cargo/função no sistema (ex: `"Coordenador Paroquial"`, `"Administrador"`). |
-| `last_login_at` | `TIMESTAMP` | SIM | - | Timestamp do último acesso. |
+| `name` | `VARCHAR(150)` | **NÃO** | - | Nome completo de exibição. |
+| `username` | `VARCHAR(80)` | **NÃO** | **UK, IDX** | Nome de usuário único para login (ex: `"admin.pastoral"`, `"maria.silva"`). |
+| `email` | `VARCHAR(150)` | **NÃO** | **UK, IDX** | E-mail de identificação e notificações. |
+| `password_hash` | `VARCHAR(255)` | **NÃO** | - | Hash criptografado da senha (ex: bcrypt, argon2). |
+| `role` | `VARCHAR(50)` | **NÃO** | - | Papel de acesso no sistema: `'admin'`, `'coordinator'`, `'visitor'`. Padrão: `'coordinator'`. |
+| `status` | `VARCHAR(20)` | **NÃO** | - | Situação da conta: `'ativo'`, `'inativo'`. Padrão: `'ativo'`. |
+| `avatar_url` | `TEXT` | SIM | - | URL da foto do perfil (opcional). |
+| `last_login_at` | `TIMESTAMP` | SIM | - | Timestamp do último acesso bem-sucedido. |
 | `created_at` | `TIMESTAMP` | **NÃO** | - | Data e hora de cadastro do usuário. |
+| `updated_at` | `TIMESTAMP` | SIM | - | Data e hora da última alteração cadastral. |
+| `deleted_at` | `TIMESTAMP` | SIM | - | Data e hora de exclusão lógica (*soft delete*). |
 
 ---
 
@@ -251,11 +262,22 @@ CREATE TABLE churches (
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
+    username VARCHAR(80) NOT NULL UNIQUE,
     email VARCHAR(150) NOT NULL UNIQUE,
-    role VARCHAR(80) NOT NULL DEFAULT 'Coordenador',
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL DEFAULT 'coordinator' CHECK (role IN ('admin', 'coordinator', 'visitor')),
+    status VARCHAR(20) NOT NULL DEFAULT 'ativo' CHECK (status IN ('ativo', 'inativo')),
+    avatar_url TEXT,
     last_login_at TIMESTAMP,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
 );
+
+CREATE INDEX idx_users_username ON users(username);
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_role ON users(role);
+CREATE INDEX idx_users_status ON users(status);
 
 -- 3. Tabela Associativa Usuário-Igreja (User Churches - Relação N:N)
 CREATE TABLE user_churches (

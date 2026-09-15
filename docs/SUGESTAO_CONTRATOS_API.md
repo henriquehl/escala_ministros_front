@@ -15,7 +15,8 @@ Este documento apresenta a especificação técnica formal e contratos de **API 
 - [📅 4. Página: Calendário de Missas & Escalas (`CalendarView`)](#-4-página-calendário-de-missas--escalas-calendarview)
 - [👥 5. Página: Gestão de Membros & Ministros (`MembersView`)](#-5-página-gestão-de-membros--ministros-membersview)
 - [📖 6. Página: Catálogo de Celebrações & Categorias (`CelebrationsView`)](#-6-página-catálogo-de-celebrações--categorias-celebrationsview)
-- [💻 7. Interfaces e Tipos TypeScript Consolidados](#-7-interfaces-e-tipos-typescript-consolidados)
+- [👤 7. Página: Gerenciamento e Cadastro de Usuários (`UsersManagementView`)](#-7-página-gerenciamento-e-cadastro-de-usuários-usersmanagementview)
+- [💻 8. Interfaces e Tipos TypeScript Consolidados](#-8-interfaces-e-tipos-typescript-consolidados)
 
 ---
 
@@ -992,7 +993,249 @@ flowchart TD
 
 ---
 
-## 💻 7. Interfaces e Tipos TypeScript Consolidados
+## 👤 7. Página: Gerenciamento e Cadastro de Usuários (`UsersManagementView`)
+
+Área restrita aos usuários com papel de **Administrador** (`admin`), responsável pela governança de acessos ao sistema, criação e edição de usuários, atribuição de perfis de permissão, ativação/desativação e vinculação a uma ou múltiplas comunidades paroquiais.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Admin as Administrador
+    participant View as UsersManagementView (SPA)
+    participant API as Backend REST (/api/v1/users)
+    participant DB as Banco de Dados (users, user_churches)
+
+    Note over Admin,API: 1. Carregamento da Lista & Métricas
+    Admin->>View: Acessa #/gerenciar-usuarios
+    View->>API: GET /api/v1/users/stats (Bearer JWT)
+    API-->>View: 200 OK (Métricas: total, admin, coord, visitantes, ativos/inativos)
+    View->>API: GET /api/v1/users?role=&status=&search=&page=1 (Bearer JWT)
+    API-->>View: 200 OK (Lista paginada com igrejas vinculadas)
+
+    Note over Admin,API: 2. Cadastro / Edição de Usuário
+    Admin->>View: Preenche formulário (Nome, Usuário, Email, Senha, Perfil, Igrejas)
+    alt Novo Usuário
+        View->>API: POST /api/v1/users { name, username, email, password, role, church_ids }
+        API->>DB: INSERT INTO users & INSERT INTO user_churches
+        API-->>View: 201 Created { id, name, username, email, role, status, churches... }
+    else Edição de Usuário
+        View->>API: PUT /api/v1/users/{id} { name, email, role, status, church_ids, password? }
+        API->>DB: UPDATE users & Sincroniza user_churches
+        API-->>View: 200 OK { id, name, role, ... }
+    end
+
+    Note over Admin,API: 3. Alternância Rápida de Status (Ativar / Inativar)
+    Admin->>View: Clica no botão Alternar Status
+    View->>API: PATCH /api/v1/users/{id}/status { status: 'inativo' }
+    API->>DB: UPDATE users SET status = 'inativo', updated_at = NOW()
+    API-->>View: 200 OK { id, status: 'inativo', updated_at }
+
+    Note over Admin,API: 4. Exclusão de Usuário
+    Admin->>View: Confirma remoção do usuário
+    View->>API: DELETE /api/v1/users/{id}
+    API->>DB: Soft delete / DELETE FROM users WHERE id = :id
+    API-->>View: 204 No Content
+```
+
+### 7.1. `GET /api/v1/users` — Listagem de Usuários do Sistema
+Retorna a listagem paginada de operadores e usuários cadastrados com suporte a busca textual e filtros combinados.
+
+- **Método**: `GET`
+- **Autenticação**: Bearer Token (Exclusivo `admin`)
+- **Query Params**:
+  - `search` *(opcional, string)*: Busca por nome, username ou e-mail (ex: `"Henrique"`, `"maria.silva"`).
+  - `role` *(opcional, string)*: Filtrar por papel (`"admin"`, `"coordinator"`, `"visitor"`).
+  - `status` *(opcional, string)*: Filtrar por situação (`"ativo"`, `"inativo"`).
+  - `church_id` *(opcional, inteiro)*: Filtrar usuários vinculados a uma determinada igreja (ex: `1`).
+  - `page` *(opcional, padrão `1`)*: Número da página atual.
+  - `per_page` *(opcional, padrão `20`)*: Quantidade de registros por página.
+- **Response `200 OK`**:
+  ```json
+  {
+    "data": [
+      {
+        "id": 1,
+        "name": "Henrique L.",
+        "username": "admin.pastoral",
+        "email": "henrique@paroquiamesc.org.br",
+        "role": "admin",
+        "role_name": "Administrador",
+        "status": "ativo",
+        "avatar_url": "https://lh3.googleusercontent.com/avatar-admin.jpg",
+        "last_login_at": "2025-10-19T14:30:00Z",
+        "created_at": "2025-01-10T00:00:00Z",
+        "updated_at": "2025-09-14T20:00:00Z",
+        "churches": [
+          { "id": 1, "name": "Capela Divino Espírito Santo" },
+          { "id": 2, "name": "Igreja Matriz Nossa Senhora da Candelária" },
+          { "id": 3, "name": "Capela Santa Teresinha" },
+          { "id": 4, "name": "Capela São José" }
+        ]
+      },
+      {
+        "id": 2,
+        "name": "Maria Silva",
+        "username": "maria.silva",
+        "email": "maria.silva@paroquiamesc.org.br",
+        "role": "coordinator",
+        "role_name": "Coordenador",
+        "status": "ativo",
+        "avatar_url": null,
+        "last_login_at": "2025-10-18T19:10:00Z",
+        "created_at": "2025-02-15T00:00:00Z",
+        "updated_at": null,
+        "churches": [
+          { "id": 1, "name": "Capela Divino Espírito Santo" }
+        ]
+      }
+    ],
+    "meta": {
+      "current_page": 1,
+      "per_page": 20,
+      "total": 4,
+      "total_pages": 1
+    }
+  }
+  ```
+
+### 7.2. `GET /api/v1/users/stats` — Estatísticas e Contadores de Usuários
+Fornece métricas consolidadas para os cards de resumo da tela de gestão.
+
+- **Método**: `GET`
+- **Autenticação**: Bearer Token (Exclusivo `admin`)
+- **Response `200 OK`**:
+  ```json
+  {
+    "total": 4,
+    "admins": 2,
+    "coordinators": 1,
+    "visitors": 1,
+    "active": 3,
+    "inactive": 1
+  }
+  ```
+
+### 7.3. `GET /api/v1/users/{id}` — Detalhamento de Usuário
+Recupera o cadastro completo de um usuário com seu histórico de acessos e igrejas associadas.
+
+- **Método**: `GET`
+- **Autenticação**: Bearer Token (Exclusivo `admin`)
+- **Path Param**: `id` *(obrigatório, inteiro)*: ID numérico do usuário (ex: `1`).
+- **Response `200 OK`**:
+  ```json
+  {
+    "id": 1,
+    "name": "Henrique L.",
+    "username": "admin.pastoral",
+    "email": "henrique@paroquiamesc.org.br",
+    "role": "admin",
+    "role_name": "Administrador",
+    "status": "ativo",
+    "avatar_url": "https://lh3.googleusercontent.com/avatar-admin.jpg",
+    "last_login_at": "2025-10-19T14:30:00Z",
+    "created_at": "2025-01-10T00:00:00Z",
+    "updated_at": "2025-09-14T20:00:00Z",
+    "churches": [
+      { "id": 1, "name": "Capela Divino Espírito Santo" },
+      { "id": 2, "name": "Igreja Matriz Nossa Senhora da Candelária" },
+      { "id": 3, "name": "Capela Santa Teresinha" },
+      { "id": 4, "name": "Capela São José" }
+    ]
+  }
+  ```
+
+### 7.4. `POST /api/v1/users` — Criação de Novo Usuário
+Cadastra um novo usuário no sistema e associa suas permissões e igrejas autorizadas.
+
+- **Método**: `POST`
+- **Autenticação**: Bearer Token (Exclusivo `admin`)
+- **Request Body**:
+  ```json
+  {
+    "name": "Pe. Marcelo Rossi",
+    "username": "padre.marcelo",
+    "email": "pe.marcelo@diocesepastoral.org.br",
+    "password": "senhaForte@2025",
+    "role": "admin",
+    "status": "ativo",
+    "church_ids": [1, 2, 3, 4]
+  }
+  ```
+- **Response `201 Created`**:
+  ```json
+  {
+    "id": 3,
+    "name": "Pe. Marcelo Rossi",
+    "username": "padre.marcelo",
+    "email": "pe.marcelo@diocesepastoral.org.br",
+    "role": "admin",
+    "role_name": "Administrador",
+    "status": "ativo",
+    "avatar_url": null,
+    "created_at": "2025-09-14T22:00:00Z",
+    "updated_at": null,
+    "churches": [
+      { "id": 1, "name": "Capela Divino Espírito Santo" },
+      { "id": 2, "name": "Igreja Matriz Nossa Senhora da Candelária" },
+      { "id": 3, "name": "Capela Santa Teresinha" },
+      { "id": 4, "name": "Capela São José" }
+    ]
+  }
+  ```
+
+### 7.5. `PUT /api/v1/users/{id}` — Atualização Integral de Usuário
+Atualiza os dados cadastrais, cargo, status, comunidades vinculadas e opcionalmente redefine a senha.
+
+- **Método**: `PUT`
+- **Autenticação**: Bearer Token (Exclusivo `admin`)
+- **Path Param**: `id` *(obrigatório, inteiro)*.
+- **Request Body**:
+  ```json
+  {
+    "name": "Maria Silva Oliveira",
+    "username": "maria.silva",
+    "email": "maria.silva@paroquiamesc.org.br",
+    "role": "coordinator",
+    "status": "ativo",
+    "church_ids": [1, 3],
+    "password": ""
+  }
+  ```
+- **Response `200 OK`**: Usuário atualizado com os novos vínculos de igrejas.
+
+### 7.6. `PATCH /api/v1/users/{id}/status` — Alternância Rápida de Situação (Ativo / Inativo)
+Permite bloquear ou restabelecer o acesso de um usuário ao sistema.
+
+- **Método**: `PATCH`
+- **Autenticação**: Bearer Token (Exclusivo `admin`)
+- **Path Param**: `id` *(obrigatório, inteiro)*.
+- **Request Body**:
+  ```json
+  {
+    "status": "inativo"
+  }
+  ```
+- **Response `200 OK`**:
+  ```json
+  {
+    "id": 4,
+    "status": "inativo",
+    "updated_at": "2025-09-14T22:15:00Z"
+  }
+  ```
+
+### 7.7. `DELETE /api/v1/users/{id}` — Exclusão de Usuário
+Remove o usuário do sistema (com exclusão lógica / *soft delete* para integridade referencial de histórico de auditoria).
+
+- **Método**: `DELETE`
+- **Autenticação**: Bearer Token (Exclusivo `admin`)
+- **Path Param**: `id` *(obrigatório, inteiro)*.
+- **Response `204 No Content`**
+- **Response `400 Bad Request`**: Caso o usuário autenticado tente excluir sua própria conta atual.
+
+---
+
+## 💻 8. Interfaces e Tipos TypeScript Consolidados
 
 Definições de tipos compartilhadas para consumo padronizado pelo front-end da aplicação:
 
@@ -1002,7 +1245,8 @@ Definições de tipos compartilhadas para consumo padronizado pelo front-end da 
 // ==========================================
 export type MemberProfile = 'minister' | 'celebrant' | 'coordinator' | 'deacon';
 export type MemberStatus = 'ativo' | 'licenca';
-export type UserRole = 'admin' | 'coordinator';
+export type UserRole = 'admin' | 'coordinator' | 'visitor';
+export type UserStatus = 'ativo' | 'inativo';
 
 // ==========================================
 // 2. RESPOSTAS PADRÃO DA API
@@ -1214,5 +1458,61 @@ export interface EventDTO {
 export interface CalendarSummaryDayDTO {
   date: string;
   events_count: number;
+}
+
+// ==========================================
+// 7. TELA: GESTÃO DE USUÁRIOS DO SISTEMA
+// ==========================================
+export interface UserChurchRelationDTO {
+  id: number;
+  name: string;
+}
+
+export interface SystemUserDTO {
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+  role: UserRole;
+  role_name: string;
+  status: UserStatus;
+  avatar_url: string | null;
+  last_login_at: string | null;
+  created_at: string;
+  updated_at: string | null;
+  churches: UserChurchRelationDTO[];
+}
+
+export interface UserStatsDTO {
+  total: number;
+  admins: number;
+  coordinators: number;
+  visitors: number;
+  active: number;
+  inactive: number;
+}
+
+export interface CreateUserRequest {
+  name: string;
+  username: string;
+  email: string;
+  password: string;
+  role: UserRole;
+  status?: UserStatus;
+  church_ids: number[];
+}
+
+export interface UpdateUserRequest {
+  name: string;
+  username: string;
+  email: string;
+  password?: string;
+  role: UserRole;
+  status: UserStatus;
+  church_ids: number[];
+}
+
+export interface PatchUserStatusRequest {
+  status: UserStatus;
 }
 ```
