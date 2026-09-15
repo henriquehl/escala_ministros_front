@@ -401,4 +401,8 @@ function initExportBindings() {
   }
 }
 
-window.addEventListener('DOMContentLoaded', initExportBindings);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initExportBindings);
+} else {
+  initExportBindings();
+}

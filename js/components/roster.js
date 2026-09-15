@@ -436,63 +436,59 @@ function renderAssignedMinisters() {
 /**
  * Remove ministro da escala ativa
  */
-function removeAssignedMinister(ministerId) {
-  assignedMinisters = assignedMinisters.filter((m) => m.id !== ministerId);
+window.removeAssignedMinister = function(id) {
+  assignedMinisters = assignedMinisters.filter((m) => m.id !== id);
   renderAssignedMinisters();
   renderCandidateMinisters();
-  updateRosterSummary();
-}
+  if (window.showToast) window.showToast('Ministro removido da equipe.');
+};
 
 /**
- * Adiciona ministro candidato à escala ativa
+ * Adiciona ministro candidato à escala
  */
-function assignCandidateMinister(ministerId) {
-  const allMembers = window.appStore ? window.appStore.getMembers() : [];
-  const member = allMembers.find((m) => m.id === ministerId);
-
+window.assignCandidateMinister = function(id) {
+  const member = window.appStore ? window.appStore.getMemberById(id) : null;
   if (!member) return;
 
-  const alreadyAssigned = assignedMinisters.some((m) => m.id === ministerId);
-  if (alreadyAssigned) return;
+  if (assignedMinisters.some(m => m.id === id)) {
+    if (window.showToast) window.showToast(`${member.name} já está na escala.`);
+    return;
+  }
 
   assignedMinisters.push({
     id: member.id,
     name: member.name,
     phone: member.phone || '',
-    avatar: null
+    avatar: member.avatar || null
   });
 
   renderAssignedMinisters();
   renderCandidateMinisters();
-  updateRosterSummary();
-}
+  if (window.showToast) window.showToast(`${member.name} adicionado(a) à equipe!`);
+};
 
 /**
- * Renderiza a lista de ministros disponíveis para escalar
+ * Renderiza a lista de candidatos disponíveis para escala
  */
-function renderCandidateMinisters() {
+function renderCandidateMinisters(searchTerm = '') {
   const container = document.getElementById('candidate-ministers-list');
-  if (!container) return;
+  const baseCountEl = document.getElementById('active-base-count');
+  if (!container || !window.appStore) return;
 
-  const allMembers = window.appStore ? window.appStore.getMembers() : [];
+  const allMembers = window.appStore.getMembers().filter((m) => m.status !== 'licenca' && m.profile !== 'celebrante');
   const assignedIds = new Set(assignedMinisters.map((m) => m.id));
 
-  // Apenas ministros com status 'ativo' podem ser escalados (licença não pode)
+  if (baseCountEl) {
+    baseCountEl.textContent = `Base Ativa (${allMembers.length})`;
+  }
+
   const available = allMembers.filter((m) => {
     if (assignedIds.has(m.id)) return false;
-    if (m.status !== 'ativo') return false;
-
-    if (ministerSearchQuery) {
-      const searchTerm = ministerSearchQuery.toLowerCase();
+    if (searchTerm) {
       return m.name.toLowerCase().includes(searchTerm) || (m.phone && m.phone.toLowerCase().includes(searchTerm));
     }
     return true;
   });
-
-  const baseCountEl = document.getElementById('active-base-count');
-  if (baseCountEl) {
-    baseCountEl.textContent = `Base Ativa (${allMembers.length})`;
-  }
 
   if (available.length === 0) {
     container.innerHTML = `
@@ -584,4 +580,8 @@ function saveCurrentRoster(notifyWhatsApp = false) {
   }
 }
 
-window.addEventListener('DOMContentLoaded', initRosterComponent);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initRosterComponent);
+} else {
+  initRosterComponent();
+}

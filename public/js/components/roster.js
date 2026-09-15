@@ -580,4 +580,8 @@ function saveCurrentRoster(notifyWhatsApp = false) {
   }
 }
 
-window.addEventListener('DOMContentLoaded', initRosterComponent);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initRosterComponent);
+} else {
+  initRosterComponent();
+}

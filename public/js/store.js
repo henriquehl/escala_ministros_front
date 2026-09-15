@@ -21,6 +21,63 @@ const STORAGE_KEY_SCALES = 'mesc_portal_scales_v3';
 const STORAGE_KEY_USER = 'mesc_portal_user_v2';
 const STORAGE_KEY_CELEBRATIONS = 'mesc_portal_celebrations_v2';
 const STORAGE_KEY_CATEGORIES = 'mesc_portal_categories_v2';
+const STORAGE_KEY_USERS_LIST = 'mesc_portal_system_users_v1';
+
+// Usuários Iniciais do Sistema (Seed)
+const INITIAL_USERS = [
+  {
+    id: 'u-1',
+    name: 'Henrique L.',
+    username: 'admin.pastoral',
+    email: 'henrique@paroquiamesc.org.br',
+    role: 'admin',
+    roleName: 'Administrador',
+    status: 'ativo',
+    churches: ['1', '2', '3', '4'],
+    churchNames: ['Capela Divino', 'Matriz Candelária', 'Santa Teresinha', 'São José'],
+    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCzxt_yGxBs8rXNgxx97LdaE-1MojNEJZYj_Dky6lpz9bbLYJjVCLRNEtkxFTWAiQvRS4wRA8fJxZCa7z2yrHfm4xhMOngvmEBAmeEVCZraQPTNi7KLkqChT33EcTI68t9W6VcIs4vOAXnzYtan4V8LfS3cq1sDFUaPwVUeoje1lj9-s7GYzkcE6arqxFXb1jEk3c4BaA5DnC97rwbXQZlxoXjatKsFT5UzajVeu-i5Ox_otka2gKj0nA',
+    createdAt: '2025-01-10'
+  },
+  {
+    id: 'u-2',
+    name: 'Maria Silva',
+    username: 'maria.silva',
+    email: 'maria.silva@paroquiamesc.org.br',
+    role: 'coordinator',
+    roleName: 'Coordenador',
+    status: 'ativo',
+    churches: ['1'],
+    churchNames: ['Capela Divino Espírito Santo'],
+    avatar: '',
+    createdAt: '2025-02-15'
+  },
+  {
+    id: 'u-3',
+    name: 'Pe. Marcelo Rossi',
+    username: 'padre.marcelo',
+    email: 'pe.marcelo@diocesepastoral.org.br',
+    role: 'admin',
+    roleName: 'Administrador (Pároco)',
+    status: 'ativo',
+    churches: ['1', '2', '3', '4'],
+    churchNames: ['Todas as Comunidades'],
+    avatar: '',
+    createdAt: '2024-12-01'
+  },
+  {
+    id: 'u-4',
+    name: 'João Paulo Ferreira',
+    username: 'joao.paulo',
+    email: 'joao.paulo@gmail.com',
+    role: 'visitor',
+    roleName: 'Visitante (Consulta)',
+    status: 'inativo',
+    churches: ['3'],
+    churchNames: ['Capela Santa Teresinha'],
+    avatar: '',
+    createdAt: '2025-03-01'
+  }
+];
 
 // Tabela de Categorias Litúrgicas (Normalizada)
 const INITIAL_CATEGORIES = [
@@ -268,6 +325,7 @@ class Store {
     this.scales = this.loadScales();
     this.celebrations = this.loadCelebrations();
     this.currentUser = this.loadUser();
+    this.systemUsers = this.loadSystemUsers();
   }
 
   // Persistência de Categorias Litúrgicas
@@ -652,16 +710,144 @@ class Store {
   }
 
 
-  // Inscrição em Eventos
-  subscribe(callback) {
-    this.subscribers.push(callback);
-    return () => {
-      this.subscribers = this.subscribers.filter(cb => cb !== callback);
+  // ==========================================
+  // GESTÃO DE USUÁRIOS DO SISTEMA
+  // ==========================================
+  loadSystemUsers() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_USERS_LIST);
+      return saved ? JSON.parse(saved) : INITIAL_USERS;
+    } catch (e) {
+      console.warn('Erro ao carregar usuários do localStorage', e);
+      return INITIAL_USERS;
+    }
+  }
+
+  saveSystemUsers() {
+    try {
+      localStorage.setItem(STORAGE_KEY_USERS_LIST, JSON.stringify(this.systemUsers));
+    } catch (e) {
+      console.error('Erro ao salvar usuários', e);
+    }
+    this.notify('users');
+  }
+
+  getUsersList() {
+    return this.systemUsers || [];
+  }
+
+  getUserById(id) {
+    return (this.systemUsers || []).find(u => u.id === id) || null;
+  }
+
+  saveUserToList(userData) {
+    if (!this.systemUsers) this.systemUsers = [...INITIAL_USERS];
+
+    if (userData.id) {
+      // Edição
+      const index = this.systemUsers.findIndex(u => u.id === userData.id);
+      if (index !== -1) {
+        this.systemUsers[index] = {
+          ...this.systemUsers[index],
+          ...userData,
+          updatedAt: new Date().toISOString()
+        };
+        this.saveSystemUsers();
+        return this.systemUsers[index];
+      }
+    }
+
+    // Criação
+    const newUser = {
+      id: `u-${Date.now()}`,
+      name: userData.name || '',
+      username: userData.username || '',
+      email: userData.email || '',
+      role: userData.role || 'visitor',
+      roleName: userData.roleName || (userData.role === 'admin' ? 'Administrador' : (userData.role === 'coordinator' ? 'Coordenador' : 'Visitante')),
+      status: userData.status || 'ativo',
+      churches: userData.churches || ['1'],
+      churchNames: userData.churchNames || ['Capela Divino Espírito Santo'],
+      avatar: userData.avatar || '',
+      createdAt: new Date().toISOString().split('T')[0]
+    };
+
+    this.systemUsers.unshift(newUser);
+    this.saveSystemUsers();
+    return newUser;
+  }
+
+  deleteUserFromList(id) {
+    if (!this.systemUsers) return;
+    this.systemUsers = this.systemUsers.filter(u => u.id !== id);
+    this.saveSystemUsers();
+  }
+
+  toggleUserStatusInList(id) {
+    if (!this.systemUsers) return null;
+    const user = this.systemUsers.find(u => u.id === id);
+    if (user) {
+      user.status = user.status === 'ativo' ? 'inativo' : 'ativo';
+      this.saveSystemUsers();
+      return user;
+    }
+    return null;
+  }
+
+  getUserStats() {
+    const list = this.getUsersList();
+    const total = list.length;
+    const admins = list.filter(u => u.role === 'admin').length;
+    const coordinators = list.filter(u => u.role === 'coordinator').length;
+    const visitors = list.filter(u => u.role === 'visitor').length;
+    const active = list.filter(u => u.status === 'ativo').length;
+    const inactive = list.filter(u => u.status === 'inativo').length;
+
+    return {
+      total,
+      admins,
+      coordinators,
+      visitors,
+      active,
+      inactive
     };
   }
 
+  // Inscrição em Eventos
+  subscribe(eventOrCallback, maybeCallback) {
+    let callback;
+    let targetEvent = null;
+
+    if (typeof eventOrCallback === 'function') {
+      callback = eventOrCallback;
+    } else if (typeof eventOrCallback === 'string' && typeof maybeCallback === 'function') {
+      targetEvent = eventOrCallback;
+      callback = (evt, store) => {
+        if (!targetEvent || evt === targetEvent) {
+          maybeCallback(evt, store);
+        }
+      };
+    }
+
+    if (typeof callback === 'function') {
+      this.subscribers.push(callback);
+      return () => {
+        this.subscribers = this.subscribers.filter(cb => cb !== callback);
+      };
+    }
+    return () => {};
+  }
+
   notify(event) {
-    this.subscribers.forEach(cb => cb(event, this));
+    this.subscribers.forEach(cb => {
+      if (typeof cb === 'function') {
+        try {
+          cb(event, this);
+        } catch (e) {
+          console.error('Erro ao executar subscriber do store:', e);
+        }
+      }
+    });
   }
 }
 

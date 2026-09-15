@@ -37,10 +37,46 @@ function initUserProfileMenu() {
 
   function updateDropdownUserInfo() {
     const userNameEl = document.getElementById('dropdown-user-name');
-    if (userNameEl && window.appStore) {
+    const userChurchEl = document.getElementById('dropdown-church-name');
+    const headerChurchNameEl = document.getElementById('header-church-name');
+    const manageUsersLink = document.getElementById('dropdown-link-manage-users');
+    if (window.appStore) {
       const user = window.appStore.currentUser;
-      userNameEl.textContent = (user && user.name) ? user.name : (user && user.isAdmin ? 'Administrador' : 'Visitante');
+      const isAdmin = Boolean(user && user.isAdmin);
+      const churchName = (user && user.churchName) ? user.churchName : 'Capela Divino Espírito Santo';
+      if (userNameEl) {
+        userNameEl.textContent = (user && user.name) ? user.name : (isAdmin ? 'Administrador' : 'Visitante');
+      }
+      if (userChurchEl) {
+        userChurchEl.textContent = churchName;
+      }
+      if (headerChurchNameEl) {
+        headerChurchNameEl.textContent = churchName;
+      }
+      if (manageUsersLink) {
+        manageUsersLink.style.display = isAdmin ? 'flex' : 'none';
+      }
     }
+  }
+
+  // Inscrever-se a atualizações de usuário no store
+  if (window.appStore) {
+    window.appStore.subscribe((event) => {
+      if (event === 'user') {
+        updateDropdownUserInfo();
+      }
+    });
+  }
+
+  const manageUsersLink = document.getElementById('dropdown-link-manage-users');
+  if (manageUsersLink) {
+    manageUsersLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeDropdown();
+      if (window.appRouter) {
+        window.appRouter.navigate('gerenciar-usuarios');
+      }
+    });
   }
 
   function toggleDropdown(e) {
@@ -74,7 +110,9 @@ function initUserProfileMenu() {
         window.appStore.setUser({
           isAdmin: false,
           roleName: 'Visitante',
-          name: 'Visitante'
+          name: 'Visitante',
+          churchId: null,
+          churchName: ''
         });
       }
 
@@ -103,7 +141,13 @@ function initUserProfileMenu() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function startApp() {
   console.log('⛪ Portal Pastoral MESC - Front-end Inicializado com Sucesso');
   initUserProfileMenu();
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', startApp);
+} else {
+  startApp();
+}

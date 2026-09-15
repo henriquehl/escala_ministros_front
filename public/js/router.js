@@ -5,7 +5,7 @@
 
 class Router {
   constructor() {
-    this.routes = ['inicio-login', 'calendario-missas', 'membros-mesc', 'celebracoes', 'montar-escala'];
+    this.routes = ['inicio-login', 'calendario-missas', 'membros-mesc', 'celebracoes', 'montar-escala', 'gerenciar-usuarios'];
     this.currentRoute = 'inicio-login';
     this.init();
   }
@@ -60,6 +60,17 @@ class Router {
       return;
     }
 
+    if (path === 'gerenciar-usuarios') {
+      const currentUser = window.appStore ? window.appStore.currentUser : null;
+      if (!currentUser || !currentUser.isAdmin) {
+        if (window.showToast) {
+          window.showToast('Acesso restrito a administradores do sistema.', 'warning');
+        }
+        this.navigate('calendario-missas');
+        return;
+      }
+    }
+
     this.currentRoute = path;
     if (updateHistory) {
       window.location.hash = `#/${path}`;
@@ -82,24 +93,35 @@ class Router {
 
     // 2. Controlar Cabeçalho Superior com Navegação
     const headerEl = document.getElementById('app-header');
+    const headerChurchNameEl = document.getElementById('header-church-name');
+    const dropdownChurchNameEl = document.getElementById('dropdown-church-name');
     const headerTitleEl = document.getElementById('header-sub-title');
     const userRoleEl = document.getElementById('header-user-role');
     const currentUser = window.appStore ? window.appStore.currentUser : { isAdmin: true, roleName: 'Administrador' };
     const isAdmin = Boolean(currentUser && currentUser.isAdmin);
+    const churchName = (currentUser && currentUser.churchName) ? currentUser.churchName : 'Capela Divino Espírito Santo';
 
     if (path === 'inicio-login') {
       if (headerEl) headerEl.classList.add('hidden');
     } else {
       if (headerEl) headerEl.classList.remove('hidden');
 
-      // Atualizar título do cabeçalho
+      // Atualizar nome da igreja no cabeçalho e dropdown
+      if (headerChurchNameEl) {
+        headerChurchNameEl.textContent = churchName;
+      }
+      if (dropdownChurchNameEl) {
+        dropdownChurchNameEl.textContent = churchName;
+      }
+
+      // Atualizar título da seção do cabeçalho
       if (headerTitleEl) {
         switch (path) {
           case 'calendario-missas':
             headerTitleEl.textContent = 'CALENDÁRIO DE MISSAS';
             break;
           case 'membros-mesc':
-            headerTitleEl.textContent = 'MEMBROS CAPELA DIVINO';
+            headerTitleEl.textContent = 'MEMBROS MESC';
             break;
           case 'celebracoes':
             headerTitleEl.textContent = 'CELEBRAÇÕES';
@@ -107,8 +129,11 @@ class Router {
           case 'montar-escala':
             headerTitleEl.textContent = 'GERIR ESCALAS';
             break;
+          case 'gerenciar-usuarios':
+            headerTitleEl.textContent = 'GERENCIAR USUÁRIOS';
+            break;
           default:
-            headerTitleEl.textContent = 'CAPELA DIVINO';
+            headerTitleEl.textContent = churchName.toUpperCase();
         }
       }
 

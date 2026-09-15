@@ -279,4 +279,8 @@ window.getSelectedScale = function() {
   return window.appStore ? window.appStore.getScaleByDateAndHour(dateStr, activeTimeFilter) : null;
 };
 
-window.addEventListener('DOMContentLoaded', initCalendarComponent);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initCalendarComponent);
+} else {
+  initCalendarComponent();
+}

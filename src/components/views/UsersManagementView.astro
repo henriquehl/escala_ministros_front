@@ -1,0 +1,238 @@
+---
+// Tela 6: Gestão e Cadastro de Usuários do Sistema
+---
+<div id="view-gerenciar-usuarios" class="view-container w-full pt-32 md:pt-24 pb-12 px-margin-screen">
+  <div class="flex flex-col w-full space-y-spacing-md max-w-4xl mx-auto">
+    <!-- Header Hero com Métricas -->
+    <div class="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 border border-outline-variant/30 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+      <!-- Título & Subtítulo -->
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-xl bg-primary-fixed/60 flex items-center justify-center text-primary flex-shrink-0">
+          <span class="material-symbols-outlined text-[22px]">manage_accounts</span>
+        </div>
+        <div class="min-w-0">
+          <h2 class="text-base sm:text-lg font-bold text-on-surface tracking-tight leading-tight">Usuários e Permissões</h2>
+          <p class="text-xs text-on-surface-variant font-medium mt-0.5">Gestão de perfis e acessos às comunidades</p>
+        </div>
+      </div>
+
+      <!-- Métricas Minimalistas (Pills) -->
+      <div class="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap flex-shrink-0">
+        <!-- Total -->
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-container-low/70 border border-outline-variant/25">
+          <span class="w-2 h-2 rounded-full bg-primary"></span>
+          <div class="flex items-baseline gap-1">
+            <span id="stat-total-users" class="text-sm font-bold text-on-surface leading-none">--</span>
+            <span class="text-[11px] text-on-surface-variant font-medium">Total</span>
+          </div>
+        </div>
+
+        <!-- Admins -->
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-container-low/70 border border-outline-variant/25">
+          <span class="w-2 h-2 rounded-full bg-secondary"></span>
+          <div class="flex items-baseline gap-1">
+            <span id="stat-admin-users" class="text-sm font-bold text-on-surface leading-none">--</span>
+            <span class="text-[11px] text-on-surface-variant font-medium">Admins</span>
+          </div>
+        </div>
+
+        <!-- Coordenadores -->
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-container-low/70 border border-outline-variant/25">
+          <span class="w-2 h-2 rounded-full bg-tertiary"></span>
+          <div class="flex items-baseline gap-1">
+            <span id="stat-coord-users" class="text-sm font-bold text-on-surface leading-none">--</span>
+            <span class="text-[11px] text-on-surface-variant font-medium">Coords</span>
+          </div>
+        </div>
+
+        <!-- Ativos -->
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-container-low/70 border border-outline-variant/25">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <div class="flex items-baseline gap-1">
+            <span id="stat-active-users" class="text-sm font-bold text-on-surface leading-none">--</span>
+            <span class="text-[11px] text-on-surface-variant font-medium">Ativos</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action: Add User CTA -->
+    <button class="w-full h-12 bg-primary hover:bg-primary-container text-on-primary rounded-xl font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-md active:scale-[0.99] transition-transform cursor-pointer" id="open-user-modal-btn" type="button">
+      <span class="material-symbols-outlined text-[20px]">person_add</span>
+      Cadastrar Novo Usuário
+    </button>
+
+    <!-- Search & Filter Bar -->
+    <div class="space-y-spacing-xs">
+      <div class="relative w-full">
+        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px]">search</span>
+        <input class="w-full h-12 pl-10 pr-10 bg-surface-container-lowest rounded-xl font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all border border-outline-variant/20" id="search-users" placeholder="Buscar por nome, login, e-mail ou igreja..." type="text"/>
+        <button class="absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface cursor-pointer" type="button" onclick="document.getElementById('search-users').focus()">
+          <span class="material-symbols-outlined text-[20px]">tune</span>
+        </button>
+      </div>
+
+      <!-- Filter Chips -->
+      <div id="users-filter-chips" class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+        <button class="px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm whitespace-nowrap shadow-sm cursor-pointer" data-filter="todos" type="button">
+          Todos
+        </button>
+        <button class="px-3.5 py-1.5 rounded-full bg-surface-container-low text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap transition-colors cursor-pointer" data-filter="admin" type="button">
+          Administradores
+        </button>
+        <button class="px-3.5 py-1.5 rounded-full bg-surface-container-low text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap transition-colors cursor-pointer" data-filter="coordinator" type="button">
+          Coordenadores
+        </button>
+        <button class="px-3.5 py-1.5 rounded-full bg-surface-container-low text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap transition-colors cursor-pointer" data-filter="visitor" type="button">
+          Visitantes
+        </button>
+        <button class="px-3.5 py-1.5 rounded-full bg-surface-container-low text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap transition-colors cursor-pointer" data-filter="ativo" type="button">
+          Apenas Ativos
+        </button>
+      </div>
+    </div>
+
+    <!-- Lista de Usuários Container -->
+    <div id="users-list-container" class="space-y-3">
+      <!-- Inserido dinamicamente via users.js -->
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL: CADASTRAR / EDITAR USUÁRIO -->
+<!-- ========================================== -->
+<div class="fixed inset-0 z-50 bg-inverse-surface/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity duration-200 hidden" id="user-modal">
+  <div class="w-full sm:max-w-lg bg-surface-container-lowest rounded-t-3xl sm:rounded-3xl p-6 sm:p-7 shadow-2xl max-h-[90vh] overflow-y-auto space-y-5 border border-outline-variant/30">
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between pb-3 border-b border-surface-container-high">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-primary-fixed/60 text-primary flex items-center justify-center">
+          <span class="material-symbols-outlined text-[22px]">manage_accounts</span>
+        </div>
+        <div>
+          <h3 class="font-bold text-base sm:text-lg text-on-surface leading-tight" id="user-modal-title">Cadastrar Novo Usuário</h3>
+          <p class="text-xs text-on-surface-variant mt-0.5">Defina as credenciais, perfis e comunidades</p>
+        </div>
+      </div>
+      <button class="w-9 h-9 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer" id="close-user-modal-btn" type="button" aria-label="Fechar janela">
+        <span class="material-symbols-outlined text-[20px]">close</span>
+      </button>
+    </div>
+
+    <!-- Form Body -->
+    <form class="space-y-4" id="user-form">
+      <input type="hidden" id="user-form-id" value="">
+
+      <!-- Nome Completo -->
+      <div class="space-y-1.5">
+        <label class="font-label-md text-label-md text-on-surface flex items-center gap-1 font-semibold" for="user-form-name">
+          <span class="material-symbols-outlined text-[16px] text-on-surface-variant">person</span>
+          Nome Completo
+        </label>
+        <input class="w-full h-12 bg-surface-container-low text-on-surface placeholder:text-outline font-body-md text-body-md px-3.5 rounded-xl border border-outline-variant/20 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container transition-colors" id="user-form-name" placeholder="Ex: Maria da Silva Souza" required type="text" />
+      </div>
+
+      <!-- Login / Username e Email em Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <!-- Nome de Usuário / Login -->
+        <div class="space-y-1.5">
+          <label class="font-label-md text-label-md text-on-surface flex items-center gap-1 font-semibold" for="user-form-username">
+            <span class="material-symbols-outlined text-[16px] text-on-surface-variant">alternate_email</span>
+            Nome de Usuário (Login)
+          </label>
+          <input class="w-full h-12 bg-surface-container-low text-on-surface placeholder:text-outline font-body-md text-body-md px-3.5 rounded-xl border border-outline-variant/20 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container transition-colors" id="user-form-username" placeholder="ex: maria.pastoral" required type="text" />
+        </div>
+
+        <!-- E-mail -->
+        <div class="space-y-1.5">
+          <label class="font-label-md text-label-md text-on-surface flex items-center gap-1 font-semibold" for="user-form-email">
+            <span class="material-symbols-outlined text-[16px] text-on-surface-variant">mail</span>
+            E-mail
+          </label>
+          <input class="w-full h-12 bg-surface-container-low text-on-surface placeholder:text-outline font-body-md text-body-md px-3.5 rounded-xl border border-outline-variant/20 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container transition-colors" id="user-form-email" placeholder="usuario@paroquia.org" required type="email" />
+        </div>
+      </div>
+
+      <!-- Perfil de Acesso e Status -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <!-- Perfil -->
+        <div class="space-y-1.5">
+          <label class="font-label-md text-label-md text-on-surface flex items-center gap-1 font-semibold" for="user-form-role">
+            <span class="material-symbols-outlined text-[16px] text-on-surface-variant">shield_person</span>
+            Perfil de Acesso
+          </label>
+          <div class="relative flex items-center">
+            <select class="w-full h-12 bg-surface-container-low text-on-surface font-body-md text-body-md px-3.5 pr-10 rounded-xl border border-outline-variant/20 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container transition-colors appearance-none cursor-pointer" id="user-form-role">
+              <option value="admin">Administrador Geral</option>
+              <option value="coordinator" selected>Coordenador Paroquial</option>
+              <option value="visitor">Visitante (Apenas Consulta)</option>
+            </select>
+            <span class="material-symbols-outlined absolute right-3 pointer-events-none text-on-surface-variant text-[20px]">arrow_drop_down</span>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="space-y-1.5">
+          <label class="font-label-md text-label-md text-on-surface flex items-center gap-1 font-semibold" for="user-form-status">
+            <span class="material-symbols-outlined text-[16px] text-on-surface-variant">toggle_on</span>
+            Status da Conta
+          </label>
+          <div class="relative flex items-center">
+            <select class="w-full h-12 bg-surface-container-low text-on-surface font-body-md text-body-md px-3.5 pr-10 rounded-xl border border-outline-variant/20 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container transition-colors appearance-none cursor-pointer" id="user-form-status">
+              <option value="ativo" selected>Ativo (Acesso Liberado)</option>
+              <option value="inativo">Inativo (Bloqueado)</option>
+            </select>
+            <span class="material-symbols-outlined absolute right-3 pointer-events-none text-on-surface-variant text-[20px]">arrow_drop_down</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Igrejas / Capelas Vinculadas (Multi-seleção) -->
+      <div class="space-y-2 pt-1">
+        <label class="font-label-md text-label-md text-on-surface flex items-center gap-1 font-semibold">
+          <span class="material-symbols-outlined text-[16px] text-on-surface-variant">church</span>
+          Igrejas / Capelas Vinculadas
+        </label>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-surface-container-low/60 p-3 rounded-2xl border border-outline-variant/20">
+          <label class="flex items-center gap-2.5 p-2 rounded-xl hover:bg-surface-container transition-colors cursor-pointer text-xs font-medium text-on-surface">
+            <input type="checkbox" value="1" class="church-checkbox w-4 h-4 rounded text-primary focus:ring-primary/30 accent-primary" />
+            <span class="church-label-text">Capela Divino Espírito Santo</span>
+          </label>
+          <label class="flex items-center gap-2.5 p-2 rounded-xl hover:bg-surface-container transition-colors cursor-pointer text-xs font-medium text-on-surface">
+            <input type="checkbox" value="2" class="church-checkbox w-4 h-4 rounded text-primary focus:ring-primary/30 accent-primary" />
+            <span class="church-label-text">Igreja Matriz Nossa Senhora da Candelária</span>
+          </label>
+          <label class="flex items-center gap-2.5 p-2 rounded-xl hover:bg-surface-container transition-colors cursor-pointer text-xs font-medium text-on-surface">
+            <input type="checkbox" value="3" class="church-checkbox w-4 h-4 rounded text-primary focus:ring-primary/30 accent-primary" />
+            <span class="church-label-text">Capela Santa Teresinha</span>
+          </label>
+          <label class="flex items-center gap-2.5 p-2 rounded-xl hover:bg-surface-container transition-colors cursor-pointer text-xs font-medium text-on-surface">
+            <input type="checkbox" value="4" class="church-checkbox w-4 h-4 rounded text-primary focus:ring-primary/30 accent-primary" />
+            <span class="church-label-text">Capela São José</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Senha / Reset -->
+      <div class="space-y-1.5">
+        <label class="font-label-md text-label-md text-on-surface flex items-center gap-1 font-semibold" for="user-form-password">
+          <span class="material-symbols-outlined text-[16px] text-on-surface-variant">lock_reset</span>
+          Senha Provisória / Redefinição
+        </label>
+        <input class="w-full h-12 bg-surface-container-low text-on-surface placeholder:text-outline font-body-md text-body-md px-3.5 rounded-xl border border-outline-variant/20 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container transition-colors" id="user-form-password" placeholder="Digite a senha inicial ou deixe em branco para manter" type="password" />
+      </div>
+
+      <!-- Botões de Ação do Modal -->
+      <div class="flex items-center justify-end gap-3 pt-3 border-t border-outline-variant/20">
+        <button id="cancel-user-modal-btn" type="button" class="h-11 px-5 rounded-xl bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md border border-outline-variant/20 transition-colors cursor-pointer">
+          Cancelar
+        </button>
+        <button type="submit" class="h-11 px-6 rounded-xl bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md shadow-sm transition-all active:scale-[0.99] flex items-center gap-2 cursor-pointer">
+          <span class="material-symbols-outlined text-[18px]">save</span>
+          <span>Salvar Usuário</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

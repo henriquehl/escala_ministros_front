@@ -419,6 +419,8 @@ window.deleteCelebrationAction = function(id, name) {
   }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initCelebrationsComponent);
+} else {
   initCelebrationsComponent();
-});
+}

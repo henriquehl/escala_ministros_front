@@ -10,7 +10,7 @@ Este documento apresenta a especificação técnica formal e contratos de **API 
 ## 📑 Sumário de Navegação Rápida
 
 - [🏛️ 1. Padrões e Convenções Globais da API](#️-1-padrões-e-convenções-globais-da-api)
-- [🔐 2. Página: Login & Autenticação (`LoginView`)](#-2-página-login--autenticação-loginview)
+- [🔐 2. Página: Login, Autenticação & Seleção de Igreja (`LoginView`)](#-2-página-login-autenticação--seleção-de-igreja-loginview)
 - [✍️ 3. Página: Montar Escala (`RosterView`)](#️-3-página-montar-escala-rosterview)
 - [📅 4. Página: Calendário de Missas & Escalas (`CalendarView`)](#-4-página-calendário-de-missas--escalas-calendarview)
 - [👥 5. Página: Gestão de Membros & Ministros (`MembersView`)](#-5-página-gestão-de-membros--ministros-membersview)
@@ -31,9 +31,10 @@ Este documento apresenta a especificação técnica formal e contratos de **API 
    - Datas: `YYYY-MM-DD` (ISO 8601, ex: `"2025-10-19"`).
    - Horários: `HH:mm` (24 horas, ex: `"10:00"`, `"19:30"`).
    - Timestamps: `YYYY-MM-DDTHH:mm:ssZ` (UTC ISO 8601).
-5. **Autenticação e Autorização**:
+5. **Autenticação, Autorização & Contexto da Igreja (`JWT`)**:
    - Header obrigatório: `Authorization: Bearer <jwt_token>`
-   - O payload do JWT identifica o `user_id` numérico e seu papel (`role`: `'admin'` ou `'coordinator'`).
+   - O payload/claims do JWT identifica o usuário (`user_id`), seu papel no sistema (`role`: `'admin'` ou `'coordinator'`) e a **igreja ativa selecionada** (`church_id`).
+   - O backend extrai o `church_id` automaticamente a partir do token decodificado, isolando e filtrando as consultas de banco de dados de forma transparente, **sem necessidade de parâmetros manuais de igreja** nas demais rotas da API.
 6. **Padrão de Erro (RFC 7807 - Problem Details)**:
    ```json
    {
@@ -49,15 +50,20 @@ Este documento apresenta a especificação técnica formal e contratos de **API 
 
 ---
 
-## 🔐 2. Página: Login & Autenticação (`LoginView`)
+## 🔐 2. Página: Login, Autenticação & Seleção de Igreja (`LoginView`)
 
-Responsável pelo controle de acesso, autenticação de coordenadores/administradores e recuperação de credenciais.
+Responsável pelo controle de acesso, autenticação de coordenadores/administradores, seleção da igreja/comunidade ativa para emissão do JWT contextualizado e recuperação de credenciais.
 
 ```mermaid
-flowchart LR
-    User["Usuário"] --> Form["Formulário de Login"]
-    Form --> API["POST /api/v1/auth/login"]
-    API --> JWT["JWT Token + Perfil do Usuário"]
+flowchart TD
+    User["Usuário"] --> Form["1. Formulário de Login"]
+    Form --> APILogin["POST /api/v1/auth/login"]
+    APILogin --> JWTInit["2. Token Inicial + Dados do Usuário"]
+    JWTInit --> APIChurches["3. GET /api/v1/users/me/churches"]
+    APIChurches --> SelectChurch["4. Seleção da Igreja (Modal ou Auto se = 1)"]
+    SelectChurch --> APISelect["POST /api/v1/auth/select-church"]
+    APISelect --> JWTFinal["5. JWT Final com claims: user_id + role + church_id"]
+    JWTFinal --> AppReady["6. Aplicação Consome APIs Normalmente via Bearer Token"]
     Form -.-> Forgot["POST /api/v1/auth/forgot-password"]
 ```
 
@@ -100,7 +106,7 @@ Autentica o usuário por e-mail e senha, gerando o token de sessão JWT.
   ```
 
 ### 2.2. `GET /api/v1/auth/me` — Obter Dados do Usuário Logado
-Verifica se a sessão continua ativa e retorna os dados do usuário atual.
+Verifica se a sessão continua ativa e retorna os dados do usuário atual e da igreja ativa no token.
 
 - **Método**: `GET`
 - **Autenticação**: Bearer Token
@@ -111,11 +117,61 @@ Verifica se a sessão continua ativa e retorna os dados do usuário atual.
     "name": "Coordenador(a) Geral",
     "email": "coordenacao@paroquia.org",
     "role": "admin",
+    "church_id": 1,
     "last_login_at": "2025-09-10T22:00:00Z"
   }
   ```
 
-### 2.3. `POST /api/v1/auth/forgot-password` — Solicitação de Recuperação de Senha
+### 2.3. `GET /api/v1/users/me/churches` — Listagem de Igrejas do Usuário Logado
+Retorna todas as igrejas/capelas às quais o usuário autenticado possui vínculo cadastrado na tabela `user_churches`. Utilizado imediatamente após o login para alimentar o modal de seleção de igreja ou selecionar automaticamente a igreja ativa caso haja apenas uma.
+
+- **Método**: `GET`
+- **Autenticação**: Bearer Token
+- **Response `200 OK`**:
+  ```json
+  {
+    "data": [
+      {
+        "id": 1,
+        "name": "Capela Divino Espírito Santo",
+        "created_at": "2025-01-01T00:00:00Z",
+        "updated_at": "2025-01-01T00:00:00Z"
+      },
+      {
+        "id": 2,
+        "name": "Igreja Matriz Nossa Senhora da Candelária",
+        "created_at": "2025-01-01T00:00:00Z",
+        "updated_at": "2025-01-01T00:00:00Z"
+      }
+    ]
+  }
+  ```
+
+### 2.4. `POST /api/v1/auth/select-church` — Seleção de Igreja Ativa (Emissão de JWT com Contexto)
+Emite o token JWT final contendo a claim `church_id`, ativando o contexto da paróquia/capela selecionada para todas as requisições subsequentes.
+
+- **Método**: `POST`
+- **Autenticação**: Bearer Token
+- **Request Body**:
+  ```json
+  {
+    "church_id": 1
+  }
+  ```
+- **Response `200 OK`**:
+  ```json
+  {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "token_type": "Bearer",
+    "expires_in": 86400,
+    "church": {
+      "id": 1,
+      "name": "Capela Divino Espírito Santo"
+    }
+  }
+  ```
+
+### 2.5. `POST /api/v1/auth/forgot-password` — Solicitação de Recuperação de Senha
 Envia um e-mail com instruções para redefinição de senha.
 
 - **Método**: `POST`
@@ -140,14 +196,21 @@ Assistente em 4 passos para seleção do rito, data/hora, celebrante, subtítulo
 
 ```mermaid
 flowchart TD
-    Step1["1. Selecionar Data e Celebração"] --> Step2["2. Definir Horário, Celebrante e Subtítulo"]
-    Step2 --> Step3["3. Convocar Ministros MESC"]
-    Step3 --> Step4["4. Publicar Escala"]
+    subgraph Criacao["1. Modo Criação de Escala"]
+        Step1["1. Selecionar Data e Celebração"] --> Step2["2. Definir Horário, Celebrante e Subtítulo"]
+        Step2 --> Step3["3. Convocar Ministros MESC"]
+        Step3 --> Step4["4. Publicar Escala"]
+        Step1 -.-> E1["GET /api/v1/celebrations<br/>GET /api/v1/categories"]
+        Step2 -.-> E2["GET /api/v1/members/celebrants<br/>GET /api/v1/events/check-availability"]
+        Step3 -.-> E3["GET /api/v1/members/candidates?date=...&time=..."]
+        Step4 -.-> E4["POST /api/v1/events"]
+    end
 
-    Step1 -.-> E1["GET /api/v1/celebrations<br/>GET /api/v1/categories"]
-    Step2 -.-> E2["GET /api/v1/members/celebrants<br/>GET /api/v1/events/check-availability"]
-    Step3 -.-> E3["GET /api/v1/members/candidates?date=...&time=..."]
-    Step4 -.-> E4["POST /api/v1/events"]
+    subgraph Edicao["2. Modo Edição e Gestão"]
+        LoadScale["Carga do Evento"] -.-> EGet["GET /api/v1/events/{id}"]
+        SaveEdit["Salvar Alterações"] -.-> EPut["PUT /api/v1/events/{id}"]
+        DeleteScale["Excluir / Cancelar"] -.-> EDel["DELETE /api/v1/events/{id}"]
+    end
 ```
 
 ### 3.1. `GET /api/v1/celebrations` — Catálogo de Celebrações
@@ -213,23 +276,26 @@ Alimenta o dropdown de presidente da celebração no **Passo 2**.
   ```
 
 ### 3.3. `GET /api/v1/events/check-availability` — Validação de Conflito de Horário
-Verifica no **Passo 2** se o horário na data já está ocupado (`date + time`).
+Verifica no **Passo 2** se o horário na data já está ocupado (`date + time`), prevenindo duplicidades e orientando o coordenador no escopo da igreja do JWT.
 
 - **Método**: `GET`
+- **Autenticação**: Bearer Token
 - **Query Params**:
-  - `date` *(obrigatório, string)*: `2025-10-19`
-  - `time` *(obrigatório, string)*: `10:00`
+  - `date` *(obrigatório, string)*: Data no formato `YYYY-MM-DD` (ex: `2025-10-19`).
+  - `time` *(obrigatório, string)*: Horário no formato `HH:mm` (ex: `10:00`).
   - `exclude_event_id` *(opcional, inteiro)*: ID numérico do evento a ignorar em caso de edição (ex: `501`).
+
 - **Response `200 OK` (Disponível)**:
   ```json
   {
     "available": true,
     "date": "2025-10-19",
     "time": "10:00",
-    "message": "Horário disponível."
+    "message": "Horário disponível para nova escala."
   }
   ```
-- **Response `200 OK` (Ocupado)**:
+
+- **Response `200 OK` (Ocupado / Conflito Detectado)**:
   ```json
   {
     "available": false,
@@ -238,11 +304,52 @@ Verifica no **Passo 2** se o horário na data já está ocupado (`date + time`).
     "conflict_event": {
       "id": 501,
       "celebration_name": "Santa Missa Dominical",
-      "celebrant_name": "Pe. Marcelo Rossi"
+      "subtitle": "Missa Solene",
+      "celebrant_name": "Pe. Marcelo Rossi",
+      "ministers_count": 4
     },
-    "message": "Já existe uma celebração cadastrada para esta data e horário."
+    "message": "Já existe uma celebração cadastrada para esta data e horário nesta igreja."
   }
   ```
+
+#### 3.3.1. 🏛️ Por que esta validação é utilizada?
+
+1. **Exclusividade do Espaço Físico Litúrgico**:
+   - Uma mesma capela/igreja física possui um único presbitério/altar principal. Não é possível realizar duas celebrações litúrgicas no mesmo horário e local (ex.: Missa Dominical e Batismo no mesmo espaço às 10:00).
+2. **Disponibilidade do Celebrante Principal (Padres e Diáconos)**:
+   - Garante que o presidente da celebração (padre/diácono) não seja alocado simultaneamente em duas celebrações distintas no mesmo horário.
+3. **Prevenção de Sobrecarga e Conflito de Ministros**:
+   - Evita a duplicidade de convocação de membros da equipe ministerial (MESC) e permite alertar quando um ministro já possui compromisso no mesmo dia.
+4. **Isolamento Multicomunidades (`church_id`)**:
+   - Permite que a paróquia gerencie múltiplas capelas de forma autônoma: a *Capela A* e a *Matriz B* podem ter celebrações no mesmo horário sem conflito mútuo.
+5. **Consistência Relacional em Dupla Camada**:
+   - **Frontend/API**: Feedback amigável e preventivo via `/check-availability`.
+   - **Banco de Dados**: Bloqueio definitivo contra condições de corrida (*race conditions*) via constraint `UNIQUE(date, time, church_id)`.
+
+#### 3.3.2. ⚡ Em que momentos deve ser acionado no Front-End?
+
+Como a tela de **Montar Escala** (`RosterView`) apresenta todos os passos integrados em uma visão contínua, a validação de disponibilidade deve ser disparada automaticamente nos seguintes gatilhos da interface:
+
+| Gatilho / Evento no Front-End | Elemento / Ação do Usuário | Parâmetros Enviados | Finalidade & Ação do Front-End |
+| :--- | :--- | :--- | :--- |
+| **1. Alteração de Data** | Clique no chip de dia (`.date-chip`) ou alteração no seletor de data (`#roster-date-picker`). | `date`, `time` | Consulta assíncrona imediata para a data selecionada + horário ativo. Cancela requisições anteriores em andamento (`AbortController`) em caso de cliques rápidos. |
+| **2. Alteração de Horário** | Mudança no dropdown de horários da missa (`#roster-hour-select`). | `date`, `time` | Recalcula imediatamente a disponibilidade para o novo horário escolhido na data ativa. |
+| **3. Inicialização em Modo de Edição** | Abertura do assistente via atalho "Editar Escala" a partir do Calendário (`#/calendario-missas`). | `date`, `time`, `exclude_event_id={id}` | Envia o ID da escala em edição para **ignorar falso positivo de conflito consigo mesma**, permitindo carregar e atualizar a equipe/celebrante. |
+| **4. Validação Pré-Salvamento** | Clique em "Salvar Escala" (`#btn-save-roster`) ou "Salvar e Copiar Lembrete" (`#btn-save-notify`). | `date`, `time`, `exclude_event_id` | Verificação de segurança final antes de enviar a requisição de persistência (`POST /events` ou `PUT /events/{id}`). |
+
+#### 3.3.3. 🎨 Tratamento Visual e Feedback de UI
+
+- **Quando Disponível (`available: true`)**:
+  - Exibe indicador visual discreto e positivo (badge verde *"Horário Livre"*).
+  - Mantém o botão de salvar habilitado para a criação de uma nova escala.
+  - Limpa qualquer mensagem de conflito em tela.
+- **Quando Ocupado / Conflito (`available: false`)**:
+  - Exibe card de alerta em destaque (tom âmbar/litúrgico) informando:
+    - *"Já existe uma celebração cadastrada para esta data e horário: [Nome da Celebração] com [Nome do Celebrante]"*.
+  - Oferece ações rápidas ao usuário:
+    1. **Botão "Carregar e Editar Escala Existente"**: Preenche a tela com os dados da celebração e ministros já cadastrados para edição.
+    2. **Botão "Escolher Outro Horário"**: Foca no seletor `#roster-hour-select` para selecionar um horário livre.
+  - Bloqueia a submissão de um novo registro duplicado.
 
 ### 3.4. `GET /api/v1/members/candidates` — Candidatos a Ministros
 Alimenta a lista lateral de ministros aptos para escalação no **Passo 3**.
@@ -265,7 +372,6 @@ Alimenta a lista lateral de ministros aptos para escalação no **Passo 3**.
         "status": "ativo",
         "avatar_url": "https://lh3.googleusercontent.com/avatar-m1.jpg",
         "start_date": "2010-02-15",
-        "scales_count_month": 2,
         "is_scheduled_same_day": false
       },
       {
@@ -276,7 +382,6 @@ Alimenta a lista lateral de ministros aptos para escalação no **Passo 3**.
         "status": "ativo",
         "avatar_url": null,
         "start_date": "2013-05-20",
-        "scales_count_month": 1,
         "is_scheduled_same_day": true
       }
     ]
@@ -306,6 +411,7 @@ Persiste o evento (`EVENT`) e todos os ministros vinculados (`EVENT_MEMBER`) em 
     "date": "2025-10-19",
     "time": "10:00",
     "subtitle": "29º Domingo do Tempo Comum",
+    "church_id": 1,
     "celebration": {
       "id": 1,
       "name": "Santa Missa Dominical",
@@ -335,6 +441,157 @@ Persiste o evento (`EVENT`) e todos os ministros vinculados (`EVENT_MEMBER`) em 
   }
   ```
 
+### 3.6. `GET /api/v1/events/{id}` — Visualização e Carga de Escala para Edição
+Recupera todos os detalhes estruturados de um evento/escala específico por seu identificador único (`id`), populando automaticamente o formulário do `RosterView` para edição ou exibindo os dados completos da celebração.
+
+- **Método**: `GET`
+- **Autenticação**: Bearer Token
+- **Path Params**:
+  - `id` *(obrigatório, inteiro)*: Identificador numérico do evento (ex: `501`).
+- **Response `200 OK`**:
+  ```json
+  {
+    "data": {
+      "id": 501,
+      "date": "2025-10-19",
+      "time": "10:00",
+      "subtitle": "29º Domingo do Tempo Comum",
+      "church_id": 1,
+      "celebration": {
+        "id": 1,
+        "name": "Santa Missa Dominical",
+        "category_id": 1,
+        "category": {
+          "id": 1,
+          "name": "Dominical"
+        }
+      },
+      "celebrant": {
+        "id": 10,
+        "name": "Pe. Marcelo Rossi",
+        "profile": "celebrant",
+        "phone": "(11) 99999-0000",
+        "avatar_url": "https://lh3.googleusercontent.com/avatar-pe-marcelo.jpg"
+      },
+      "user_id": 1,
+      "ministers": [
+        {
+          "id": 1,
+          "name": "Antônio Carlos Silveira",
+          "phone": "(11) 99999-0001",
+          "profile": "coordinator",
+          "avatar_url": "https://lh3.googleusercontent.com/avatar-m1.jpg"
+        },
+        {
+          "id": 2,
+          "name": "Maria Aparecida Santos",
+          "phone": "(11) 98214-5501",
+          "profile": "minister",
+          "avatar_url": null
+        },
+        {
+          "id": 5,
+          "name": "Carlos Eduardo Lima",
+          "phone": "(11) 97777-4444",
+          "profile": "minister",
+          "avatar_url": null
+        }
+      ],
+      "created_at": "2025-09-10T22:00:00Z",
+      "updated_at": "2025-09-12T14:30:00Z"
+    }
+  }
+  ```
+- **Response `404 Not Found`**:
+  ```json
+  {
+    "type": "https://api.escalas.paroquia.org/errors/not-found",
+    "title": "Escala Não Encontrada",
+    "status": 404,
+    "code": "EVENT_NOT_FOUND",
+    "detail": "A escala com identificador 501 não foi localizada no sistema.",
+    "instance": "/api/v1/events/501",
+    "timestamp": "2025-10-10T14:30:00Z"
+  }
+  ```
+
+### 3.7. `PUT /api/v1/events/{id}` — Atualização Atômica da Escala
+Atualiza os dados de uma celebração já existente e sincroniza a lista de ministros vinculados (`EVENT_MEMBER`), substituindo a equipe anterior de forma atômica.
+
+- **Método**: `PUT`
+- **Autenticação**: Bearer Token
+- **Path Params**:
+  - `id` *(obrigatório, inteiro)*: ID numérico do evento a ser alterado (ex: `501`).
+- **Request Body**:
+  ```json
+  {
+    "date": "2025-10-19",
+    "time": "10:00",
+    "celebration_id": 1,
+    "celebrant_id": 10,
+    "subtitle": "29º Domingo do Tempo Comum (Missa com Batismo)",
+    "minister_ids": [1, 2, 5, 7]
+  }
+  ```
+- **Response `200 OK`**:
+  ```json
+  {
+    "id": 501,
+    "date": "2025-10-19",
+    "time": "10:00",
+    "subtitle": "29º Domingo do Tempo Comum (Missa com Batismo)",
+    "church_id": 1,
+    "celebration": {
+      "id": 1,
+      "name": "Santa Missa Dominical",
+      "category_id": 1
+    },
+    "celebrant": {
+      "id": 10,
+      "name": "Pe. Marcelo Rossi",
+      "profile": "celebrant"
+    },
+    "user_id": 1,
+    "ministers": [
+      {
+        "id": 1,
+        "name": "Antônio Carlos Silveira",
+        "phone": "(11) 99999-0001",
+        "avatar_url": "https://lh3.googleusercontent.com/avatar-m1.jpg"
+      },
+      {
+        "id": 2,
+        "name": "Maria Aparecida Santos",
+        "phone": "(11) 98214-5501",
+        "avatar_url": null
+      },
+      {
+        "id": 5,
+        "name": "Carlos Eduardo Lima",
+        "phone": "(11) 97777-4444",
+        "avatar_url": null
+      },
+      {
+        "id": 7,
+        "name": "Juliana Pereira",
+        "phone": "(11) 98888-1111",
+        "avatar_url": null
+      }
+    ],
+    "created_at": "2025-09-10T22:00:00Z",
+    "updated_at": "2025-10-19T09:15:00Z"
+  }
+  ```
+
+### 3.8. `DELETE /api/v1/events/{id}` — Cancelamento / Exclusão de Escala
+Exclui uma celebração agendada e remove em cascata todas as vinculações dos ministros associados (`event_members`).
+
+- **Método**: `DELETE`
+- **Autenticação**: Bearer Token
+- **Path Params**:
+  - `id` *(obrigatório, inteiro)*: ID numérico do evento a ser excluído (ex: `501`).
+- **Response `204 No Content`**
+
 ---
 
 ## 📅 4. Página: Calendário de Missas & Escalas (`CalendarView`)
@@ -363,18 +620,15 @@ Retorna a lista de dias do mês que possuem celebrações agendadas para renderi
     "scheduled_days": [
       {
         "date": "2025-10-05",
-        "events_count": 2,
-        "celebration_names": ["Santa Missa Dominical", "Santa Missa Dominical"]
+        "events_count": 2
       },
       {
         "date": "2025-10-12",
-        "events_count": 1,
-        "celebration_names": ["Solenidade de Nossa Senhora Aparecida"]
+        "events_count": 1
       },
       {
         "date": "2025-10-19",
-        "events_count": 1,
-        "celebration_names": ["Santa Missa Dominical"]
+        "events_count": 1
       }
     ]
   }
@@ -489,6 +743,7 @@ Alimenta os cartões de contagem no topo do quadro.
     "data": [
       {
         "id": 1,
+        "church_id": 1,
         "name": "Antônio Carlos Silveira",
         "phone": "(11) 99999-0001",
         "profile": "coordinator",
@@ -499,6 +754,7 @@ Alimenta os cartões de contagem no topo do quadro.
       },
       {
         "id": 2,
+        "church_id": 1,
         "name": "Maria Aparecida Santos",
         "phone": "(11) 98214-5501",
         "profile": "minister",
@@ -524,6 +780,7 @@ Alimenta os cartões de contagem no topo do quadro.
   ```json
   {
     "id": 1,
+    "church_id": 1,
     "name": "Antônio Carlos Silveira",
     "phone": "(11) 99999-0001",
     "profile": "coordinator",
@@ -552,6 +809,7 @@ Alimenta os cartões de contagem no topo do quadro.
   ```json
   {
     "id": 19,
+    "church_id": 1,
     "name": "Carlos Eduardo Lima",
     "phone": "(11) 98765-4321",
     "profile": "minister",
@@ -775,7 +1033,7 @@ export interface ApiProblemDetails {
 }
 
 // ==========================================
-// 3. TELA: LOGIN & AUTENTICAÇÃO
+// 3. TELA: LOGIN, AUTENTICAÇÃO & IGREJAS
 // ==========================================
 export interface UserDTO {
   id: number;
@@ -792,11 +1050,37 @@ export interface LoginResponse {
   user: UserDTO;
 }
 
+export interface ChurchDTO {
+  id: number;
+  name: string;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface SelectChurchRequest {
+  church_id: number;
+}
+
+export interface SelectChurchResponse {
+  token: string;
+  token_type: string;
+  expires_in: number;
+  church: ChurchDTO;
+}
+
+export interface JWTPayload {
+  user_id: number;
+  role: UserRole;
+  church_id: number;
+  exp: number;
+}
+
 // ==========================================
 // 4. TELA: GESTÃO DE MEMBROS
 // ==========================================
 export interface MemberDTO {
   id: number;
+  church_id: number;
   name: string;
   phone: string | null;
   profile: MemberProfile;
@@ -815,6 +1099,7 @@ export interface MemberStatsDTO {
 }
 
 export interface CreateMemberRequest {
+  church_id?: number;
   name: string;
   phone?: string | null;
   profile: MemberProfile;
@@ -890,11 +1175,11 @@ export interface CandidateMinisterDTO {
   profile: MemberProfile;
   status: MemberStatus;
   avatar_url: string | null;
-  scales_count_month: number;
   is_scheduled_same_day: boolean;
 }
 
 export interface CreateEventRequest {
+  church_id?: number;
   date: string;
   time: string;
   celebration_id: number;
@@ -914,6 +1199,7 @@ export interface UpdateEventRequest {
 
 export interface EventDTO {
   id: number;
+  church_id: number;
   date: string;
   time: string;
   subtitle: string | null;
@@ -928,6 +1214,5 @@ export interface EventDTO {
 export interface CalendarSummaryDayDTO {
   date: string;
   events_count: number;
-  celebration_names: string[];
 }
 ```

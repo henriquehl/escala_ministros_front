@@ -8,17 +8,34 @@
       <div class="w-20 h-20 rounded-2xl bg-surface-container-low flex items-center justify-center p-2 mb-4 border border-outline-variant/20 shadow-inner">
         <img alt="Logo Paróquia MESC" class="w-16 h-16 object-contain rounded-xl" src="https://lh3.googleusercontent.com/aida/AEtjO1WczmdbAexmyw3qOojOnzA5AVxVZCNbXriGye7jS_Cwc8Aawxmy0VUCvJbfdcx9XuuqJOVJsBwezM_9d8hfUL83kGljIhpDZR8mWVgWoe1gO8yKsNl8x2RBJFVod8YZ67NNKYbw7wi1P8gTG12MiPM-1whPFJWNR-q0QoGjO06EsBEM-eCyIxgmcLllZwwYDYqSa_IBljUsnfJ1g8imbS5GCS1sB36GOJsW87z-cQSn5BYbq5DqpDfS2n_p">
       </div>
-      <h1 class="text-xl sm:text-2xl font-bold text-primary tracking-tight mb-1">Capela Divino Espírito Santo</h1>
+      <h1 id="login-church-title" class="text-xl sm:text-2xl font-bold text-primary tracking-tight mb-1">Selecione sua Igreja</h1>
       <p class="text-xs text-on-surface-variant font-medium mb-6">Portal Pastoral MESC</p>
 
       <form id="login-form" class="flex flex-col gap-4 w-full text-left">
+        <div class="flex flex-col gap-1.5">
+          <label class="font-label-md text-label-md text-on-surface flex items-center gap-1 font-semibold" for="login-church">
+            <span class="material-symbols-outlined text-[16px] text-on-surface-variant">church</span>
+            Igreja / Capela
+          </label>
+          <div class="relative flex items-center">
+            <select class="w-full h-12 bg-surface-container-low text-on-surface font-body-md text-body-md px-3.5 pr-10 rounded-xl border border-outline-variant/20 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container transition-colors appearance-none cursor-pointer" id="login-church">
+              <option value="" disabled selected>Selecione a igreja desejada...</option>
+              <option value="1">Capela Divino Espírito Santo</option>
+              <option value="2">Igreja Matriz Nossa Senhora da Candelária</option>
+              <option value="3">Capela Santa Teresinha</option>
+              <option value="4">Capela São José</option>
+            </select>
+            <span class="material-symbols-outlined absolute right-3 pointer-events-none text-on-surface-variant text-[20px]">arrow_drop_down</span>
+          </div>
+        </div>
+
         <div class="flex flex-col gap-1.5">
           <label class="font-label-md text-label-md text-on-surface flex items-center gap-1 font-semibold" for="login-user">
             <span class="material-symbols-outlined text-[16px] text-on-surface-variant">person</span>
             Nome de Usuário
           </label>
           <div class="relative flex items-center">
-            <input class="w-full h-12 bg-surface-container-low text-on-surface placeholder:text-outline font-body-md text-body-md px-3.5 rounded-xl border border-outline-variant/20 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container transition-colors" id="login-user" placeholder="Digite seu e-mail ou usuário" type="text" value="admin.pastoral">
+            <input class="w-full h-12 bg-surface-container-low text-on-surface placeholder:text-outline font-body-md text-body-md px-3.5 rounded-xl border border-outline-variant/20 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-surface-container-highest/40" id="login-user" placeholder="Digite seu e-mail ou usuário" type="text" value="admin.pastoral" disabled>
           </div>
         </div>
 
@@ -28,19 +45,19 @@
             Senha
           </label>
           <div class="relative flex items-center">
-            <input class="w-full h-12 bg-surface-container-low text-on-surface placeholder:text-outline font-body-md text-body-md pl-3.5 pr-12 rounded-xl border border-outline-variant/20 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container transition-colors" id="login-password" placeholder="••••••••••••" type="password" value="pastoral2025">
-            <button id="toggle-password-btn" class="absolute right-3 text-on-surface-variant hover:text-on-surface p-1 flex items-center justify-center" type="button" aria-label="Mostrar ou ocultar senha">
+            <input class="w-full h-12 bg-surface-container-low text-on-surface placeholder:text-outline font-body-md text-body-md pl-3.5 pr-12 rounded-xl border border-outline-variant/20 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-surface-container-highest/40" id="login-password" placeholder="••••••••••••" type="password" value="pastoral2025" disabled>
+            <button id="toggle-password-btn" class="absolute right-3 text-on-surface-variant hover:text-on-surface p-1 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer" type="button" aria-label="Mostrar ou ocultar senha" disabled>
               <span class="material-symbols-outlined text-[20px]">visibility</span>
             </button>
           </div>
         </div>
 
-        <button class="mt-2 w-full h-12 bg-primary hover:bg-primary-container text-on-primary font-label-lg text-label-lg rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.99]" type="submit">
+        <button id="btn-login-submit" class="mt-2 w-full h-12 bg-primary hover:bg-primary-container text-on-primary font-label-lg text-label-lg rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:shadow-none" type="submit" disabled>
           <span class="material-symbols-outlined text-[20px]">login</span>
           <span>Acessar</span>
         </button>
 
-        <button id="btn-visitor-access" class="w-full h-12 bg-surface-container-low hover:bg-surface-container text-primary font-label-lg text-label-lg rounded-xl flex items-center justify-center gap-2 border border-outline-variant/20 transition-colors active:scale-[0.99]" type="button">
+        <button id="btn-visitor-access" class="w-full h-12 bg-surface-container-low hover:bg-surface-container text-primary font-label-lg text-label-lg rounded-xl flex items-center justify-center gap-2 border border-outline-variant/20 transition-colors active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none" type="button" disabled>
           <span class="material-symbols-outlined text-[20px]">visibility</span>
           <span>Acessar como visitante</span>
         </button>

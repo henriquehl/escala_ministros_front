@@ -454,4 +454,8 @@ window.deleteMemberAction = function(id, name) {
   }
 };
 
-window.addEventListener('DOMContentLoaded', initMembersComponent);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initMembersComponent);
+} else {
+  initMembersComponent();
+}
