@@ -2,10 +2,11 @@
  * Componente: Montar e Gerir Escala (Assistente em 3 Passos)
  * Permite selecionar qualquer dia do calendário (Segunda a Domingo)
  * Passo 2: Escolha da celebração, subtítulo opcional e celebrante principal
- * Passo 3: Adição de ministros para a equipe (sem atribuições artificiais de funções litúrgicas)
+ * Passo 3: Adição de ministros para a equipe
  */
 
-let selectedRosterDate = '2025-10-19';
+const _nowRoster = new Date();
+let selectedRosterDate = `${_nowRoster.getFullYear()}-${String(_nowRoster.getMonth() + 1).padStart(2, '0')}-${String(_nowRoster.getDate()).padStart(2, '0')}`;
 let selectedRosterHour = '10:00';
 let assignedMinisters = [];
 
@@ -49,15 +50,15 @@ function initRosterComponent() {
 
   // 5. Salvar Escala
   if (btnSave) {
-    btnSave.addEventListener('click', () => {
-      saveCurrentRoster(false);
+    btnSave.addEventListener('click', async () => {
+      await saveCurrentRoster(false);
     });
   }
 
   // 6. Salvar e Notificar via WhatsApp
   if (btnSaveNotify) {
-    btnSaveNotify.addEventListener('click', () => {
-      saveCurrentRoster(true);
+    btnSaveNotify.addEventListener('click', async () => {
+      await saveCurrentRoster(true);
     });
   }
 
@@ -85,10 +86,18 @@ function initRosterComponent() {
     });
   }
 
-  window.addEventListener('routeChanged', (e) => {
+  window.addEventListener('routeChanged', async (e) => {
     if (e.detail && e.detail.path === 'montar-escala') {
       const hourSelect = document.getElementById('roster-hour-select');
       if (hourSelect) hourSelect.value = selectedRosterHour;
+
+      if (window.appStore) {
+        await Promise.allSettled([
+          window.appStore.fetchMembers(),
+          window.appStore.fetchCelebrations()
+        ]);
+      }
+
       renderRosterDateChips();
       renderCelebrationSelect();
       renderCelebrantSelect();
@@ -131,6 +140,15 @@ function renderCelebrantSelect(selectedCelebrantValue = '') {
   const celebrants = window.appStore.getCelebrants();
   const currentVal = selectedCelebrantValue || celebranteSelect.value;
 
+  if (celebrants.length === 0) {
+    celebranteSelect.innerHTML = `
+      <option value="Pe. Marcelo Rossi (Pároco)">Pe. Marcelo Rossi (Pároco)</option>
+      <option value="Pe. Antônio Vieira (Vigário)">Pe. Antônio Vieira (Vigário)</option>
+      <option value="Diácono Francisco">Diácono Francisco</option>
+    `;
+    return;
+  }
+
   celebranteSelect.innerHTML = celebrants.map((c) => {
     const isSelected = c.id === currentVal || c.name === currentVal || (selectedCelebrantValue && c.name.toLowerCase().includes(selectedCelebrantValue.toLowerCase()));
     return `<option value="${c.id || c.name}" ${isSelected ? 'selected' : ''}>${c.name}</option>`;
@@ -172,7 +190,7 @@ function initCelebrationControls() {
   if (btnCancelNew) btnCancelNew.addEventListener('click', closeModal);
 
   if (btnSaveNew) {
-    btnSaveNew.addEventListener('click', () => {
+    btnSaveNew.addEventListener('click', async () => {
       const name = inputName ? inputName.value.trim() : '';
       const category = inputCategory ? inputCategory.value : 'dominical';
 
@@ -188,7 +206,7 @@ function initCelebrationControls() {
         else if (category === 'sacramento') icon = 'water_drop';
         else if (category === 'especial') icon = 'favorite';
 
-        window.appStore.addCelebration({ name, category, icon });
+        await window.appStore.addCelebration({ name, category, icon });
         renderCelebrationSelect(name);
         closeModal();
         if (window.showToast) window.showToast(`Celebração "${name}" cadastrada com sucesso!`);
@@ -205,8 +223,8 @@ function renderRosterDateChips() {
   if (!container) return;
 
   const parts = selectedRosterDate.split('-');
-  const year = parseInt(parts[0], 10) || 2025;
-  const month = parseInt(parts[1], 10) || 10;
+  const year = parseInt(parts[0], 10) || new Date().getFullYear();
+  const month = parseInt(parts[1], 10) || (new Date().getMonth() + 1);
 
   const daysInMonth = new Date(year, month, 0).getDate();
   const chips = [];
@@ -277,8 +295,8 @@ function setSelectedRosterDate(dateStr) {
   }
 
   const parts = dateStr.split('-');
-  const year = parseInt(parts[0], 10) || 2025;
-  const month = parseInt(parts[1], 10) || 10;
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10);
   const monthBadge = document.getElementById('roster-month-badge');
   if (monthBadge) {
     monthBadge.innerHTML = `
@@ -371,15 +389,7 @@ function loadExistingScaleForSelectedDate() {
     renderCelebrationSelect(defaultCelebration);
     renderCelebrantSelect();
     if (subtitleInput) subtitleInput.value = '';
-
-    // Inicializar equipe limpa de ministros disponíveis
-    const activeMembers = window.appStore.getMembers().filter((m) => m.status === 'ativo' && m.profile !== 'celebrante');
-    assignedMinisters = activeMembers.slice(0, 3).map((m) => ({
-      id: m.id,
-      name: m.name,
-      phone: m.phone || '',
-      avatar: m.avatar || null
-    }));
+    assignedMinisters = [];
   }
 
   renderAssignedMinisters();
@@ -411,7 +421,7 @@ function renderAssignedMinisters() {
   }
 
   container.innerHTML = assignedMinisters.map((minister) => {
-    const initials = window.getInitials ? window.getInitials(minister.name) : minister.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase();
+    const initials = window.getInitials ? window.getInitials(minister.name) : (minister.name || 'M').substring(0, 2).toUpperCase();
     const phoneDisplay = minister.phone ? `<span class="font-body-sm text-[12px] text-on-surface-variant flex items-center gap-1 mt-0.5"><span class="material-symbols-outlined text-[14px]">call</span>${minister.phone}</span>` : '';
 
     return `
@@ -421,11 +431,11 @@ function renderAssignedMinisters() {
             ${initials}
           </div>
           <div class="min-w-0">
-            <h4 class="font-label-lg text-label-lg text-on-surface font-semibold truncate">${minister.name}</h4>
+            <h4 class="font-label-lg text-label-lg text-on-surface font-semibold truncate">${minister.name || 'Ministro'}</h4>
             ${phoneDisplay}
           </div>
         </div>
-        <button type="button" class="w-9 h-9 flex items-center justify-center rounded-full text-on-surface-variant hover:text-error hover:bg-error-container/40 transition-colors" onclick="removeAssignedMinister('${minister.id}')" aria-label="Remover ${minister.name}">
+        <button type="button" class="w-9 h-9 flex items-center justify-center rounded-full text-on-surface-variant hover:text-error hover:bg-error-container/40 transition-colors cursor-pointer" onclick="removeAssignedMinister('${minister.id}')" aria-label="Remover ${minister.name}">
           <span class="material-symbols-outlined text-[20px]">close</span>
         </button>
       </div>
@@ -437,7 +447,7 @@ function renderAssignedMinisters() {
  * Remove ministro da escala ativa
  */
 window.removeAssignedMinister = function(id) {
-  assignedMinisters = assignedMinisters.filter((m) => m.id !== id);
+  assignedMinisters = assignedMinisters.filter((m) => String(m.id) !== String(id));
   renderAssignedMinisters();
   renderCandidateMinisters();
   if (window.showToast) window.showToast('Ministro removido da equipe.');
@@ -450,7 +460,7 @@ window.assignCandidateMinister = function(id) {
   const member = window.appStore ? window.appStore.getMemberById(id) : null;
   if (!member) return;
 
-  if (assignedMinisters.some(m => m.id === id)) {
+  if (assignedMinisters.some(m => String(m.id) === String(id))) {
     if (window.showToast) window.showToast(`${member.name} já está na escala.`);
     return;
   }
@@ -476,16 +486,16 @@ function renderCandidateMinisters(searchTerm = '') {
   if (!container || !window.appStore) return;
 
   const allMembers = window.appStore.getMembers().filter((m) => m.status !== 'licenca' && m.profile !== 'celebrante');
-  const assignedIds = new Set(assignedMinisters.map((m) => m.id));
+  const assignedIds = new Set(assignedMinisters.map((m) => String(m.id)));
 
   if (baseCountEl) {
     baseCountEl.textContent = `Base Ativa (${allMembers.length})`;
   }
 
   const available = allMembers.filter((m) => {
-    if (assignedIds.has(m.id)) return false;
+    if (assignedIds.has(String(m.id))) return false;
     if (searchTerm) {
-      return m.name.toLowerCase().includes(searchTerm) || (m.phone && m.phone.toLowerCase().includes(searchTerm));
+      return (m.name || '').toLowerCase().includes(searchTerm) || (m.phone && m.phone.toLowerCase().includes(searchTerm));
     }
     return true;
   });
@@ -500,7 +510,7 @@ function renderCandidateMinisters(searchTerm = '') {
   }
 
   container.innerHTML = available.map((member) => {
-    const initials = window.getInitials ? window.getInitials(member.name) : member.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase();
+    const initials = window.getInitials ? window.getInitials(member.name) : (member.name || 'M').substring(0, 2).toUpperCase();
 
     return `
       <div class="candidate-row flex items-center justify-between p-2 rounded-lg bg-surface-container-lowest hover:bg-surface-container-low transition-colors">
@@ -509,14 +519,14 @@ function renderCandidateMinisters(searchTerm = '') {
             ${initials}
           </div>
           <div class="min-w-0">
-            <div class="font-label-md text-label-md text-on-surface truncate font-medium">${member.name}</div>
+            <div class="font-label-md text-label-md text-on-surface truncate font-medium">${member.name || 'Ministro'}</div>
             <div class="flex items-center gap-1.5 mt-0.5">
               <span class="font-label-sm text-[10px] text-tertiary-container bg-tertiary-fixed px-1.5 py-0.2 rounded font-semibold">Disponível</span>
               <span class="font-body-sm text-[11px] text-on-surface-variant truncate">${member.phone || 'Sem telefone'}</span>
             </div>
           </div>
         </div>
-        <button type="button" class="add-minister-btn px-2.5 py-1.5 rounded-lg bg-surface-container-high text-primary font-label-sm text-label-sm hover:bg-primary hover:text-on-primary transition-colors flex items-center gap-1 flex-shrink-0 active:scale-95" onclick="assignCandidateMinister('${member.id}')">
+        <button type="button" class="add-minister-btn px-2.5 py-1.5 rounded-lg bg-surface-container-high text-primary font-label-sm text-label-sm hover:bg-primary hover:text-on-primary transition-colors flex items-center gap-1 flex-shrink-0 active:scale-95 cursor-pointer" onclick="assignCandidateMinister('${member.id}')">
           <span class="material-symbols-outlined text-[16px]">add</span>
           Escalar
         </button>
@@ -528,7 +538,7 @@ function renderCandidateMinisters(searchTerm = '') {
 /**
  * Salva a escala atual no Store
  */
-function saveCurrentRoster(notifyWhatsApp = false) {
+async function saveCurrentRoster(notifyWhatsApp = false) {
   if (assignedMinisters.length === 0) {
     if (window.showToast) window.showToast('Adicione pelo menos um ministro à celebração antes de salvar.');
     return;
@@ -569,14 +579,18 @@ function saveCurrentRoster(notifyWhatsApp = false) {
     ministers: assignedMinisters
   };
 
-  if (window.appStore) {
-    window.appStore.saveScale(scaleData);
-  }
+  try {
+    if (window.appStore) {
+      await window.appStore.saveScale(scaleData);
+    }
 
-  if (notifyWhatsApp && window.copyScaleReminder) {
-    window.copyScaleReminder(scaleData);
-  } else {
-    if (window.showToast) window.showToast(`Escala da "${celebrationName}" salva com sucesso!`);
+    if (notifyWhatsApp && window.copyScaleReminder) {
+      window.copyScaleReminder(scaleData);
+    } else {
+      if (window.showToast) window.showToast(`Escala da "${celebrationName}" salva com sucesso!`);
+    }
+  } catch (err) {
+    console.error('Erro ao salvar escala:', err);
   }
 }
 

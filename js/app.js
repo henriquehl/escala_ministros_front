@@ -42,7 +42,7 @@ function initUserProfileMenu() {
     const manageUsersLink = document.getElementById('dropdown-link-manage-users');
     if (window.appStore) {
       const user = window.appStore.currentUser;
-      const isAdmin = Boolean(user && user.isAdmin);
+      const isAdmin = Boolean(user && (user.role === 'admin' || user.isAdmin === true));
       const churchName = (user && user.churchName) ? user.churchName : 'Capela Divino Espírito Santo';
       if (userNameEl) {
         userNameEl.textContent = (user && user.name) ? user.name : (isAdmin ? 'Administrador' : 'Visitante');
@@ -56,6 +56,8 @@ function initUserProfileMenu() {
       if (manageUsersLink) {
         manageUsersLink.style.display = isAdmin ? 'flex' : 'none';
       }
+    } else if (manageUsersLink) {
+      manageUsersLink.style.display = 'none';
     }
   }
 
@@ -73,6 +75,14 @@ function initUserProfileMenu() {
     manageUsersLink.addEventListener('click', (e) => {
       e.preventDefault();
       closeDropdown();
+      const user = window.appStore ? window.appStore.currentUser : null;
+      const isAdmin = Boolean(user && (user.role === 'admin' || user.isAdmin === true));
+      if (!isAdmin) {
+        if (window.showToast) {
+          window.showToast('Acesso restrito a administradores do sistema.', 3000);
+        }
+        return;
+      }
       if (window.appRouter) {
         window.appRouter.navigate('gerenciar-usuarios');
       }
@@ -106,14 +116,12 @@ function initUserProfileMenu() {
       e.stopPropagation();
       closeDropdown();
 
+      if (window.api && window.api.auth) {
+        window.api.auth.logout();
+      }
+
       if (window.appStore) {
-        window.appStore.setUser({
-          isAdmin: false,
-          roleName: 'Visitante',
-          name: 'Visitante',
-          churchId: null,
-          churchName: ''
-        });
+        window.appStore.setUser(null);
       }
 
       if (window.showToast) {
@@ -139,11 +147,19 @@ function initUserProfileMenu() {
       closeDropdown();
     }
   });
+
+  updateDropdownUserInfo();
 }
 
-function startApp() {
+async function startApp() {
   console.log('⛪ Portal Pastoral MESC - Front-end Inicializado com Sucesso');
+  console.log('🔗 API Base URL:', (window.api && window.api.getBaseUrl()) || 'http://localhost:8000');
+  
   initUserProfileMenu();
+
+  if (window.appStore) {
+    await window.appStore.init();
+  }
 }
 
 if (document.readyState === 'loading') {

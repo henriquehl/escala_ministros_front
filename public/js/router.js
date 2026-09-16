@@ -33,15 +33,28 @@ class Router {
     if (window.appStore) {
       window.appStore.subscribe((event) => {
         if (event === 'user') {
-          this.renderView(this.currentRoute);
+          const hasToken = window.api ? Boolean(window.api.getToken()) : false;
+          const isAuth = Boolean(hasToken && window.appStore.currentUser);
+          if (!isAuth && this.currentRoute !== 'inicio-login') {
+            this.navigate('inicio-login', true);
+          } else {
+            this.renderView(this.currentRoute);
+          }
         }
       });
     }
 
-    // Rota inicial baseada na hash ou padrão
+    // Rota inicial baseada na autenticação e hash
     const initialHash = window.location.hash.replace('#/', '').replace('#', '');
-    if (this.routes.includes(initialHash)) {
-      this.navigate(initialHash, false);
+    const hasToken = window.api ? Boolean(window.api.getToken()) : false;
+    const isAuth = Boolean(hasToken && window.appStore && window.appStore.currentUser);
+
+    if (isAuth) {
+      if (this.routes.includes(initialHash) && initialHash !== 'inicio-login') {
+        this.navigate(initialHash, false);
+      } else {
+        this.navigate('calendario-missas', false);
+      }
     } else {
       this.navigate('inicio-login', false);
     }
@@ -50,25 +63,47 @@ class Router {
   navigate(path, updateHistory = true) {
     if (!this.routes.includes(path)) return;
 
-    // Proteção de rota para 'montar-escala' (apenas Administrador)
-    const currentUser = window.appStore ? window.appStore.currentUser : { isAdmin: true, roleName: 'Administrador' };
-    if (path === 'montar-escala' && (!currentUser || !currentUser.isAdmin)) {
+    // AUTH GUARD: Bloqueio estrito de acesso sem autenticação válida
+    const currentUser = window.appStore ? window.appStore.currentUser : null;
+    const hasToken = window.api ? Boolean(window.api.getToken()) : false;
+    const isAuthenticated = Boolean(currentUser && hasToken);
+    const isAdmin = Boolean(currentUser && (currentUser.role === 'admin' || currentUser.isAdmin === true));
+
+    // Se NÃO estiver autenticado e tentar acessar qualquer tela interna
+    if (path !== 'inicio-login' && !isAuthenticated) {
       if (window.showToast) {
-        window.showToast('Acesso restrito: Apenas a coordenação pode gerir escalas.');
+        window.showToast('Acesso restrito. Faça login para continuar.', 3000);
+      }
+      this.currentRoute = 'inicio-login';
+      if (updateHistory) {
+        window.location.hash = '#/inicio-login';
+      }
+      this.renderView('inicio-login');
+      return;
+    }
+
+    // Se já estiver autenticado e tentar voltar para a tela de login
+    if (path === 'inicio-login' && isAuthenticated) {
+      this.navigate('calendario-missas', updateHistory);
+      return;
+    }
+
+    // Proteção de rota para 'montar-escala' (apenas Administrador)
+    if (path === 'montar-escala' && !isAdmin) {
+      if (window.showToast) {
+        window.showToast('Acesso restrito: Apenas administradores podem gerir escalas.');
       }
       this.navigate('calendario-missas', updateHistory);
       return;
     }
 
-    if (path === 'gerenciar-usuarios') {
-      const currentUser = window.appStore ? window.appStore.currentUser : null;
-      if (!currentUser || !currentUser.isAdmin) {
-        if (window.showToast) {
-          window.showToast('Acesso restrito a administradores do sistema.', 'warning');
-        }
-        this.navigate('calendario-missas');
-        return;
+    // Proteção de rota para 'gerenciar-usuarios' (apenas Administrador)
+    if (path === 'gerenciar-usuarios' && !isAdmin) {
+      if (window.showToast) {
+        window.showToast('Acesso restrito a administradores do sistema.', 3000);
       }
+      this.navigate('calendario-missas', updateHistory);
+      return;
     }
 
     this.currentRoute = path;
@@ -97,8 +132,9 @@ class Router {
     const dropdownChurchNameEl = document.getElementById('dropdown-church-name');
     const headerTitleEl = document.getElementById('header-sub-title');
     const userRoleEl = document.getElementById('header-user-role');
-    const currentUser = window.appStore ? window.appStore.currentUser : { isAdmin: true, roleName: 'Administrador' };
-    const isAdmin = Boolean(currentUser && currentUser.isAdmin);
+    const currentUser = window.appStore ? window.appStore.currentUser : null;
+    const isAdmin = Boolean(currentUser && (currentUser.role === 'admin' || currentUser.isAdmin === true));
+    const roleName = (currentUser && (currentUser.roleName || (currentUser.role === 'admin' ? 'Administrador' : (currentUser.role === 'coordinator' ? 'Coordenador' : 'Visitante')))) || (isAdmin ? 'Administrador' : 'Visitante');
     const churchName = (currentUser && currentUser.churchName) ? currentUser.churchName : 'Capela Divino Espírito Santo';
 
     if (path === 'inicio-login') {
@@ -139,11 +175,11 @@ class Router {
 
       // Atualizar badge de papel do usuário
       if (userRoleEl) {
-        userRoleEl.textContent = isAdmin ? 'Administrador' : 'Visitante';
+        userRoleEl.textContent = roleName;
         if (isAdmin) {
-          userRoleEl.className = 'hidden sm:inline-block px-spacing-xs py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm';
+          userRoleEl.className = 'hidden sm:inline-block px-spacing-xs py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm font-semibold';
         } else {
-          userRoleEl.className = 'hidden sm:inline-block px-spacing-xs py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm';
+          userRoleEl.className = 'hidden sm:inline-block px-spacing-xs py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold';
         }
       }
     }

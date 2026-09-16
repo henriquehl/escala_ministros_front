@@ -40,9 +40,9 @@ function initMembersComponent() {
 
   // Submeter Formulário
   if (ministerForm) {
-    ministerForm.addEventListener('submit', (e) => {
+    ministerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      saveMemberForm();
+      await saveMemberForm();
     });
   }
 
@@ -88,9 +88,12 @@ function initMembersComponent() {
     });
   }
 
-  window.addEventListener('routeChanged', (e) => {
+  window.addEventListener('routeChanged', async (e) => {
     if (e.detail && e.detail.path === 'membros-mesc') {
       updateAdminMembersVisibility();
+      if (window.appStore) {
+        await window.appStore.fetchMembers();
+      }
       renderMembersStats();
       renderMembersList();
     }
@@ -98,8 +101,15 @@ function initMembersComponent() {
 
   // Render inicial
   updateAdminMembersVisibility();
-  renderMembersStats();
-  renderMembersList();
+  if (window.appStore) {
+    window.appStore.fetchMembers().then(() => {
+      renderMembersStats();
+      renderMembersList();
+    });
+  } else {
+    renderMembersStats();
+    renderMembersList();
+  }
 }
 
 /**
@@ -148,7 +158,7 @@ function renderMembersList() {
 
     // 2. Filtro por Busca
     if (currentSearchTerm) {
-      const matchName = m.name.toLowerCase().includes(currentSearchTerm);
+      const matchName = (m.name || '').toLowerCase().includes(currentSearchTerm);
       const matchPhone = (m.phone || '').includes(currentSearchTerm);
       return matchName || matchPhone;
     }
@@ -158,10 +168,10 @@ function renderMembersList() {
 
   if (filtered.length === 0) {
     container.innerHTML = `
-      <div class="col-span-full p-8 text-center bg-surface-container-lowest rounded-xl shadow-sm">
+      <div class="col-span-full p-8 text-center bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20">
         <span class="material-symbols-outlined text-4xl text-outline mb-2">person_search</span>
-        <p class="font-body-md text-body-md text-on-surface">Nenhum ministro encontrado com estes critérios.</p>
-        <button type="button" class="mt-3 px-4 py-2 rounded-xl bg-surface-container-high text-primary font-label-md text-label-md hover:bg-surface-container transition-colors" onclick="clearMembersSearch()">
+        <p class="font-body-md text-body-md text-on-surface">Nenhum membro encontrado.</p>
+        <button type="button" class="mt-3 px-4 py-2 rounded-xl bg-surface-container-high text-primary font-label-md text-label-md hover:bg-surface-container transition-colors cursor-pointer" onclick="clearMembersSearch()">
           Limpar Filtros
         </button>
       </div>
@@ -170,7 +180,7 @@ function renderMembersList() {
   }
 
   container.innerHTML = filtered.map((member) => {
-    const initials = window.getInitials ? window.getInitials(member.name) : member.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase();
+    const initials = window.getInitials ? window.getInitials(member.name) : (member.name || 'M').substring(0, 2).toUpperCase();
     let statusBadge = '';
     let opacityClass = '';
 
@@ -217,7 +227,7 @@ function renderMembersList() {
             </div>
             <div class="min-w-0">
               <div class="flex items-center gap-1.5">
-                <h3 class="text-[14px] sm:text-[15px] font-bold text-on-surface truncate leading-tight">${member.name}</h3>
+                <h3 class="text-[14px] sm:text-[15px] font-bold text-on-surface truncate leading-tight">${member.name || 'Sem nome'}</h3>
                 ${profileTag}
               </div>
               <p class="text-xs text-primary font-medium flex items-center gap-1 mt-0.5 truncate">
@@ -233,10 +243,10 @@ function renderMembersList() {
             ${
               isAdmin ? `
                 <div class="flex items-center gap-0.5 ml-1">
-                  <button type="button" class="w-7 h-7 rounded-lg text-outline hover:bg-surface-container-high hover:text-primary flex items-center justify-center transition-all" title="Editar ministro" onclick="openEditMemberModal('${member.id}')">
+                  <button type="button" class="w-7 h-7 rounded-lg text-outline hover:bg-surface-container-high hover:text-primary flex items-center justify-center transition-all cursor-pointer" title="Editar ministro" onclick="openEditMemberModal('${member.id}')">
                     <span class="material-symbols-outlined text-[16px]">edit</span>
                   </button>
-                  <button type="button" class="w-7 h-7 rounded-lg text-outline hover:bg-error-container hover:text-on-error-container flex items-center justify-center transition-all" title="Excluir ministro" onclick="deleteMemberAction('${member.id}', '${member.name.replace("'", "\\'")}')">
+                  <button type="button" class="w-7 h-7 rounded-lg text-outline hover:bg-error-container hover:text-on-error-container flex items-center justify-center transition-all cursor-pointer" title="Excluir ministro" onclick="deleteMemberAction('${member.id}', '${(member.name || '').replace("'", "\\'")}')">
                     <span class="material-symbols-outlined text-[16px]">delete</span>
                   </button>
                 </div>
@@ -252,10 +262,10 @@ function renderMembersList() {
             <span class="truncate font-semibold text-on-surface">${member.phone || 'Sem contato'}</span>
           </div>
           ${
-            member.startDate
+            member.start_date || member.startDate
               ? `<div class="flex items-center gap-1 shrink-0 text-on-surface-variant/80">
                    <span class="material-symbols-outlined text-[14px]">calendar_today</span>
-                   <span>Desde ${member.startDate.split('-')[0]}</span>
+                   <span>Desde ${(member.start_date || member.startDate).split('-')[0]}</span>
                  </div>`
               : ''
           }
@@ -331,14 +341,13 @@ window.openEditMemberModal = function(id) {
   if (nameInput) nameInput.value = member.name || '';
   if (phoneInput) phoneInput.value = member.phone || '';
   
-  // Normalizar valor do perfil para select
   const currentProfile = member.profile === 'celebrante' ? 'celebrant'
     : member.profile === 'diacono' ? 'deacon'
     : member.profile === 'coordenador' ? 'coordinator'
     : (member.profile || 'minister');
   if (profileInput) profileInput.value = currentProfile;
 
-  if (startDateInput) startDateInput.value = member.startDate || '';
+  if (startDateInput) startDateInput.value = member.start_date || member.startDate || '';
   const currentStatus = member.status === 'licenca' ? 'licenca' : 'ativo';
   if (statusInput) statusInput.value = currentStatus;
 
@@ -368,7 +377,7 @@ function closeMemberModal() {
   editingMemberId = null;
 }
 
-function saveMemberForm() {
+async function saveMemberForm() {
   if (!isUserAdmin()) {
     if (window.showToast) window.showToast('Apenas administradores podem salvar alterações.');
     return;
@@ -386,7 +395,6 @@ function saveMemberForm() {
   const startDate = startDateInput ? startDateInput.value : '';
   const status = (statusInput && statusInput.value === 'licenca') ? 'licenca' : 'ativo';
 
-  // Calcular experiência se data de início for informada
   let calculatedExperience = undefined;
   if (startDate) {
     const startYear = parseInt(startDate.split('-')[0], 10);
@@ -402,37 +410,40 @@ function saveMemberForm() {
   }
 
   if (!name) {
-    if (window.showToast) window.showToast('Por favor, informe o nome do ministro.');
+    if (window.showToast) window.showToast('Por favor, informe o nome do membro.');
     return;
   }
 
-  if (editingMemberId) {
-    const currentMember = window.appStore.getMemberById(editingMemberId);
-    window.appStore.updateMember(editingMemberId, {
-      name,
-      phone,
-      profile,
-      status,
-      startDate: startDate || undefined,
-      experience: calculatedExperience || (currentMember && currentMember.experience) || 'Ministro MESC'
-    });
-    if (window.showToast) window.showToast('Dados do ministro atualizados com sucesso!');
-  } else {
-    window.appStore.addMember({
-      name,
-      phone,
-      profile,
-      status,
-      startDate: startDate || undefined,
-      experience: calculatedExperience || (profile === 'celebrant' || profile === 'celebrante' ? 'Sacerdote / Celebrante' : 'Novo Ministro')
-    });
-    if (window.showToast) window.showToast('Novo ministro cadastrado na paróquia com bênçãos!');
+  try {
+    if (editingMemberId) {
+      const currentMember = window.appStore.getMemberById(editingMemberId);
+      await window.appStore.updateMember(editingMemberId, {
+        name,
+        phone,
+        profile,
+        status,
+        start_date: startDate || undefined,
+        experience: calculatedExperience || (currentMember && currentMember.experience) || 'Ministro MESC'
+      });
+      if (window.showToast) window.showToast('Dados do ministro atualizados com sucesso!');
+    } else {
+      await window.appStore.addMember({
+        name,
+        phone,
+        profile,
+        status,
+        start_date: startDate || undefined,
+        experience: calculatedExperience || (profile === 'celebrant' || profile === 'celebrante' ? 'Sacerdote / Celebrante' : 'Novo Ministro')
+      });
+      if (window.showToast) window.showToast('Novo ministro cadastrado com sucesso!');
+    }
+    closeMemberModal();
+  } catch (err) {
+    console.error('Erro ao salvar formulário de membro:', err);
   }
-
-  closeMemberModal();
 }
 
-window.deleteMemberAction = function(id, name) {
+window.deleteMemberAction = async function(id, name) {
   if (!isUserAdmin()) {
     if (window.showToast) window.showToast('Apenas administradores podem remover ministros.');
     return;
@@ -444,12 +455,15 @@ window.deleteMemberAction = function(id, name) {
       card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
       card.style.opacity = '0';
       card.style.transform = 'scale(0.95)';
-      setTimeout(() => {
-        window.appStore.deleteMember(id);
-        if (window.showToast) window.showToast(`${name} foi removido do corpo de ministros.`);
-      }, 300);
-    } else {
-      window.appStore.deleteMember(id);
+    }
+    try {
+      await window.appStore.deleteMember(id);
+      if (window.showToast) window.showToast(`${name} foi removido com sucesso.`);
+    } catch (err) {
+      if (card) {
+        card.style.opacity = '1';
+        card.style.transform = 'scale(1)';
+      }
     }
   }
 };

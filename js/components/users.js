@@ -18,6 +18,25 @@ function initUsersComponent() {
   let currentFilter = 'todos';
   let currentSearch = '';
 
+  // Renderiza checkboxes de igrejas dinamicamente
+  function renderChurchCheckboxes(selectedChurchIds = []) {
+    const container = document.getElementById('user-church-checkboxes');
+    if (!container || !window.appStore) return;
+
+    const churches = window.appStore.getChurches();
+    if (churches.length === 0) return;
+
+    container.innerHTML = churches.map(c => {
+      const isChecked = selectedChurchIds.map(String).includes(String(c.id));
+      return `
+        <label class="flex items-center gap-2.5 p-2 rounded-xl hover:bg-surface-container transition-colors cursor-pointer text-xs font-medium text-on-surface">
+          <input type="checkbox" value="${c.id}" class="church-checkbox w-4 h-4 rounded text-primary focus:ring-primary/30 accent-primary" ${isChecked ? 'checked' : ''} />
+          <span class="church-label-text">${c.name || 'Comunidade ' + c.id}</span>
+        </label>
+      `;
+    }).join('');
+  }
+
   // Renderiza a lista de usuários
   function renderUsers() {
     if (!usersListContainer || !window.appStore) return;
@@ -81,8 +100,8 @@ function initUsersComponent() {
         : '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-surface-container-highest text-on-surface-variant/80 border border-outline-variant/30"><span class="w-1.5 h-1.5 rounded-full bg-on-surface-variant/40"></span>Inativo</span>';
 
       // Tags de Igrejas
-      const churchesTags = (user.churchNames || ['Capela Divino Espírito Santo'])
-        .map(ch => `<span class="inline-flex items-center gap-1 text-[11px] text-on-surface-variant bg-surface-container-low px-2 py-0.5 rounded-lg border border-outline-variant/20"><span class="material-symbols-outlined text-[12px]">church</span>${ch}</span>`)
+      const churchesTags = (user.churchNames || user.churches || ['Capela Divino Espírito Santo'])
+        .map(ch => `<span class="inline-flex items-center gap-1 text-[11px] text-on-surface-variant bg-surface-container-low px-2 py-0.5 rounded-lg border border-outline-variant/20"><span class="material-symbols-outlined text-[12px]">church</span>${typeof ch === 'object' ? ch.name : ch}</span>`)
         .join(' ');
 
       // Avatar ou Iniciais
@@ -96,18 +115,18 @@ function initUsersComponent() {
             ${avatarEl}
             <div class="min-w-0 flex-1">
               <div class="flex flex-wrap items-center gap-2">
-                <h3 class="font-bold text-sm sm:text-base text-on-surface truncate">${user.name}</h3>
+                <h3 class="font-bold text-sm sm:text-base text-on-surface truncate">${user.name || 'Sem nome'}</h3>
                 ${roleBadge}
                 ${statusBadge}
               </div>
               <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-on-surface-variant mt-1">
                 <span class="flex items-center gap-1 font-mono text-[11px]">
                   <span class="material-symbols-outlined text-[13px]">alternate_email</span>
-                  ${user.username}
+                  ${user.username || '-'}
                 </span>
                 <span class="flex items-center gap-1">
                   <span class="material-symbols-outlined text-[13px]">mail</span>
-                  ${user.email}
+                  ${user.email || '-'}
                 </span>
               </div>
               <div class="flex flex-wrap gap-1.5 mt-2.5">
@@ -118,13 +137,13 @@ function initUsersComponent() {
 
           <!-- Ações -->
           <div class="flex items-center justify-end gap-1.5 border-t md:border-t-0 pt-3 md:pt-0 border-outline-variant/20">
-            <button class="btn-toggle-status p-2 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" data-id="${user.id}" type="button" title="${isActive ? 'Inativar Usuário' : 'Ativar Usuário'}">
+            <button class="btn-toggle-status p-2 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors cursor-pointer" data-id="${user.id}" type="button" title="${isActive ? 'Inativar Usuário' : 'Ativar Usuário'}">
               <span class="material-symbols-outlined text-[20px] ${isActive ? 'text-emerald-600' : 'text-on-surface-variant'}">${isActive ? 'toggle_on' : 'toggle_off'}</span>
             </button>
-            <button class="btn-edit-user p-2 rounded-xl text-primary hover:bg-primary-fixed/30 transition-colors" data-id="${user.id}" type="button" title="Editar Usuário">
+            <button class="btn-edit-user p-2 rounded-xl text-primary hover:bg-primary-fixed/30 transition-colors cursor-pointer" data-id="${user.id}" type="button" title="Editar Usuário">
               <span class="material-symbols-outlined text-[20px]">edit</span>
             </button>
-            <button class="btn-delete-user p-2 rounded-xl text-error hover:bg-error-container/40 transition-colors" data-id="${user.id}" type="button" title="Excluir Usuário">
+            <button class="btn-delete-user p-2 rounded-xl text-error hover:bg-error-container/40 transition-colors cursor-pointer" data-id="${user.id}" type="button" title="Excluir Usuário">
               <span class="material-symbols-outlined text-[20px]">delete</span>
             </button>
           </div>
@@ -141,9 +160,9 @@ function initUsersComponent() {
     });
 
     usersListContainer.querySelectorAll('.btn-toggle-status').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', async () => {
         const id = btn.getAttribute('data-id');
-        const updated = window.appStore.toggleUserStatusInList(id);
+        const updated = await window.appStore.toggleUserStatusInList(id);
         if (updated && window.showToast) {
           window.showToast(`Usuário ${updated.name} está agora ${updated.status}.`);
         }
@@ -152,11 +171,11 @@ function initUsersComponent() {
     });
 
     usersListContainer.querySelectorAll('.btn-delete-user').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', async () => {
         const id = btn.getAttribute('data-id');
         const user = window.appStore.getUserById(id);
         if (confirm(`Deseja realmente remover o usuário "${user ? user.name : 'selecionado'}"?`)) {
-          window.appStore.deleteUserFromList(id);
+          await window.appStore.deleteUserFromList(id);
           if (window.showToast) {
             window.showToast('Usuário removido com sucesso.');
           }
@@ -188,11 +207,6 @@ function initUsersComponent() {
 
     if (userForm) userForm.reset();
 
-    // Reset checkboxes de igrejas
-    document.querySelectorAll('.church-checkbox').forEach(cb => {
-      cb.checked = false;
-    });
-
     if (userId) {
       // Edição
       const user = window.appStore.getUserById(userId);
@@ -214,13 +228,7 @@ function initUsersComponent() {
         if (statusSelect) statusSelect.value = user.status || 'ativo';
         if (passInput) passInput.placeholder = 'Deixe em branco para manter a atual';
 
-        // Marcar checkboxes das igrejas associadas
-        if (user.churches && Array.isArray(user.churches)) {
-          user.churches.forEach(chId => {
-            const cb = document.querySelector(`.church-checkbox[value="${chId}"]`);
-            if (cb) cb.checked = true;
-          });
-        }
+        renderChurchCheckboxes(user.churches || []);
       }
     } else {
       // Novo cadastro
@@ -235,9 +243,7 @@ function initUsersComponent() {
       if (statusSelect) statusSelect.value = 'ativo';
       if (passInput) passInput.placeholder = 'Digite a senha de acesso inicial';
 
-      // Padrão: marcar a primeira capela
-      const firstCb = document.querySelector('.church-checkbox[value="1"]');
-      if (firstCb) firstCb.checked = true;
+      renderChurchCheckboxes(['1']);
     }
 
     userModal.classList.remove('hidden');
@@ -273,7 +279,7 @@ function initUsersComponent() {
 
   // Submissão do Formulário
   if (userForm) {
-    userForm.addEventListener('submit', (e) => {
+    userForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const id = userIdInput ? userIdInput.value : '';
@@ -282,6 +288,7 @@ function initUsersComponent() {
       const email = document.getElementById('user-form-email')?.value.trim() || '';
       const role = document.getElementById('user-form-role')?.value || 'coordinator';
       const status = document.getElementById('user-form-status')?.value || 'ativo';
+      const password = document.getElementById('user-form-password')?.value || '';
 
       // Obter igrejas marcadas
       const selectedChurches = [];
@@ -314,18 +321,24 @@ function initUsersComponent() {
         churchNames: selectedChurchNames
       };
 
+      if (password) {
+        payload.password = password;
+      }
+
       if (id) {
         payload.id = id;
       }
 
-      window.appStore.saveUserToList(payload);
-
-      if (window.showToast) {
-        window.showToast(id ? 'Usuário atualizado com sucesso!' : 'Novo usuário cadastrado com sucesso!');
+      try {
+        await window.appStore.saveUserToList(payload);
+        if (window.showToast) {
+          window.showToast(id ? 'Usuário atualizado com sucesso!' : 'Novo usuário cadastrado com sucesso!');
+        }
+        closeModal();
+        renderUsers();
+      } catch (err) {
+        console.error('Erro ao salvar usuário:', err);
       }
-
-      closeModal();
-      renderUsers();
     });
   }
 
@@ -341,9 +354,9 @@ function initUsersComponent() {
   filterChips.forEach(chip => {
     chip.addEventListener('click', () => {
       filterChips.forEach(c => {
-        c.className = 'px-3.5 py-1.5 rounded-full bg-surface-container-low text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap transition-colors';
+        c.className = 'px-3.5 py-1.5 rounded-full bg-surface-container-low text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap transition-colors cursor-pointer';
       });
-      chip.className = 'px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm whitespace-nowrap shadow-sm';
+      chip.className = 'px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm whitespace-nowrap shadow-sm cursor-pointer';
       
       currentFilter = chip.getAttribute('data-filter') || 'todos';
       renderUsers();
@@ -360,14 +373,27 @@ function initUsersComponent() {
   }
 
   // Re-renderizar ao navegar para gerenciar-usuarios
-  window.addEventListener('routeChanged', (e) => {
+  window.addEventListener('routeChanged', async (e) => {
     if (e.detail && e.detail.path === 'gerenciar-usuarios') {
-      renderUsers();
+      const currentUser = window.appStore ? window.appStore.currentUser : null;
+      const isAdmin = Boolean(currentUser && (currentUser.role === 'admin' || currentUser.isAdmin === true));
+      if (isAdmin && window.appStore) {
+        await window.appStore.fetchSystemUsers();
+        renderUsers();
+      }
     }
   });
 
-  // Render inicial
-  renderUsers();
+  // Render inicial apenas para administradores
+  if (window.appStore) {
+    const currentUser = window.appStore.currentUser;
+    const isAdmin = Boolean(currentUser && (currentUser.role === 'admin' || currentUser.isAdmin === true));
+    if (isAdmin) {
+      window.appStore.fetchSystemUsers().then(() => {
+        renderUsers();
+      });
+    }
+  }
 }
 
 if (document.readyState === 'loading') {

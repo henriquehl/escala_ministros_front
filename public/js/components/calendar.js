@@ -3,9 +3,10 @@
  * Renderiza grade de dias, filtros de horário e card interativo de presenças
  */
 
-let currentYear = 2025;
-let currentMonth = 10; // 1-12 (Outubro)
-let selectedDay = 12; // Dia padrão selecionado no mockup
+const _today = new Date();
+let currentYear = _today.getFullYear();
+let currentMonth = _today.getMonth() + 1; // 1-12
+let selectedDay = _today.getDate();
 let activeTimeFilter = 'todos';
 
 const MONTH_NAMES = [
@@ -14,31 +15,37 @@ const MONTH_NAMES = [
 ];
 
 function initCalendarComponent() {
-  const monthNameEl = document.getElementById('calendar-month-name');
-  const yearBadgeEl = document.getElementById('calendar-year-badge');
   const prevMonthBtn = document.getElementById('btn-prev-month');
   const nextMonthBtn = document.getElementById('btn-next-month');
 
   // Navegação de Mês
   if (prevMonthBtn) {
-    prevMonthBtn.addEventListener('click', () => {
+    prevMonthBtn.addEventListener('click', async () => {
       currentMonth--;
       if (currentMonth < 1) {
         currentMonth = 12;
         currentYear--;
       }
+      if (window.appStore) {
+        await window.appStore.fetchScales(currentYear, currentMonth);
+      }
       renderCalendar();
+      renderSelectedDayCard();
     });
   }
 
   if (nextMonthBtn) {
-    nextMonthBtn.addEventListener('click', () => {
+    nextMonthBtn.addEventListener('click', async () => {
       currentMonth++;
       if (currentMonth > 12) {
         currentMonth = 1;
         currentYear++;
       }
+      if (window.appStore) {
+        await window.appStore.fetchScales(currentYear, currentMonth);
+      }
       renderCalendar();
+      renderSelectedDayCard();
     });
   }
 
@@ -76,9 +83,12 @@ function initCalendarComponent() {
     });
   }
 
-  window.addEventListener('routeChanged', (e) => {
+  window.addEventListener('routeChanged', async (e) => {
     if (e.detail && e.detail.path === 'calendario-missas') {
       updateCalendarAdminVisibility();
+      if (window.appStore) {
+        await window.appStore.fetchScales(currentYear, currentMonth);
+      }
       renderCalendar();
       renderSelectedDayCard();
     }
@@ -86,8 +96,15 @@ function initCalendarComponent() {
 
   // Render inicial
   updateCalendarAdminVisibility();
-  renderCalendar();
-  renderSelectedDayCard();
+  if (window.appStore) {
+    window.appStore.fetchScales(currentYear, currentMonth).then(() => {
+      renderCalendar();
+      renderSelectedDayCard();
+    });
+  } else {
+    renderCalendar();
+    renderSelectedDayCard();
+  }
 }
 
 /**
@@ -120,13 +137,13 @@ function renderCalendar() {
   // 2. Dias do mês corrente
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    const dayScales = monthScales.filter((s) => s.day === day);
+    const dayScales = monthScales.filter((s) => s.day === day || s.dateString === dateStr);
     const isSunday = (firstDayIndex + day - 1) % 7 === 0;
 
     // Filtrar por horário se selecionado
     const matchingScale = dayScales.find((s) => {
       if (activeTimeFilter === 'todos') return true;
-      return s.time.startsWith(activeTimeFilter.substring(0, 2));
+      return s.time && s.time.startsWith(activeTimeFilter.substring(0, 2));
     });
 
     const isSelected = day === selectedDay;
@@ -164,7 +181,7 @@ function renderCalendar() {
     }
   }
 
-  // 3. Dias do próximo mês para completar 35 ou 42 células
+  // 3. Dias do próximo mês para completar grade
   const totalCells = firstDayIndex + daysInMonth;
   const nextMonthCells = totalCells <= 35 ? 35 - totalCells : 42 - totalCells;
   for (let n = 1; n <= nextMonthCells; n++) {
@@ -214,7 +231,7 @@ function renderSelectedDayCard() {
     if (listEl) {
       const isAdmin = Boolean(window.appStore && window.appStore.currentUser && window.appStore.currentUser.isAdmin);
       const createBtnHtml = isAdmin ? `
-        <button type="button" class="mt-3 px-4 py-2 rounded-xl bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors active:scale-95" data-path="montar-escala">
+        <button type="button" class="mt-3 px-4 py-2 rounded-xl bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors active:scale-95 cursor-pointer" onclick="if(window.appRouter){window.appRouter.navigate('montar-escala');}">
           Montar Escala para este Dia
         </button>
       ` : '';
@@ -245,10 +262,10 @@ function renderSelectedDayCard() {
     countRatioEl.innerHTML = `<span class="material-symbols-outlined text-[15px] leading-none">group</span><span>${assignedCount} Ministro${assignedCount === 1 ? '' : 's'} Escalado${assignedCount === 1 ? '' : 's'}</span>`;
   }
 
-  // Renderizar Lista de Ministros (Grid moderna em 2 colunas)
+  // Renderizar Lista de Ministros
   if (listEl) {
     listEl.innerHTML = scale.ministers.map((minister) => {
-      const initials = window.getInitials ? window.getInitials(minister.name) : minister.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase();
+      const initials = window.getInitials ? window.getInitials(minister.name) : (minister.name || 'M').substring(0, 2).toUpperCase();
 
       return `
         <div class="flex items-center justify-between p-3 rounded-2xl bg-surface-container-low/70 hover:bg-surface-container transition-all border border-outline-variant/20 shadow-xs">
@@ -258,12 +275,11 @@ function renderSelectedDayCard() {
             </div>
             <div class="flex flex-col min-w-0">
               <div class="flex items-center gap-1.5">
-                <span class="text-sm font-bold text-on-surface truncate">${minister.name}</span>
-                ${minister.isLeader ? `<span class="material-symbols-outlined text-primary text-[16px]" title="Coordenador de Turno">stars</span>` : ''}
+                <span class="text-sm font-bold text-on-surface truncate">${minister.name || 'Ministro'}</span>
               </div>
-              <span class="text-xs ${minister.isLeader ? 'text-primary font-semibold' : 'text-on-surface-variant font-medium'} flex items-center gap-1 mt-0.5 truncate">
-                <span class="material-symbols-outlined text-[13px]">${minister.isLeader ? 'workspace_premium' : 'church'}</span>
-                ${minister.role || 'Ministro'}
+              <span class="text-xs text-on-surface-variant font-medium flex items-center gap-1 mt-0.5 truncate">
+                <span class="material-symbols-outlined text-[13px]">church</span>
+                ${minister.phone || 'MESC'}
               </span>
             </div>
           </div>

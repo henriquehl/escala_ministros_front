@@ -40,9 +40,9 @@ function initCelebrationsComponent() {
 
   // Submeter Formulário
   if (celebrationForm) {
-    celebrationForm.addEventListener('submit', (e) => {
+    celebrationForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      saveCelebrationForm();
+      await saveCelebrationForm();
     });
   }
 
@@ -78,9 +78,12 @@ function initCelebrationsComponent() {
     });
   }
 
-  window.addEventListener('routeChanged', (e) => {
+  window.addEventListener('routeChanged', async (e) => {
     if (e.detail && e.detail.path === 'celebracoes') {
       updateAdminCelebrationsVisibility();
+      if (window.appStore) {
+        await window.appStore.fetchCelebrations();
+      }
       renderCelebrationsStats();
       renderCelebrationsList();
     }
@@ -88,8 +91,15 @@ function initCelebrationsComponent() {
 
   // Render inicial
   updateAdminCelebrationsVisibility();
-  renderCelebrationsStats();
-  renderCelebrationsList();
+  if (window.appStore) {
+    window.appStore.fetchCelebrations().then(() => {
+      renderCelebrationsStats();
+      renderCelebrationsList();
+    });
+  } else {
+    renderCelebrationsStats();
+    renderCelebrationsList();
+  }
 }
 
 /**
@@ -175,7 +185,7 @@ function getCategoryBadgeInfo(category) {
 }
 
 /**
- * Renderiza a lista de cartões de celebrações (Grid 2 colunas responsivo, idêntico a membros)
+ * Renderiza a lista de cartões de celebrações
  */
 function renderCelebrationsList() {
   const container = document.getElementById('celebrations-list-container');
@@ -204,10 +214,10 @@ function renderCelebrationsList() {
 
   if (filtered.length === 0) {
     container.innerHTML = `
-      <div class="col-span-full p-8 text-center bg-surface-container-lowest rounded-xl shadow-sm">
+      <div class="col-span-full p-8 text-center bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20">
         <span class="material-symbols-outlined text-4xl text-outline mb-2">church</span>
-        <p class="font-body-md text-body-md text-on-surface">Nenhuma celebração encontrada com estes critérios.</p>
-        <button type="button" class="mt-3 px-4 py-2 rounded-xl bg-surface-container-high text-primary font-label-md text-label-md hover:bg-surface-container transition-colors" onclick="clearCelebrationsSearch()">
+        <p class="font-body-md text-body-md text-on-surface">Nenhuma celebração encontrada.</p>
+        <button type="button" class="mt-3 px-4 py-2 rounded-xl bg-surface-container-high text-primary font-label-md text-label-md hover:bg-surface-container transition-colors cursor-pointer" onclick="clearCelebrationsSearch()">
           Limpar Filtros
         </button>
       </div>
@@ -222,7 +232,7 @@ function renderCelebrationsList() {
 
     return `
       <div class="relative bg-surface-container-lowest rounded-2xl p-3.5 sm:p-4 border border-outline-variant/30 hover:border-primary/40 hover:shadow-md transition-all duration-200 flex flex-col justify-between gap-2.5 shadow-xs" id="celebration-card-${cel.id}">
-        <!-- Topo: Avatar Litúrgico, Nome, Descrição/Subtítulo, Badge de Categoria e Ações Admin -->
+        <!-- Topo: Avatar Litúrgico, Nome, Descrição, Badge de Categoria e Ações Admin -->
         <div class="flex items-start justify-between gap-2.5">
           <div class="flex items-center gap-3 min-w-0">
             <div class="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-primary-fixed/60 text-primary flex items-center justify-center border border-outline-variant/30 shadow-xs">
@@ -248,10 +258,10 @@ function renderCelebrationsList() {
             ${
               isAdmin ? `
                 <div class="flex items-center gap-0.5 ml-1">
-                  <button type="button" class="w-7 h-7 rounded-lg text-outline hover:bg-surface-container-high hover:text-primary flex items-center justify-center transition-all" title="Editar celebração" onclick="openEditCelebrationModal('${cel.id}')">
+                  <button type="button" class="w-7 h-7 rounded-lg text-outline hover:bg-surface-container-high hover:text-primary flex items-center justify-center transition-all cursor-pointer" title="Editar celebração" onclick="openEditCelebrationModal('${cel.id}')">
                     <span class="material-symbols-outlined text-[16px]">edit</span>
                   </button>
-                  <button type="button" class="w-7 h-7 rounded-lg text-outline hover:bg-error-container hover:text-on-error-container flex items-center justify-center transition-all" title="Excluir celebração" onclick="deleteCelebrationAction('${cel.id}', '${cel.name.replace("'", "\\'")}')">
+                  <button type="button" class="w-7 h-7 rounded-lg text-outline hover:bg-error-container hover:text-on-error-container flex items-center justify-center transition-all cursor-pointer" title="Excluir celebração" onclick="deleteCelebrationAction('${cel.id}', '${(cel.name || '').replace("'", "\\'")}')">
                     <span class="material-symbols-outlined text-[16px]">delete</span>
                   </button>
                 </div>
@@ -260,7 +270,7 @@ function renderCelebrationsList() {
           </div>
         </div>
 
-        <!-- Linha Inferior de Informações: Ministros Sugeridos e Categoria -->
+        <!-- Linha Inferior: Ministros Sugeridos e Categoria -->
         <div class="flex items-center justify-between gap-1.5 pt-2 border-t border-outline-variant/20 text-xs text-on-surface-variant font-medium">
           <div class="flex items-center gap-1.5 min-w-0" title="${minMinisters} ministros na escala sugerida">
             <span class="material-symbols-outlined text-[15px] text-primary shrink-0">groups</span>
@@ -306,12 +316,10 @@ function openAddCelebrationModal() {
   const modalTitle = document.getElementById('celebration-modal-title');
   const nameInput = document.getElementById('input-cel-name');
   const categoryInput = document.getElementById('input-cel-category');
-  const ministersInput = document.getElementById('input-cel-ministers');
 
   if (modalTitle) modalTitle.textContent = 'Cadastrar Nova Celebração';
   if (nameInput) nameInput.value = '';
   if (categoryInput) categoryInput.value = 'dominical';
-  if (ministersInput) ministersInput.value = '4';
 
   if (modal) modal.classList.remove('hidden');
 }
@@ -331,12 +339,10 @@ window.openEditCelebrationModal = function(id) {
   const modalTitle = document.getElementById('celebration-modal-title');
   const nameInput = document.getElementById('input-cel-name');
   const categoryInput = document.getElementById('input-cel-category');
-  const ministersInput = document.getElementById('input-cel-ministers');
 
   if (modalTitle) modalTitle.textContent = 'Editar Celebração';
   if (nameInput) nameInput.value = cel.name || '';
   if (categoryInput) categoryInput.value = cel.category || 'dominical';
-  if (ministersInput) ministersInput.value = String(cel.minMinisters || (cel.category === 'dominical' || cel.category === 'solenidade' ? 4 : 2));
 
   if (modal) modal.classList.remove('hidden');
 };
@@ -347,7 +353,7 @@ function closeCelebrationModal() {
   editingCelebrationId = null;
 }
 
-function saveCelebrationForm() {
+async function saveCelebrationForm() {
   if (!isUserAdmin()) {
     if (window.showToast) window.showToast('Apenas administradores podem salvar celebrações.');
     return;
@@ -355,48 +361,47 @@ function saveCelebrationForm() {
 
   const nameInput = document.getElementById('input-cel-name');
   const categoryInput = document.getElementById('input-cel-category');
-  const ministersInput = document.getElementById('input-cel-ministers');
 
   const name = nameInput ? nameInput.value.trim() : '';
   const category = categoryInput ? categoryInput.value : 'especial';
-  const minMinisters = ministersInput ? parseInt(ministersInput.value, 10) : (category === 'dominical' || category === 'solenidade' ? 4 : 2);
+  const minMinisters = category === 'dominical' || category === 'solenidade' ? 4 : 2;
 
   if (!name) {
     if (window.showToast) window.showToast('Por favor, informe o nome da celebração.');
     return;
   }
 
-  // Ícone sugerido conforme a categoria
   let icon = 'church';
   if (category === 'semanal') icon = 'wb_sunny';
   else if (category === 'solenidade') icon = 'star';
   else if (category === 'sacramento') icon = 'water_drop';
   else if (category === 'especial') icon = 'favorite';
 
-  if (editingCelebrationId) {
-    window.appStore.updateCelebration(editingCelebrationId, {
-      name,
-      category,
-      icon,
-      minMinisters
-    });
-    if (window.showToast) window.showToast(`Celebração "${name}" atualizada com sucesso!`);
-  } else {
-    window.appStore.addCelebration({
-      name,
-      category,
-      icon,
-      minMinisters
-    });
-    if (window.showToast) window.showToast(`Celebração "${name}" cadastrada com sucesso!`);
+  try {
+    if (editingCelebrationId) {
+      await window.appStore.updateCelebration(editingCelebrationId, {
+        name,
+        category,
+        icon,
+        minMinisters
+      });
+      if (window.showToast) window.showToast(`Celebração "${name}" atualizada com sucesso!`);
+    } else {
+      await window.appStore.addCelebration({
+        name,
+        category,
+        icon,
+        minMinisters
+      });
+      if (window.showToast) window.showToast(`Celebração "${name}" cadastrada com sucesso!`);
+    }
+    closeCelebrationModal();
+  } catch (err) {
+    console.error('Erro ao salvar celebração:', err);
   }
-
-  closeCelebrationModal();
-  renderCelebrationsStats();
-  renderCelebrationsList();
 }
 
-window.deleteCelebrationAction = function(id, name) {
+window.deleteCelebrationAction = async function(id, name) {
   if (!isUserAdmin()) {
     if (window.showToast) window.showToast('Apenas administradores podem excluir celebrações.');
     return;
@@ -408,13 +413,15 @@ window.deleteCelebrationAction = function(id, name) {
       card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
       card.style.opacity = '0';
       card.style.transform = 'scale(0.95)';
-      setTimeout(() => {
-        window.appStore.deleteCelebration(id);
-        if (window.showToast) window.showToast(`Celebração "${name}" removida com sucesso!`);
-      }, 300);
-    } else {
-      window.appStore.deleteCelebration(id);
+    }
+    try {
+      await window.appStore.deleteCelebration(id);
       if (window.showToast) window.showToast(`Celebração "${name}" removida com sucesso!`);
+    } catch (err) {
+      if (card) {
+        card.style.opacity = '1';
+        card.style.transform = 'scale(1)';
+      }
     }
   }
 };

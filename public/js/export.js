@@ -36,7 +36,7 @@ function formatScaleReminderText(scale) {
   if (!scale) return '';
 
   const arrivalTime = calculateArrivalTime(scale.time);
-  const churchName = 'Capela Divino Espírito Santo';
+  const churchName = (window.appStore && window.appStore.currentUser && window.appStore.currentUser.churchName) || 'Capela Divino Espírito Santo';
 
   let text = `ESCALA:\n`;
 
