@@ -82,7 +82,18 @@ class ApiClient {
       }
 
       if (!response.ok) {
-        const errorMessage = (data && (data.message || data.error)) || `Erro na requisição HTTP: ${response.status} ${response.statusText}`;
+        let errorMessage = `Erro na requisição HTTP: ${response.status} ${response.statusText}`;
+        if (data) {
+          if (typeof data.error === 'string' && data.error.trim()) {
+            errorMessage = data.error;
+          } else if (typeof data.message === 'string' && data.message.trim()) {
+            errorMessage = data.message;
+          } else if (Array.isArray(data.errors) && data.errors.length > 0) {
+            errorMessage = data.errors.map(e => typeof e === 'object' ? (e.message || e.error || JSON.stringify(e)) : e).join(', ');
+          } else if (typeof data === 'string' && data.trim()) {
+            errorMessage = data;
+          }
+        }
         const error = new Error(errorMessage);
         error.status = response.status;
         error.data = data;
@@ -91,6 +102,9 @@ class ApiClient {
 
       return data;
     } catch (error) {
+      if (error && (error.name === 'TypeError' || !error.status) && (error.message?.includes('fetch') || error.message?.includes('NetworkError') || error.message?.includes('Failed to fetch'))) {
+        error.message = 'Não foi possível conectar ao servidor backend (http://localhost:8000). Verifique se a API está online.';
+      }
       console.error(`[API Error] ${options.method || 'GET'} ${cleanEndpoint}:`, error);
       throw error;
     }

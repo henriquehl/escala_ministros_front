@@ -103,7 +103,7 @@ function initLoginComponent() {
 
       if (!loginChurch || !loginChurch.value) {
         if (window.showToast) {
-          window.showToast('Por favor, selecione uma comunidade para continuar.', 3000);
+          window.showToast('Por favor, selecione uma comunidade para continuar.', 'warning');
         }
         return;
       }
@@ -115,7 +115,7 @@ function initLoginComponent() {
 
       if (!user || !password) {
         if (window.showToast) {
-          window.showToast('Informe o usuário e a senha para acessar.', 3000);
+          window.showToast('Informe o usuário e a senha para acessar.', 'warning');
         }
         return;
       }
@@ -165,7 +165,7 @@ function initLoginComponent() {
         await window.appStore.init(churchId);
 
         if (window.showToast) {
-          window.showToast(`Bem-vindo, ${userData.name || user}!`);
+          window.showToast(`Bem-vindo, ${userData.name || user}!`, 'success');
         }
 
         if (window.appRouter) {
@@ -192,7 +192,7 @@ function initLoginComponent() {
         }
 
         if (window.showToast) {
-          window.showToast(errorMsg, 4000);
+          window.showToast(errorMsg, 'error', 4500);
         }
       } finally {
         if (loginSubmitBtn) {

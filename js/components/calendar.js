@@ -67,8 +67,9 @@ function initCalendarComponent() {
   function updateCalendarAdminVisibility() {
     const adminSection = document.getElementById('admin-management-section');
     if (adminSection) {
-      const isAdmin = Boolean(window.appStore && window.appStore.currentUser && window.appStore.currentUser.isAdmin);
-      adminSection.style.display = isAdmin ? 'block' : 'none';
+      const user = window.appStore && window.appStore.currentUser;
+      const canManage = Boolean(user && (user.role === 'admin' || user.role === 'coordinator' || user.isAdmin === true));
+      adminSection.style.display = canManage ? 'block' : 'none';
     }
   }
 
@@ -211,7 +212,7 @@ function renderSelectedDayCard() {
   const listEl = document.getElementById('ministersRosterList');
 
   const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
-  const scale = window.appStore ? window.appStore.getScaleByDateAndHour(dateStr, activeTimeFilter) : null;
+  const dayScales = window.appStore ? window.appStore.getScalesForDay(dateStr, activeTimeFilter) : [];
 
   // Formatar data em português com padrão DD/MM/AAAA
   const dateObj = new Date(currentYear, currentMonth - 1, selectedDay);
@@ -221,17 +222,19 @@ function renderSelectedDayCard() {
   const formattedDateDDMMAAAA = `${dayPad}/${monthPad}/${currentYear}`;
   const formattedFullDate = `${dayOfWeekName}, ${formattedDateDDMMAAAA}`;
 
+  const user = window.appStore && window.appStore.currentUser;
+  const canManage = Boolean(user && (user.role === 'admin' || user.role === 'coordinator' || user.isAdmin === true));
+
   if (titleEl) titleEl.textContent = formattedFullDate;
 
-  if (!scale || !scale.ministers || scale.ministers.length === 0) {
+  if (dayScales.length === 0) {
     if (massSubtitleEl) massSubtitleEl.innerHTML = `<span class="material-symbols-outlined text-[16px] text-outline">event_busy</span> Nenhuma celebração escalada para este dia.`;
     if (countRatioEl) {
       countRatioEl.innerHTML = `<span class="material-symbols-outlined text-[15px] leading-none">person_off</span><span>Sem ministros escalados</span>`;
     }
     if (listEl) {
-      const isAdmin = Boolean(window.appStore && window.appStore.currentUser && window.appStore.currentUser.isAdmin);
-      const createBtnHtml = isAdmin ? `
-        <button type="button" class="mt-3 px-4 py-2 rounded-xl bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors active:scale-95 cursor-pointer" onclick="if(window.appRouter){window.appRouter.navigate('montar-escala');}">
+      const createBtnHtml = canManage ? `
+        <button type="button" class="mt-3 px-4 py-2 rounded-xl bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors active:scale-95 cursor-pointer" onclick="if(window.startEditScale){window.startEditScale('${dateStr}', '10:00');}else if(window.appRouter){window.appRouter.navigate('montar-escala');}">
           Montar Escala para este Dia
         </button>
       ` : '';
@@ -247,41 +250,141 @@ function renderSelectedDayCard() {
     return;
   }
 
-  // Preencher dados da celebração
-  if (massSubtitleEl) {
+  // Se houver 1 única celebração
+  if (dayScales.length === 1) {
+    const scale = dayScales[0];
     const celebrantText = scale.celebrant ? ` - ${scale.celebrant}` : '';
+    if (massSubtitleEl) {
+      massSubtitleEl.innerHTML = `
+        <span class="material-symbols-outlined text-[16px] text-secondary">schedule</span>
+        <span>${scale.time}h - <strong>${scale.celebrationName || 'Santa Missa'}</strong>${celebrantText}</span>
+      `;
+    }
+
+    const assignedCount = (scale.ministers || []).length;
+    const editBtnHtml = canManage ? `
+      <button type="button" class="px-2.5 py-1 rounded-lg bg-primary text-on-primary text-xs font-semibold hover:bg-primary-container transition-all active:scale-95 flex items-center gap-1 shadow-xs cursor-pointer" onclick="window.startEditScale('${scale.dateString}', '${scale.time}', '${scale.id || ''}')">
+        <span class="material-symbols-outlined text-[14px]">edit</span>
+        <span>Editar Escala</span>
+      </button>
+    ` : '';
+
+    const copyBtnHtml = `
+      <button type="button" class="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-semibold flex items-center gap-1 transition-all active:scale-95 cursor-pointer" onclick="window.copyScaleReminderByEvent('${scale.dateString}', '${scale.time}', '${scale.id || ''}')" title="Copiar lembrete desta missa para WhatsApp">
+        <span class="material-symbols-outlined text-[14px] text-primary">content_copy</span>
+        <span>Copiar Lembrete</span>
+      </button>
+    `;
+
+    if (countRatioEl) {
+      countRatioEl.innerHTML = `
+        <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+          <span class="inline-flex items-center gap-1.5"><span class="material-symbols-outlined text-[15px] leading-none">group</span><span>${assignedCount} Ministro${assignedCount === 1 ? '' : 's'} Escalado${assignedCount === 1 ? '' : 's'}</span></span>
+          ${copyBtnHtml}
+          ${editBtnHtml}
+        </div>
+      `;
+    }
+
+    if (listEl) {
+      if (assignedCount === 0) {
+        listEl.innerHTML = `
+          <div class="col-span-full text-center py-6 px-4 bg-surface-container-low/50 rounded-2xl border border-outline-variant/20">
+            <p class="font-body-md text-body-md text-on-surface">Nenhum ministro vinculado a esta celebração.</p>
+          </div>
+        `;
+      } else {
+        listEl.innerHTML = scale.ministers.map((minister) => {
+          const initials = window.getInitials ? window.getInitials(minister.name) : (minister.name || 'M').substring(0, 2).toUpperCase();
+          return `
+            <div class="flex items-center justify-between p-3 rounded-2xl bg-surface-container-low/70 hover:bg-surface-container transition-all border border-outline-variant/20 shadow-xs">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-sm shadow-sm flex-shrink-0 border border-primary/20">
+                  ${initials}
+                </div>
+                <div class="flex flex-col min-w-0">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-sm font-bold text-on-surface truncate">${minister.name || 'Ministro'}</span>
+                  </div>
+                  <span class="text-xs text-on-surface-variant font-medium flex items-center gap-1 mt-0.5 truncate">
+                    <span class="material-symbols-outlined text-[13px]">church</span>
+                    ${minister.phone || 'MESC'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+    return;
+  }
+
+  // Se houver MÚLTIPLAS celebrações no mesmo dia
+  const totalMinisters = dayScales.reduce((sum, s) => sum + (s.ministers || []).length, 0);
+  if (massSubtitleEl) {
     massSubtitleEl.innerHTML = `
       <span class="material-symbols-outlined text-[16px] text-secondary">schedule</span>
-      <span>${scale.time}h - <strong>${scale.celebrationName || 'Santa Missa'}</strong>${celebrantText}</span>
+      <span>${dayScales.length} Celebrações neste dia: <strong>${dayScales.map(s => s.time + 'h').join(', ')}</strong></span>
     `;
   }
 
-  const assignedCount = scale.ministers.length;
-
   if (countRatioEl) {
-    countRatioEl.innerHTML = `<span class="material-symbols-outlined text-[15px] leading-none">group</span><span>${assignedCount} Ministro${assignedCount === 1 ? '' : 's'} Escalado${assignedCount === 1 ? '' : 's'}</span>`;
+    countRatioEl.innerHTML = `<span class="material-symbols-outlined text-[15px] leading-none">group</span><span>${totalMinisters} Ministro${totalMinisters === 1 ? '' : 's'} (${dayScales.length} Missas)</span>`;
   }
 
-  // Renderizar Lista de Ministros
   if (listEl) {
-    listEl.innerHTML = scale.ministers.map((minister) => {
-      const initials = window.getInitials ? window.getInitials(minister.name) : (minister.name || 'M').substring(0, 2).toUpperCase();
+    listEl.innerHTML = dayScales.map((scale) => {
+      const celebrantText = scale.celebrant ? ` • ${scale.celebrant}` : '';
+      const editBtnHtml = canManage ? `
+        <button type="button" class="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-primary hover:text-on-primary text-primary text-xs font-semibold flex items-center gap-1 transition-all active:scale-95 cursor-pointer" onclick="window.startEditScale('${scale.dateString}', '${scale.time}', '${scale.id || ''}')">
+          <span class="material-symbols-outlined text-[14px]">edit</span>
+          <span>Editar</span>
+        </button>
+      ` : '';
+
+      const copyBtnHtml = `
+        <button type="button" class="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-semibold flex items-center gap-1 transition-all active:scale-95 cursor-pointer" onclick="window.copyScaleReminderByEvent('${scale.dateString}', '${scale.time}', '${scale.id || ''}')" title="Copiar lembrete desta missa (${scale.time}h) para WhatsApp">
+          <span class="material-symbols-outlined text-[14px] text-primary">content_copy</span>
+          <span>Copiar Lembrete</span>
+        </button>
+      `;
+
+      const ministersHtml = (scale.ministers && scale.ministers.length > 0)
+        ? scale.ministers.map((m) => {
+            const initials = window.getInitials ? window.getInitials(m.name) : (m.name || 'M').substring(0, 2).toUpperCase();
+            return `
+              <div class="flex items-center justify-between p-2.5 rounded-xl bg-surface-container-lowest/80 border border-outline-variant/15">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div class="w-8 h-8 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-xs shrink-0">
+                    ${initials}
+                  </div>
+                  <div class="min-w-0">
+                    <div class="text-xs font-bold text-on-surface truncate">${m.name || 'Ministro'}</div>
+                    <div class="text-[11px] text-on-surface-variant truncate">${m.phone || 'MESC'}</div>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')
+        : `<p class="text-xs text-on-surface-variant italic col-span-full py-2">Nenhum ministro escalado para este horário.</p>`;
 
       return `
-        <div class="flex items-center justify-between p-3 rounded-2xl bg-surface-container-low/70 hover:bg-surface-container transition-all border border-outline-variant/20 shadow-xs">
-          <div class="flex items-center gap-3 min-w-0">
-            <div class="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-sm shadow-sm flex-shrink-0 border border-primary/20">
-              ${initials}
+        <div class="col-span-full p-4 rounded-2xl bg-surface-container-low/70 border border-outline-variant/20 mb-2">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 border-b border-outline-variant/15 pb-2">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="px-2.5 py-0.5 rounded-full bg-primary text-on-primary font-bold text-xs">${scale.time}h</span>
+              <span class="text-sm font-bold text-on-surface">${scale.celebrationName || 'Santa Missa'}</span>
+              <span class="text-xs text-on-surface-variant hidden sm:inline">${celebrantText}</span>
             </div>
-            <div class="flex flex-col min-w-0">
-              <div class="flex items-center gap-1.5">
-                <span class="text-sm font-bold text-on-surface truncate">${minister.name || 'Ministro'}</span>
-              </div>
-              <span class="text-xs text-on-surface-variant font-medium flex items-center gap-1 mt-0.5 truncate">
-                <span class="material-symbols-outlined text-[13px]">church</span>
-                ${minister.phone || 'MESC'}
-              </span>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-xs font-medium text-on-surface-variant">${(scale.ministers || []).length} escalados</span>
+              ${copyBtnHtml}
+              ${editBtnHtml}
             </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+            ${ministersHtml}
           </div>
         </div>
       `;
@@ -293,6 +396,39 @@ function renderSelectedDayCard() {
 window.getSelectedScale = function() {
   const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
   return window.appStore ? window.appStore.getScaleByDateAndHour(dateStr, activeTimeFilter) : null;
+};
+
+// Obter todas as celebrações do dia selecionado
+window.getSelectedDayScales = function() {
+  const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
+  return window.appStore ? window.appStore.getScalesForDay(dateStr, 'todos') : [];
+};
+
+// Obter mês e ano ativos no calendário
+window.getCurrentCalendarMonthAndYear = function() {
+  return { year: currentYear, month: currentMonth };
+};
+
+// Iniciar edição de escala a partir do calendário
+window.startEditScale = function(dateString, time, scaleId) {
+  if (window.setRosterEditingScale) {
+    window.setRosterEditingScale(dateString, time, scaleId);
+  }
+  if (window.appRouter) {
+    window.appRouter.navigate('montar-escala');
+  }
+};
+
+// Copiar lembrete de um evento específico
+window.copyScaleReminderByEvent = function(dateString, time, scaleId) {
+  if (!window.appStore) return;
+  const dayScales = window.appStore.getScalesForDay(dateString);
+  const found = dayScales.find(s => (scaleId && String(s.id) === String(scaleId)) || (s.time && s.time.startsWith(time.substring(0, 2)))) || dayScales[0];
+  if (found && window.copyScaleReminder) {
+    window.copyScaleReminder(found);
+  } else if (window.showToast) {
+    window.showToast('Escala não encontrada para copiar lembrete.', 'warning');
+  }
 };
 
 if (document.readyState === 'loading') {

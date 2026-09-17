@@ -218,7 +218,11 @@ class Store {
       return payload.name;
     } catch (err) {
       console.error('Erro ao adicionar celebração:', err);
-      if (window.showToast) window.showToast('Erro ao salvar celebração no servidor.', 3500);
+      if (window.showErrorToast) {
+        window.showErrorToast(err, 'Erro ao salvar celebração no servidor.');
+      } else if (window.showToast) {
+        window.showToast(err.message || 'Erro ao salvar celebração no servidor.', 'error');
+      }
       throw err;
     }
   }
@@ -241,7 +245,11 @@ class Store {
       return updated;
     } catch (err) {
       console.error('Erro ao atualizar celebração:', err);
-      if (window.showToast) window.showToast('Erro ao atualizar celebração no servidor.', 3500);
+      if (window.showErrorToast) {
+        window.showErrorToast(err, 'Erro ao atualizar celebração no servidor.');
+      } else if (window.showToast) {
+        window.showToast(err.message || 'Erro ao atualizar celebração no servidor.', 'error');
+      }
       throw err;
     }
   }
@@ -253,7 +261,11 @@ class Store {
       this.notify('celebrations');
     } catch (err) {
       console.error('Erro ao excluir celebração:', err);
-      if (window.showToast) window.showToast('Erro ao excluir celebração no servidor.', 3500);
+      if (window.showErrorToast) {
+        window.showErrorToast(err, 'Erro ao excluir celebração no servidor.');
+      } else if (window.showToast) {
+        window.showToast(err.message || 'Erro ao excluir celebração no servidor.', 'error');
+      }
       throw err;
     }
   }
@@ -331,7 +343,11 @@ class Store {
       return newMember;
     } catch (err) {
       console.error('Erro ao adicionar membro:', err);
-      if (window.showToast) window.showToast('Erro ao salvar membro no servidor.', 3500);
+      if (window.showErrorToast) {
+        window.showErrorToast(err, 'Erro ao salvar membro no servidor.');
+      } else if (window.showToast) {
+        window.showToast(err.message || 'Erro ao salvar membro no servidor.', 'error');
+      }
       throw err;
     }
   }
@@ -357,7 +373,11 @@ class Store {
       return this.members[idx];
     } catch (err) {
       console.error('Erro ao atualizar membro:', err);
-      if (window.showToast) window.showToast('Erro ao atualizar membro no servidor.', 3500);
+      if (window.showErrorToast) {
+        window.showErrorToast(err, 'Erro ao atualizar membro no servidor.');
+      } else if (window.showToast) {
+        window.showToast(err.message || 'Erro ao atualizar membro no servidor.', 'error');
+      }
       throw err;
     }
   }
@@ -369,7 +389,11 @@ class Store {
       this.notify('members');
     } catch (err) {
       console.error('Erro ao excluir membro:', err);
-      if (window.showToast) window.showToast('Erro ao excluir membro no servidor.', 3500);
+      if (window.showErrorToast) {
+        window.showErrorToast(err, 'Erro ao excluir membro no servidor.');
+      } else if (window.showToast) {
+        window.showToast(err.message || 'Erro ao excluir membro no servidor.', 'error');
+      }
       throw err;
     }
   }
@@ -400,34 +424,81 @@ class Store {
       
       // Normalização de eventos para formato padrão da UI
       this.scales = rawEvents.map(evt => {
-        const dateObj = evt.date ? new Date(evt.date) : new Date();
-        const y = evt.year || (evt.date ? parseInt(evt.date.substring(0, 4), 10) : year);
-        const m = evt.month || (evt.date ? parseInt(evt.date.substring(5, 7), 10) : month);
-        const d = evt.day || (evt.date ? parseInt(evt.date.substring(8, 10), 10) : dateObj.getDate());
-        const dateString = evt.date_string || evt.date || `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const rawDate = String(evt.date_string || evt.date || '');
+        let dateString = '';
+        let y = evt.year;
+        let m = evt.month;
+        let d = evt.day;
+
+        if (rawDate.includes('T')) {
+          dateString = rawDate.split('T')[0];
+        } else if (rawDate.length >= 10) {
+          dateString = rawDate.substring(0, 10);
+        }
+
+        if (dateString) {
+          const parts = dateString.split('-');
+          y = y || parseInt(parts[0], 10);
+          m = m || parseInt(parts[1], 10);
+          d = d || parseInt(parts[2], 10);
+        } else {
+          y = y || year;
+          m = m || month;
+          d = d || 1;
+          dateString = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        }
+
         const time = (evt.time || '19:00').substring(0, 5);
+
+        // Resolução inteligente do nome da celebração
+        let celebrationName = evt.celebration_name || (evt.celebration && evt.celebration.name) || evt.celebrationName;
+        if (!celebrationName && evt.celebration_id) {
+          const foundCel = this.getCelebrationById(evt.celebration_id);
+          if (foundCel) celebrationName = foundCel.name;
+        }
+        if (!celebrationName) celebrationName = 'Santa Missa';
+
+        // Resolução inteligente do nome do celebrante
+        let celebrantName = (evt.celebrant && typeof evt.celebrant === 'object') ? evt.celebrant.name : (typeof evt.celebrant === 'string' ? evt.celebrant : '');
+        if (!celebrantName && evt.celebrant_id) {
+          const foundCelebrant = this.getMemberById(evt.celebrant_id);
+          if (foundCelebrant) celebrantName = foundCelebrant.name;
+        }
+        if (!celebrantName) celebrantName = 'Pe. Marcelo Rossi (Pároco)';
+
+        // Resolução de ministros escalados
+        const rawMinisters = evt.ministers || evt.members || [];
+        const ministersList = rawMinisters.map(m => {
+          const mId = typeof m === 'object' ? (m.id || m.member_id) : m;
+          const memberObj = this.getMemberById(mId);
+          return {
+            id: mId,
+            name: (typeof m === 'object' && m.name) || (memberObj && memberObj.name) || 'Ministro',
+            phone: (typeof m === 'object' && m.phone) || (memberObj && memberObj.phone) || '',
+            avatar: (typeof m === 'object' && (m.avatar || m.avatar_url)) || (memberObj && memberObj.avatar) || null
+          };
+        });
+
+        const dt = new Date(y, m - 1, d);
+        const dayOfWeekShort = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'][dt.getDay()] || 'DOM';
 
         return {
           id: evt.id,
           church_id: evt.church_id,
           celebration_id: evt.celebration_id,
+          celebrant_id: evt.celebrant_id,
           year: y,
           month: m,
           day: d,
           dateString: dateString,
-          dayOfWeek: evt.day_of_week || evt.dayOfWeek || 'DOM',
+          dayOfWeek: evt.day_of_week || evt.dayOfWeek || dayOfWeekShort,
           time: time,
           title: evt.title || `Data: ${dateString}`,
-          celebrationName: evt.celebration_name || evt.celebrationName || 'Santa Missa',
-          celebrant: evt.celebrant || '',
+          celebrationName: celebrationName,
+          celebrant: celebrantName,
           subtitle: evt.subtitle || '',
           observation: evt.observation || '',
-          ministers: (evt.ministers || evt.members || []).map(m => ({
-            id: m.id || m.member_id,
-            name: m.name || '',
-            phone: m.phone || '',
-            avatar: m.avatar || null
-          }))
+          ministers: ministersList
         };
       });
 
@@ -443,12 +514,19 @@ class Store {
     return this.scales;
   }
 
+  getScalesForDay(dateString, hour = 'todos') {
+    const cleanDate = dateString.includes('T') ? dateString.split('T')[0] : dateString.substring(0, 10);
+    return this.scales.filter(s => {
+      const matchDate = s.dateString === cleanDate;
+      if (!matchDate) return false;
+      if (!hour || hour === 'todos') return true;
+      return s.time && s.time.startsWith(hour.substring(0, 2));
+    }).sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+  }
+
   getScaleByDateAndHour(dateString, hour) {
-    if (hour && hour !== 'todos') {
-      const hStr = hour.substring(0, 2);
-      return this.scales.find(s => s.dateString === dateString && s.time.startsWith(hStr));
-    }
-    return this.scales.find(s => s.dateString === dateString);
+    const list = this.getScalesForDay(dateString, hour);
+    return list[0] || null;
   }
 
   getScalesForMonth(year, month) {
@@ -457,20 +535,54 @@ class Store {
 
   async saveScale(scaleData) {
     try {
-      const churchId = scaleData.church_id || (this.currentUser && this.currentUser.churchId) || 1;
-      const ministersIds = (scaleData.ministers || []).map(m => typeof m === 'object' ? m.id : m);
+      const churchId = Number(scaleData.church_id || (this.currentUser && this.currentUser.churchId) || 1);
+
+      // Resolução inteligente de celebration_id
+      let celebrationId = scaleData.celebration_id || scaleData.celebrationId;
+      if ((!celebrationId || String(celebrationId).startsWith('cel-')) && scaleData.celebrationName) {
+        const found = this.getCelebrationObjects().find(c => 
+          c.name.toLowerCase() === scaleData.celebrationName.toLowerCase() ||
+          String(c.id) === String(scaleData.celebrationName)
+        );
+        if (found && found.id && !String(found.id).startsWith('cel-')) {
+          celebrationId = found.id;
+        }
+      }
+
+      if (celebrationId && !isNaN(celebrationId)) {
+        celebrationId = Number(celebrationId);
+      }
+
+      // Resolução inteligente de celebrant_id
+      let celebrantId = scaleData.celebrant_id || scaleData.celebrantId;
+      if ((!celebrantId || isNaN(celebrantId)) && scaleData.celebrant) {
+        const found = this.getCelebrants().find(c => 
+          c.name.toLowerCase() === scaleData.celebrant.toLowerCase() ||
+          String(c.id) === String(scaleData.celebrant)
+        );
+        if (found && found.id && !isNaN(found.id)) {
+          celebrantId = found.id;
+        }
+      }
+
+      if (celebrantId && !isNaN(celebrantId)) {
+        celebrantId = Number(celebrantId);
+      }
+
+      const rawMinisters = scaleData.minister_ids || scaleData.ministers || [];
+      const ministersIds = rawMinisters
+        .map(m => (typeof m === 'object' ? m.id : m))
+        .map(id => Number(id))
+        .filter(id => !isNaN(id) && id > 0);
 
       const payload = {
         church_id: churchId,
-        celebration_id: scaleData.celebration_id,
-        celebration_name: scaleData.celebrationName,
         date: scaleData.dateString,
         time: scaleData.time,
-        celebrant: scaleData.celebrant,
-        subtitle: scaleData.subtitle || '',
-        observation: scaleData.observation || '',
-        ministers: ministersIds,
-        member_ids: ministersIds
+        celebration_id: celebrationId,
+        celebrant_id: celebrantId,
+        subtitle: scaleData.subtitle || null,
+        minister_ids: ministersIds
       };
 
       let result;
@@ -491,7 +603,11 @@ class Store {
       return result;
     } catch (err) {
       console.error('Erro ao salvar escala:', err);
-      if (window.showToast) window.showToast('Erro ao salvar escala no servidor.', 3500);
+      if (window.showErrorToast) {
+        window.showErrorToast(err, 'Erro ao salvar escala no servidor.');
+      } else if (window.showToast) {
+        window.showToast(err.message || 'Erro ao salvar escala no servidor.', 'error');
+      }
       throw err;
     }
   }
@@ -503,7 +619,11 @@ class Store {
       this.notify('scales');
     } catch (err) {
       console.error('Erro ao excluir escala:', err);
-      if (window.showToast) window.showToast('Erro ao excluir escala no servidor.', 3500);
+      if (window.showErrorToast) {
+        window.showErrorToast(err, 'Erro ao excluir escala no servidor.');
+      } else if (window.showToast) {
+        window.showToast(err.message || 'Erro ao excluir escala no servidor.', 'error');
+      }
       throw err;
     }
   }
@@ -555,7 +675,11 @@ class Store {
       return result;
     } catch (err) {
       console.error('Erro ao salvar usuário:', err);
-      if (window.showToast) window.showToast('Erro ao salvar usuário no servidor.', 3500);
+      if (window.showErrorToast) {
+        window.showErrorToast(err, 'Erro ao salvar usuário no servidor.');
+      } else if (window.showToast) {
+        window.showToast(err.message || 'Erro ao salvar usuário no servidor.', 'error');
+      }
       throw err;
     }
   }
@@ -567,7 +691,11 @@ class Store {
       this.notify('users');
     } catch (err) {
       console.error('Erro ao excluir usuário:', err);
-      if (window.showToast) window.showToast('Erro ao excluir usuário no servidor.', 3500);
+      if (window.showErrorToast) {
+        window.showErrorToast(err, 'Erro ao excluir usuário no servidor.');
+      } else if (window.showToast) {
+        window.showToast(err.message || 'Erro ao excluir usuário no servidor.', 'error');
+      }
       throw err;
     }
   }
@@ -582,7 +710,11 @@ class Store {
       return updated || user;
     } catch (err) {
       console.error('Erro ao alternar status do usuário:', err);
-      if (window.showToast) window.showToast('Erro ao alterar status do usuário.', 3500);
+      if (window.showErrorToast) {
+        window.showErrorToast(err, 'Erro ao alterar status do usuário.');
+      } else if (window.showToast) {
+        window.showToast(err.message || 'Erro ao alterar status do usuário.', 'error');
+      }
       throw err;
     }
   }

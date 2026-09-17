@@ -300,7 +300,11 @@ function initUsersComponent() {
       });
 
       if (selectedChurches.length === 0) {
-        alert('Por favor, selecione ao menos uma igreja vinculada para o usuário.');
+        if (window.showToast) {
+          window.showToast('Por favor, selecione ao menos uma comunidade vinculada para o usuário.', 'warning');
+        } else {
+          alert('Por favor, selecione ao menos uma comunidade vinculada para o usuário.');
+        }
         return;
       }
 
@@ -329,15 +333,29 @@ function initUsersComponent() {
         payload.id = id;
       }
 
+      const saveBtn = modalForm.querySelector('button[type="submit"]');
+      const originalHtml = saveBtn ? saveBtn.innerHTML : '';
+
       try {
+        if (saveBtn) {
+          saveBtn.disabled = true;
+          saveBtn.classList.add('opacity-75', 'cursor-not-allowed');
+        }
+
         await window.appStore.saveUserToList(payload);
         if (window.showToast) {
-          window.showToast(id ? 'Usuário atualizado com sucesso!' : 'Novo usuário cadastrado com sucesso!');
+          window.showToast(id ? 'Usuário atualizado com sucesso!' : 'Novo usuário cadastrado com sucesso!', 'success');
         }
         closeModal();
         renderUsers();
       } catch (err) {
         console.error('Erro ao salvar usuário:', err);
+      } finally {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+          saveBtn.innerHTML = originalHtml;
+        }
       }
     });
   }

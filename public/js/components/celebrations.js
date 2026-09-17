@@ -9,7 +9,9 @@ let currentCelebrationsSearch = '';
 let editingCelebrationId = null;
 
 function isUserAdmin() {
-  return Boolean(window.appStore && window.appStore.currentUser && window.appStore.currentUser.isAdmin);
+  const user = window.appStore && window.appStore.currentUser;
+  if (!user) return false;
+  return Boolean(user.role === 'admin' || user.role === 'coordinator' || user.isAdmin === true);
 }
 
 function updateAdminCelebrationsVisibility() {
@@ -307,7 +309,7 @@ window.clearCelebrationsSearch = function() {
  */
 function openAddCelebrationModal() {
   if (!isUserAdmin()) {
-    if (window.showToast) window.showToast('Apenas administradores podem cadastrar celebrações.');
+    if (window.showToast) window.showToast('Apenas administradores e coordenadores podem cadastrar celebrações.');
     return;
   }
 
@@ -326,7 +328,7 @@ function openAddCelebrationModal() {
 
 window.openEditCelebrationModal = function(id) {
   if (!isUserAdmin()) {
-    if (window.showToast) window.showToast('Apenas administradores podem editar celebrações.');
+    if (window.showToast) window.showToast('Apenas administradores e coordenadores podem editar celebrações.');
     return;
   }
 
@@ -355,7 +357,7 @@ function closeCelebrationModal() {
 
 async function saveCelebrationForm() {
   if (!isUserAdmin()) {
-    if (window.showToast) window.showToast('Apenas administradores podem salvar celebrações.');
+    if (window.showToast) window.showToast('Apenas administradores e coordenadores podem salvar celebrações.', 'warning');
     return;
   }
 
@@ -367,7 +369,7 @@ async function saveCelebrationForm() {
   const minMinisters = category === 'dominical' || category === 'solenidade' ? 4 : 2;
 
   if (!name) {
-    if (window.showToast) window.showToast('Por favor, informe o nome da celebração.');
+    if (window.showToast) window.showToast('Por favor, informe o nome da celebração.', 'warning');
     return;
   }
 
@@ -377,7 +379,15 @@ async function saveCelebrationForm() {
   else if (category === 'sacramento') icon = 'water_drop';
   else if (category === 'especial') icon = 'favorite';
 
+  const saveBtn = document.getElementById('btn-save-celebration');
+  const originalHtml = saveBtn ? saveBtn.innerHTML : '';
+
   try {
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.classList.add('opacity-75', 'cursor-not-allowed');
+    }
+
     if (editingCelebrationId) {
       await window.appStore.updateCelebration(editingCelebrationId, {
         name,
@@ -385,7 +395,7 @@ async function saveCelebrationForm() {
         icon,
         minMinisters
       });
-      if (window.showToast) window.showToast(`Celebração "${name}" atualizada com sucesso!`);
+      if (window.showToast) window.showToast(`Celebração "${name}" atualizada com sucesso!`, 'success');
     } else {
       await window.appStore.addCelebration({
         name,
@@ -393,17 +403,23 @@ async function saveCelebrationForm() {
         icon,
         minMinisters
       });
-      if (window.showToast) window.showToast(`Celebração "${name}" cadastrada com sucesso!`);
+      if (window.showToast) window.showToast(`Celebração "${name}" cadastrada com sucesso!`, 'success');
     }
     closeCelebrationModal();
   } catch (err) {
     console.error('Erro ao salvar celebração:', err);
+  } finally {
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+      saveBtn.innerHTML = originalHtml;
+    }
   }
 }
 
 window.deleteCelebrationAction = async function(id, name) {
   if (!isUserAdmin()) {
-    if (window.showToast) window.showToast('Apenas administradores podem excluir celebrações.');
+    if (window.showToast) window.showToast('Apenas administradores e coordenadores podem excluir celebrações.', 'warning');
     return;
   }
 
@@ -416,7 +432,7 @@ window.deleteCelebrationAction = async function(id, name) {
     }
     try {
       await window.appStore.deleteCelebration(id);
-      if (window.showToast) window.showToast(`Celebração "${name}" removida com sucesso!`);
+      if (window.showToast) window.showToast(`Celebração "${name}" removida com sucesso!`, 'success');
     } catch (err) {
       if (card) {
         card.style.opacity = '1';

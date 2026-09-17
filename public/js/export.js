@@ -59,30 +59,31 @@ function formatScaleReminderText(scale) {
 window.copyScaleReminder = function(scaleData) {
   const scale = scaleData || (window.getSelectedScale ? window.getSelectedScale() : null);
   if (!scale) {
-    if (window.showToast) window.showToast('Nenhuma celebração selecionada para copiar o lembrete.');
+    if (window.showToast) window.showToast('Nenhuma celebração selecionada para copiar o lembrete.', 'warning');
     return;
   }
 
   const message = formatScaleReminderText(scale);
+  const timeInfo = scale.time ? ` (${scale.time}h)` : '';
 
   // Copiar para a área de transferência
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(message).then(() => {
       if (window.showToast) {
-        window.showToast('Lembrete copiado com sucesso! Pronto para colar.');
+        window.showToast(`Lembrete da celebração${timeInfo} copiado com sucesso! Pronto para colar.`, 'success');
       }
     }).catch(() => {
-      fallbackCopyText(message);
+      fallbackCopyText(message, timeInfo);
     });
   } else {
-    fallbackCopyText(message);
+    fallbackCopyText(message, timeInfo);
   }
 };
 
 /**
  * Fallback de cópia para navegadores antigos
  */
-function fallbackCopyText(text) {
+function fallbackCopyText(text, timeInfo = '') {
   try {
     const textArea = document.createElement('textarea');
     textArea.value = text;
@@ -93,58 +94,68 @@ function fallbackCopyText(text) {
     textArea.select();
     document.execCommand('copy');
     document.body.removeChild(textArea);
-    if (window.showToast) window.showToast('Lembrete copiado com sucesso! Pronto para colar.');
+    if (window.showToast) window.showToast(`Lembrete da celebração${timeInfo} copiado com sucesso! Pronto para colar.`, 'success');
   } catch (err) {
-    if (window.showToast) window.showToast('Lembrete pronto! Copie a mensagem.');
+    if (window.showToast) window.showToast('Lembrete pronto! Copie a mensagem.', 'info');
   }
 }
 
 /**
- * MODELO 1 DE IMPRESSÃO: Escala Individual do Dia Selecionado
+ * MODELO 1 DE IMPRESSÃO: Escala do Dia Selecionado (Suporta 1 ou múltiplas celebrações no mesmo dia)
  */
 window.exportSingleDayPdf = function(scaleData) {
-  const scale = scaleData || (window.getSelectedScale ? window.getSelectedScale() : null);
   const printContainer = document.getElementById('print-container');
   if (!printContainer) return;
 
-  if (!scale || !scale.ministers || scale.ministers.length === 0) {
+  let dayScales = [];
+  if (Array.isArray(scaleData)) {
+    dayScales = scaleData;
+  } else if (scaleData && typeof scaleData === 'object') {
+    dayScales = [scaleData];
+  } else if (window.getSelectedDayScales) {
+    dayScales = window.getSelectedDayScales();
+  } else if (window.getSelectedScale) {
+    const single = window.getSelectedScale();
+    if (single) dayScales = [single];
+  }
+
+  // Filtrar apenas escalas válidas com ministros
+  dayScales = (dayScales || []).filter(s => s && s.ministers && s.ministers.length > 0);
+
+  if (dayScales.length === 0) {
     if (window.showToast) window.showToast('Selecione um dia com escala cadastrada para imprimir.');
     return;
   }
 
-  const ministersRows = scale.ministers.map((m, idx) => `
-    <tr>
-      <td style="text-align: center; font-weight: bold; width: 36px;">${idx + 1}</td>
-      <td style="font-weight: 600;">${m.name} ${m.isLeader ? '<span style="color:#b3093f; font-size: 8.5pt;">(Coordenador)</span>' : ''}</td>
-      <td>${m.role || 'Ministro'}</td>
-      <td style="text-align: center;">${m.phone || '-'}</td>
-    </tr>
-  `).join('');
+  // Ordenar celebrações do dia por horário cronológico
+  dayScales.sort((a, b) => (a.time || '').localeCompare(b.time || ''));
 
-  const dayPad = String(scale.day || 1).padStart(2, '0');
-  const monthPad = String(scale.month || 1).padStart(2, '0');
-  const yearVal = scale.year || 2025;
+  const firstScale = dayScales[0];
+  const dayPad = String(firstScale.day || 1).padStart(2, '0');
+  const monthPad = String(firstScale.month || 1).padStart(2, '0');
+  const calMonthYear = (window.getCurrentCalendarMonthAndYear && window.getCurrentCalendarMonthAndYear()) || {};
+  const yearVal = firstScale.year || calMonthYear.year || 2026;
   const formattedDateDDMMAAAA = `${dayPad}/${monthPad}/${yearVal}`;
-  const displayTitleDate = (scale.title && scale.title.includes('/')) ? scale.title : `${scale.dayOfWeek || 'Domingo'}, ${formattedDateDDMMAAAA}`;
+  const dayOfWeekName = (firstScale.dayOfWeek || 'Domingo').toUpperCase();
+  const displayTitleDate = `${dayOfWeekName}, ${formattedDateDDMMAAAA}`;
 
-  printContainer.innerHTML = `
-    <div style="font-family: 'Plus Jakarta Sans', Arial, sans-serif; color: #1a1c1b; padding: 8px 0;">
-      <!-- Cabeçalho Paroquial Oficial -->
-      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #b3093f; padding-bottom: 12px; margin-bottom: 16px;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIgSu4l2yDG1jT_7SwkOJJqFNaW2p_4HqqVnHCztIoLyqUYDPmoSGWYlYdkUc-1yWYm_JOr9NmY3lq_A-ZQddP4x4tS9u05k13J4a9O-yNFaKsUxGHTjy03OnqVp6ljUawhwHZrufK-bLI8Jsw_If_pirzKyW79ZrY_N8pBzfsYjOBN1N8pfD6vQCEQfT8MKv7RTPUUi4574MReICVACO_1wS4kDxI3rf_rviObVKnYChRfYyQT9tbBg" style="height: 50px; width: auto;" alt="Logo Paróquia">
-          <div>
-            <h1 style="font-size: 16pt; margin: 0; color: #b3093f; font-family: 'Source Serif 4', Georgia, serif; font-weight: bold;">CAPELA DIVINO ESPÍRITO SANTO</h1>
-            <p style="margin: 2px 0 0 0; font-size: 9pt; color: #564243; text-transform: uppercase; letter-spacing: 0.05em;">Pastoral dos Ministros Extraordinários da Sagrada Comunhão</p>
-          </div>
-        </div>
-        <div style="text-align: right;">
-          <span style="display: inline-block; background-color: #ffd9e2; color: #b3093f; font-size: 8.5pt; font-weight: bold; padding: 3px 8px; border-radius: 4px; text-transform: uppercase;">Modelo Individual</span>
-          <p style="margin: 4px 0 0 0; font-size: 8pt; color: #897173;">Emitido em: ${new Date().toLocaleDateString('pt-BR')}</p>
-        </div>
-      </div>
+  const userChurch = (window.appStore && window.appStore.currentUser && window.appStore.currentUser.churchName) || 'Capela Divino Espírito Santo';
 
-      <!-- Dados da Celebração -->
+  let contentHtml = '';
+
+  if (dayScales.length === 1) {
+    const scale = dayScales[0];
+    const ministersRows = scale.ministers.map((m, idx) => `
+      <tr>
+        <td style="text-align: center; font-weight: bold; width: 36px;">${idx + 1}</td>
+        <td style="font-weight: 600;">${m.name} ${m.isLeader ? '<span style="color:#b3093f; font-size: 8.5pt;">(Coordenador)</span>' : ''}</td>
+        <td>${m.role || 'Ministro'}</td>
+        <td style="text-align: center;">${m.phone || '-'}</td>
+      </tr>
+    `).join('');
+
+    contentHtml = `
+      <!-- Dados da Celebração Única -->
       <div style="background-color: #faf9f7; border: 1px solid #e3e2e0; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;">
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
           <div>
@@ -168,18 +179,101 @@ window.exportSingleDayPdf = function(scaleData) {
             <th style="border: 1px solid #dadad8; padding: 6px; width: 36px; text-align: center;">#</th>
             <th style="border: 1px solid #dadad8; padding: 6px; text-align: left;">Ministro(a)</th>
             <th style="border: 1px solid #dadad8; padding: 6px; text-align: left;">Função Litúrgica</th>
-            <th style="border: 1px solid #dadad8; padding: 6px; text-align: center;">Contato</th>
+            <th style="border: 1px solid #dadad8; padding: 6px; text-align: center; width: 140px;">Contato</th>
           </tr>
         </thead>
         <tbody>
           ${ministersRows}
         </tbody>
       </table>
+    `;
+  } else {
+    // Múltiplas celebrações no mesmo dia
+    const celebrationsHtml = dayScales.map((scale) => {
+      const ministersRows = scale.ministers.map((m, idx) => `
+        <tr>
+          <td style="text-align: center; font-weight: bold; width: 32px;">${idx + 1}</td>
+          <td style="font-weight: 600;">${m.name} ${m.isLeader ? '<span style="color:#b3093f; font-size: 8pt;">(Coordenador)</span>' : ''}</td>
+          <td>${m.role || 'Ministro'}</td>
+          <td style="text-align: center;">${m.phone || '-'}</td>
+        </tr>
+      `).join('');
+
+      return `
+        <div class="print-page-break-inside-avoid" style="margin-bottom: 14px; border: 1px solid #e3e2e0; border-radius: 6px; padding: 10px 12px; background-color: #ffffff;">
+          <!-- Cabeçalho do Evento Específico -->
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid #b3093f; padding-bottom: 6px; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="background-color: #b3093f; color: #ffffff; font-size: 9.5pt; font-weight: bold; padding: 2px 9px; border-radius: 4px; letter-spacing: 0.02em;">${scale.time}h</span>
+              <div>
+                <h3 style="margin: 0; font-size: 11.5pt; color: #b3093f; font-family: 'Source Serif 4', Georgia, serif; font-weight: bold;">${scale.celebrationName || 'Santa Missa'}</h3>
+                <p style="margin: 2px 0 0 0; font-size: 8.5pt; color: #1a1c1b;"><strong>Celebrante:</strong> ${scale.celebrant || 'Pároco'}</p>
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <span style="display: inline-block; background-color: #ffd9e2; color: #b3093f; font-size: 8pt; font-weight: bold; padding: 2px 8px; border-radius: 4px;">${scale.ministers.length} Ministros</span>
+            </div>
+          </div>
+
+          <!-- Tabela de Ministros desta Missa -->
+          <table class="monthly-print-table" style="width: 100%; border-collapse: collapse; margin-bottom: 2px; font-size: 9pt;">
+            <thead>
+              <tr style="background-color: #efeeec;">
+                <th style="border: 1px solid #dadad8; padding: 5px 6px; width: 32px; text-align: center;">#</th>
+                <th style="border: 1px solid #dadad8; padding: 5px 6px; text-align: left;">Ministro(a)</th>
+                <th style="border: 1px solid #dadad8; padding: 5px 6px; text-align: left;">Função Litúrgica</th>
+                <th style="border: 1px solid #dadad8; padding: 5px 6px; text-align: center; width: 130px;">Contato</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${ministersRows}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }).join('');
+
+    contentHtml = `
+      <!-- Banner Informativo do Dia com Múltiplas Celebrações -->
+      <div style="display: flex; justify-content: space-between; align-items: center; background-color: #faf9f7; border: 1px solid #e3e2e0; border-left: 4px solid #b3093f; border-radius: 6px; padding: 8px 14px; margin-bottom: 12px;">
+        <div>
+          <span style="font-size: 8pt; color: #564243; text-transform: uppercase; font-weight: 600;">Data da Escala</span>
+          <h2 style="margin: 0; font-size: 12pt; color: #b3093f; font-family: 'Source Serif 4', Georgia, serif; font-weight: bold;">${displayTitleDate}</h2>
+        </div>
+        <div style="text-align: right;">
+          <span style="display: inline-block; background-color: #ffd9e2; color: #b3093f; font-size: 8.5pt; font-weight: bold; padding: 3px 10px; border-radius: 4px;">${dayScales.length} Celebrações neste dia</span>
+        </div>
+      </div>
+
+      <!-- Lista de Celebrações -->
+      ${celebrationsHtml}
+    `;
+  }
+
+  printContainer.innerHTML = `
+    <div style="font-family: 'Plus Jakarta Sans', Arial, sans-serif; color: #1a1c1b; padding: 4px 0;">
+      <!-- Cabeçalho Paroquial Oficial -->
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #b3093f; padding-bottom: 10px; margin-bottom: 14px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIgSu4l2yDG1jT_7SwkOJJqFNaW2p_4HqqVnHCztIoLyqUYDPmoSGWYlYdkUc-1yWYm_JOr9NmY3lq_A-ZQddP4x4tS9u05k13J4a9O-yNFaKsUxGHTjy03OnqVp6ljUawhwHZrufK-bLI8Jsw_If_pirzKyW79ZrY_N8pBzfsYjOBN1N8pfD6vQCEQfT8MKv7RTPUUi4574MReICVACO_1wS4kDxI3rf_rviObVKnYChRfYyQT9tbBg" style="height: 48px; width: auto;" alt="Logo Paróquia">
+          <div>
+            <h1 style="font-size: 15pt; margin: 0; color: #b3093f; font-family: 'Source Serif 4', Georgia, serif; font-weight: bold;">${userChurch.toUpperCase()}</h1>
+            <p style="margin: 2px 0 0 0; font-size: 8.5pt; color: #564243; text-transform: uppercase; letter-spacing: 0.05em;">Pastoral dos Ministros Extraordinários da Sagrada Comunhão</p>
+          </div>
+        </div>
+        <div style="text-align: right;">
+          <span style="display: inline-block; background-color: #ffd9e2; color: #b3093f; font-size: 8.5pt; font-weight: bold; padding: 3px 8px; border-radius: 4px; text-transform: uppercase;">${dayScales.length > 1 ? 'Escala do Dia' : 'Modelo Individual'}</span>
+          <p style="margin: 3px 0 0 0; font-size: 7.5pt; color: #897173;">Emitido em: ${new Date().toLocaleDateString('pt-BR')}</p>
+        </div>
+      </div>
+
+      <!-- Conteúdo do Dia -->
+      ${contentHtml}
 
       <!-- Orientações Paroquiais -->
-      <div style="border: 1px dashed #897173; border-radius: 6px; padding: 10px 14px; margin-bottom: 24px; font-size: 8.5pt; color: #564243; background-color: #faf9f7;">
+      <div class="print-page-break-inside-avoid" style="border: 1px dashed #897173; border-radius: 6px; padding: 8px 12px; margin-bottom: 16px; font-size: 8pt; color: #564243; background-color: #faf9f7;">
         <strong style="color: #b3093f;">Lembretes Litúrgicos:</strong>
-        <ul style="margin: 4px 0 0 0; padding-left: 18px; line-height: 1.4;">
+        <ul style="margin: 3px 0 0 0; padding-left: 16px; line-height: 1.35;">
           <li>Apresentar-se na Sacristia com no mínimo <strong>20 minutos de antecedência</strong> da celebração.</li>
           <li>Portar veste litúrgica oficial limpa e bem cuidada.</li>
           <li>Em caso de imprevisto urgente, providenciar a substituição antecipada comunicando a Coordenação Pastoral.</li>
@@ -187,22 +281,22 @@ window.exportSingleDayPdf = function(scaleData) {
       </div>
 
       <!-- Assinaturas -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; text-align: center; margin-top: 40px; padding-top: 10px;">
+      <div class="print-page-break-inside-avoid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; text-align: center; margin-top: 20px; padding-top: 6px;">
         <div>
-          <div style="border-top: 1px solid #1a1c1b; margin-bottom: 4px;"></div>
-          <p style="margin: 0; font-size: 9pt; font-weight: bold;">Pe. Marcelo Rossi</p>
-          <p style="margin: 0; font-size: 8pt; color: #564243;">Pároco</p>
+          <div style="border-top: 1px solid #1a1c1b; margin-bottom: 3px;"></div>
+          <p style="margin: 0; font-size: 8.5pt; font-weight: bold;">Pe. Marcelo Rossi</p>
+          <p style="margin: 0; font-size: 7.5pt; color: #564243;">Pároco</p>
         </div>
         <div>
-          <div style="border-top: 1px solid #1a1c1b; margin-bottom: 4px;"></div>
-          <p style="margin: 0; font-size: 9pt; font-weight: bold;">Coordenação Pastoral Capela Divino</p>
-          <p style="margin: 0; font-size: 8pt; color: #564243;">Capela Divino Espírito Santo</p>
+          <div style="border-top: 1px solid #1a1c1b; margin-bottom: 3px;"></div>
+          <p style="margin: 0; font-size: 8.5pt; font-weight: bold;">Coordenação Pastoral</p>
+          <p style="margin: 0; font-size: 7.5pt; color: #564243;">${userChurch}</p>
         </div>
       </div>
     </div>
   `;
 
-  if (window.showToast) window.showToast('Preparando impressão da Escala Individual...');
+  if (window.showToast) window.showToast('Preparando impressão da Escala...');
   setTimeout(() => {
     window.print();
   }, 250);
@@ -211,12 +305,16 @@ window.exportSingleDayPdf = function(scaleData) {
 /**
  * MODELO 2 DE IMPRESSÃO: Escala Geral do Mês Completo em Folha Única A4 (Mural / Sacristia)
  */
-window.exportMonthlySheetPdf = function(year = 2025, month = 10) {
+window.exportMonthlySheetPdf = function(year, month) {
   const printContainer = document.getElementById('print-container');
   if (!printContainer || !window.appStore) return;
 
-  const monthScales = window.appStore.getScalesForMonth(year, month);
-  const monthName = MONTH_NAMES_FULL[month - 1];
+  const current = window.getCurrentCalendarMonthAndYear ? window.getCurrentCalendarMonthAndYear() : { year: 2026, month: 9 };
+  const targetYear = year || current.year;
+  const targetMonth = month || current.month;
+
+  const monthScales = window.appStore.getScalesForMonth(targetYear, targetMonth);
+  const monthName = MONTH_NAMES_FULL[targetMonth - 1] || 'Mês';
 
   if (!monthScales || monthScales.length === 0) {
     if (window.showToast) window.showToast('Nenhuma escala cadastrada neste mês para gerar a folha única.');
@@ -235,8 +333,8 @@ window.exportMonthlySheetPdf = function(year = 2025, month = 10) {
       : '<em style="color:#897173;">Sem ministros</em>';
 
     const dayPad = String(scale.day).padStart(2, '0');
-    const monthPad = String(month).padStart(2, '0');
-    const dateFormatted = `${dayPad}/${monthPad}/${year} (${scale.dayOfWeek || 'DOM'})`;
+    const monthPad = String(targetMonth).padStart(2, '0');
+    const dateFormatted = `${dayPad}/${monthPad}/${targetYear} (${scale.dayOfWeek || 'DOM'})`;
 
     return `
       <tr>
@@ -257,6 +355,8 @@ window.exportMonthlySheetPdf = function(year = 2025, month = 10) {
     `;
   }).join('');
 
+  const userChurch = (window.appStore && window.appStore.currentUser && window.appStore.currentUser.churchName) || 'Capela Divino Espírito Santo';
+
   printContainer.innerHTML = `
     <div style="font-family: 'Plus Jakarta Sans', Arial, sans-serif; color: #1a1c1b; padding: 4px 0;">
       <!-- Cabeçalho do Painel Mensal A4 -->
@@ -264,12 +364,12 @@ window.exportMonthlySheetPdf = function(year = 2025, month = 10) {
         <div style="display: flex; align-items: center; gap: 10px;">
           <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIgSu4l2yDG1jT_7SwkOJJqFNaW2p_4HqqVnHCztIoLyqUYDPmoSGWYlYdkUc-1yWYm_JOr9NmY3lq_A-ZQddP4x4tS9u05k13J4a9O-yNFaKsUxGHTjy03OnqVp6ljUawhwHZrufK-bLI8Jsw_If_pirzKyW79ZrY_N8pBzfsYjOBN1N8pfD6vQCEQfT8MKv7RTPUUi4574MReICVACO_1wS4kDxI3rf_rviObVKnYChRfYyQT9tbBg" style="height: 38px; width: auto;" alt="Logo Paróquia">
           <div>
-            <h1 style="font-size: 13pt; margin: 0; color: #b3093f; font-family: 'Source Serif 4', Georgia, serif; font-weight: bold; line-height: 1.1;">CAPELA DIVINO ESPÍRITO SANTO</h1>
+            <h1 style="font-size: 13pt; margin: 0; color: #b3093f; font-family: 'Source Serif 4', Georgia, serif; font-weight: bold; line-height: 1.1;">${userChurch.toUpperCase()}</h1>
             <p style="margin: 1px 0 0 0; font-size: 8pt; color: #564243; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Escala Geral Mensal dos Ministros da Eucaristia</p>
           </div>
         </div>
         <div style="text-align: right;">
-          <span style="display: inline-block; background-color: #b3093f; color: #ffffff; font-size: 9pt; font-weight: bold; padding: 2px 10px; border-radius: 4px; text-transform: uppercase;">${monthName.toUpperCase()} / ${year}</span>
+          <span style="display: inline-block; background-color: #b3093f; color: #ffffff; font-size: 9pt; font-weight: bold; padding: 2px 10px; border-radius: 4px; text-transform: uppercase;">${monthName.toUpperCase()} / ${targetYear}</span>
           <p style="margin: 2px 0 0 0; font-size: 7.5pt; color: #897173;">Quadro Oficial para Mural e Sacristia</p>
         </div>
       </div>
@@ -308,8 +408,8 @@ window.exportMonthlySheetPdf = function(year = 2025, month = 10) {
         </div>
         <div>
           <div style="border-top: 1px solid #1a1c1b; margin-bottom: 2px;"></div>
-          <p style="margin: 0; font-size: 8pt; font-weight: bold;">Coordenação Pastoral Capela Divino</p>
-          <p style="margin: 0; font-size: 7pt; color: #564243;">Capela Divino Espírito Santo</p>
+          <p style="margin: 0; font-size: 8pt; font-weight: bold;">Coordenação Pastoral</p>
+          <p style="margin: 0; font-size: 7pt; color: #564243;">${userChurch}</p>
         </div>
       </div>
     </div>
@@ -383,7 +483,8 @@ function initExportBindings() {
   if (btnPrintMonth) {
     btnPrintMonth.addEventListener('click', () => {
       window.closePdfExportModal();
-      window.exportMonthlySheetPdf(2025, 10);
+      const current = window.getCurrentCalendarMonthAndYear ? window.getCurrentCalendarMonthAndYear() : { year: 2026, month: 9 };
+      window.exportMonthlySheetPdf(current.year, current.month);
     });
   }
 

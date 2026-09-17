@@ -9,7 +9,9 @@ let currentSearchTerm = '';
 let editingMemberId = null;
 
 function isUserAdmin() {
-  return Boolean(window.appStore && window.appStore.currentUser && window.appStore.currentUser.isAdmin);
+  const user = window.appStore && window.appStore.currentUser;
+  if (!user) return false;
+  return Boolean(user.role === 'admin' || user.role === 'coordinator' || user.isAdmin === true);
 }
 
 function updateAdminMembersVisibility() {
@@ -294,7 +296,7 @@ window.clearMembersSearch = function() {
  */
 function openAddMemberModal() {
   if (!isUserAdmin()) {
-    if (window.showToast) window.showToast('Apenas administradores podem cadastrar novos ministros.');
+    if (window.showToast) window.showToast('Apenas administradores e coordenadores podem cadastrar novos ministros.');
     return;
   }
 
@@ -320,7 +322,7 @@ function openAddMemberModal() {
 
 window.openEditMemberModal = function(id) {
   if (!isUserAdmin()) {
-    if (window.showToast) window.showToast('Apenas administradores podem editar informações de ministros.');
+    if (window.showToast) window.showToast('Apenas administradores e coordenadores podem editar informações de ministros.');
     return;
   }
 
@@ -379,7 +381,7 @@ function closeMemberModal() {
 
 async function saveMemberForm() {
   if (!isUserAdmin()) {
-    if (window.showToast) window.showToast('Apenas administradores podem salvar alterações.');
+    if (window.showToast) window.showToast('Apenas administradores e coordenadores podem salvar alterações.', 'warning');
     return;
   }
 
@@ -410,11 +412,19 @@ async function saveMemberForm() {
   }
 
   if (!name) {
-    if (window.showToast) window.showToast('Por favor, informe o nome do membro.');
+    if (window.showToast) window.showToast('Por favor, informe o nome do membro.', 'warning');
     return;
   }
 
+  const saveBtn = document.getElementById('btn-save-member');
+  const originalHtml = saveBtn ? saveBtn.innerHTML : '';
+
   try {
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.classList.add('opacity-75', 'cursor-not-allowed');
+    }
+
     if (editingMemberId) {
       const currentMember = window.appStore.getMemberById(editingMemberId);
       await window.appStore.updateMember(editingMemberId, {
@@ -425,7 +435,7 @@ async function saveMemberForm() {
         start_date: startDate || undefined,
         experience: calculatedExperience || (currentMember && currentMember.experience) || 'Ministro MESC'
       });
-      if (window.showToast) window.showToast('Dados do ministro atualizados com sucesso!');
+      if (window.showToast) window.showToast('Dados do ministro atualizados com sucesso!', 'success');
     } else {
       await window.appStore.addMember({
         name,
@@ -435,17 +445,23 @@ async function saveMemberForm() {
         start_date: startDate || undefined,
         experience: calculatedExperience || (profile === 'celebrant' || profile === 'celebrante' ? 'Sacerdote / Celebrante' : 'Novo Ministro')
       });
-      if (window.showToast) window.showToast('Novo ministro cadastrado com sucesso!');
+      if (window.showToast) window.showToast('Novo ministro cadastrado com sucesso!', 'success');
     }
     closeMemberModal();
   } catch (err) {
     console.error('Erro ao salvar formulário de membro:', err);
+  } finally {
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+      saveBtn.innerHTML = originalHtml;
+    }
   }
 }
 
 window.deleteMemberAction = async function(id, name) {
   if (!isUserAdmin()) {
-    if (window.showToast) window.showToast('Apenas administradores podem remover ministros.');
+    if (window.showToast) window.showToast('Apenas administradores e coordenadores podem remover ministros.', 'warning');
     return;
   }
 
@@ -458,7 +474,7 @@ window.deleteMemberAction = async function(id, name) {
     }
     try {
       await window.appStore.deleteMember(id);
-      if (window.showToast) window.showToast(`${name} foi removido com sucesso.`);
+      if (window.showToast) window.showToast(`${name} foi removido com sucesso.`, 'success');
     } catch (err) {
       if (card) {
         card.style.opacity = '1';

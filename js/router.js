@@ -68,6 +68,7 @@ class Router {
     const hasToken = window.api ? Boolean(window.api.getToken()) : false;
     const isAuthenticated = Boolean(currentUser && hasToken);
     const isAdmin = Boolean(currentUser && (currentUser.role === 'admin' || currentUser.isAdmin === true));
+    const canManageScales = Boolean(currentUser && (currentUser.role === 'admin' || currentUser.role === 'coordinator' || currentUser.isAdmin === true));
 
     // Se NÃO estiver autenticado e tentar acessar qualquer tela interna
     if (path !== 'inicio-login' && !isAuthenticated) {
@@ -88,10 +89,10 @@ class Router {
       return;
     }
 
-    // Proteção de rota para 'montar-escala' (apenas Administrador)
-    if (path === 'montar-escala' && !isAdmin) {
+    // Proteção de rota para 'montar-escala' (Administrador e Coordenador)
+    if (path === 'montar-escala' && !canManageScales) {
       if (window.showToast) {
-        window.showToast('Acesso restrito: Apenas administradores podem gerir escalas.');
+        window.showToast('Acesso restrito: Apenas administradores e coordenadores podem gerir escalas.');
       }
       this.navigate('calendario-missas', updateHistory);
       return;
@@ -134,6 +135,8 @@ class Router {
     const userRoleEl = document.getElementById('header-user-role');
     const currentUser = window.appStore ? window.appStore.currentUser : null;
     const isAdmin = Boolean(currentUser && (currentUser.role === 'admin' || currentUser.isAdmin === true));
+    const isCoordinator = Boolean(currentUser && currentUser.role === 'coordinator');
+    const canManageScales = Boolean(currentUser && (currentUser.role === 'admin' || currentUser.role === 'coordinator' || currentUser.isAdmin === true));
     const roleName = (currentUser && (currentUser.roleName || (currentUser.role === 'admin' ? 'Administrador' : (currentUser.role === 'coordinator' ? 'Coordenador' : 'Visitante')))) || (isAdmin ? 'Administrador' : 'Visitante');
     const churchName = (currentUser && currentUser.churchName) ? currentUser.churchName : 'Capela Divino Espírito Santo';
 
@@ -178,8 +181,10 @@ class Router {
         userRoleEl.textContent = roleName;
         if (isAdmin) {
           userRoleEl.className = 'hidden sm:inline-block px-spacing-xs py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm font-semibold';
-        } else {
+        } else if (isCoordinator) {
           userRoleEl.className = 'hidden sm:inline-block px-spacing-xs py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold';
+        } else {
+          userRoleEl.className = 'hidden sm:inline-block px-spacing-xs py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold';
         }
       }
     }
@@ -192,7 +197,7 @@ class Router {
 
       // Ocultar aba 'Gerir Escalas' para visitantes
       if (linkPath === 'montar-escala') {
-        link.style.display = isAdmin ? (isDesktop ? 'flex' : 'flex') : 'none';
+        link.style.display = canManageScales ? (isDesktop ? 'flex' : 'flex') : 'none';
       }
 
       if (linkPath === path) {

@@ -17,12 +17,16 @@ const ROSTER_MONTH_NAMES = [
 
 const WEEKDAY_NAMES_SHORT = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
 
+let currentEditingScaleId = null;
+
 function initRosterComponent() {
   const datePicker = document.getElementById('roster-date-picker');
   const searchInput = document.getElementById('minister-search');
   const btnSave = document.getElementById('btn-save-roster');
   const btnSaveNotify = document.getElementById('btn-save-notify');
   const btnExportPdf = document.getElementById('btn-export-pdf');
+  const btnCancelEdit = document.getElementById('btn-cancel-roster-edit');
+  const btnDeleteScale = document.getElementById('btn-delete-roster-scale');
 
   // 1. Sincronização com Seletor Nativo de Data
   if (datePicker) {
@@ -62,7 +66,21 @@ function initRosterComponent() {
     });
   }
 
-  // 7. Exportar PDF
+  // 7. Cancelar Edição / Modo Nova Escala
+  if (btnCancelEdit) {
+    btnCancelEdit.addEventListener('click', () => {
+      resetRosterToNew();
+    });
+  }
+
+  // 8. Excluir Escala Cadastrada
+  if (btnDeleteScale) {
+    btnDeleteScale.addEventListener('click', async () => {
+      await deleteCurrentRosterScale();
+    });
+  }
+
+  // 9. Exportar PDF
   if (btnExportPdf) {
     btnExportPdf.addEventListener('click', () => {
       if (window.openPdfExportModal) {
@@ -117,41 +135,43 @@ function initRosterComponent() {
 /**
  * Renderiza o <select> com todas as celebrações cadastradas
  */
-function renderCelebrationSelect(selectedCelebrationName = '') {
+function renderCelebrationSelect(selectedCelebrationIdOrName = '') {
   const selectEl = document.getElementById('celebration-select');
   if (!selectEl || !window.appStore) return;
 
-  const celebrations = window.appStore.getCelebrations();
-  const currentVal = selectedCelebrationName || selectEl.value;
+  const celebrations = window.appStore.getCelebrationObjects();
+  const currentVal = selectedCelebrationIdOrName || selectEl.value;
 
   selectEl.innerHTML = celebrations.map((c) => {
-    const isSelected = c === currentVal || (selectedCelebrationName && c.toLowerCase().includes(selectedCelebrationName.toLowerCase()));
-    return `<option value="${c}" ${isSelected ? 'selected' : ''}>${c}</option>`;
+    const isSelected = String(c.id) === String(currentVal) || 
+      c.name === currentVal || 
+      (selectedCelebrationIdOrName && c.name.toLowerCase().includes(String(selectedCelebrationIdOrName).toLowerCase()));
+    return `<option value="${c.id}" data-name="${c.name}" ${isSelected ? 'selected' : ''}>${c.name}</option>`;
   }).join('');
 }
 
 /**
- * Renderiza o <select> de Celebrante Principal dinamicamente
+ * Renderiza o <select> de Celebrante Principal dinamicamente com IDs numéricos
  */
 function renderCelebrantSelect(selectedCelebrantValue = '') {
   const celebranteSelect = document.getElementById('celebrante');
   if (!celebranteSelect || !window.appStore) return;
 
   const celebrants = window.appStore.getCelebrants();
+  const allMembers = window.appStore.getMembers();
+  const listToRender = celebrants.length > 0 ? celebrants : allMembers;
   const currentVal = selectedCelebrantValue || celebranteSelect.value;
 
-  if (celebrants.length === 0) {
-    celebranteSelect.innerHTML = `
-      <option value="Pe. Marcelo Rossi (Pároco)">Pe. Marcelo Rossi (Pároco)</option>
-      <option value="Pe. Antônio Vieira (Vigário)">Pe. Antônio Vieira (Vigário)</option>
-      <option value="Diácono Francisco">Diácono Francisco</option>
-    `;
+  if (listToRender.length === 0) {
+    celebranteSelect.innerHTML = `<option value="">Nenhum celebrante/membro cadastrado na paróquia</option>`;
     return;
   }
 
-  celebranteSelect.innerHTML = celebrants.map((c) => {
-    const isSelected = c.id === currentVal || c.name === currentVal || (selectedCelebrantValue && c.name.toLowerCase().includes(selectedCelebrantValue.toLowerCase()));
-    return `<option value="${c.id || c.name}" ${isSelected ? 'selected' : ''}>${c.name}</option>`;
+  celebranteSelect.innerHTML = listToRender.map((c) => {
+    const isSelected = String(c.id) === String(currentVal) || 
+      c.name === currentVal || 
+      (selectedCelebrantValue && c.name.toLowerCase().includes(String(selectedCelebrantValue).toLowerCase()));
+    return `<option value="${c.id}" data-name="${c.name}" ${isSelected ? 'selected' : ''}>${c.name}</option>`;
   }).join('');
 }
 
@@ -195,7 +215,7 @@ function initCelebrationControls() {
       const category = inputCategory ? inputCategory.value : 'dominical';
 
       if (!name) {
-        if (window.showToast) window.showToast('Por favor, digite o nome da celebração.');
+        if (window.showToast) window.showToast('Por favor, digite o nome da celebração.', 'warning');
         return;
       }
 
@@ -206,10 +226,11 @@ function initCelebrationControls() {
         else if (category === 'sacramento') icon = 'water_drop';
         else if (category === 'especial') icon = 'favorite';
 
-        await window.appStore.addCelebration({ name, category, icon });
-        renderCelebrationSelect(name);
+        const created = await window.appStore.addCelebration({ name, category, icon });
+        const createdIdOrName = (created && (created.id || created.name)) || name;
+        renderCelebrationSelect(createdIdOrName);
         closeModal();
-        if (window.showToast) window.showToast(`Celebração "${name}" cadastrada com sucesso!`);
+        if (window.showToast) window.showToast(`Celebração "${name}" cadastrada com sucesso!`, 'success');
       }
     });
   }
@@ -360,18 +381,54 @@ function loadExistingScaleForSelectedDate() {
 
   const existingScale = window.appStore.getScaleByDateAndHour(selectedRosterDate, selectedRosterHour);
   const subtitleInput = document.getElementById('roster-subtitle');
+  const editBanner = document.getElementById('roster-edit-banner');
+  const editEventId = document.getElementById('roster-edit-event-id');
+  const editDesc = document.getElementById('roster-edit-desc');
+  const btnSaveText = document.getElementById('btn-save-roster-text');
+  const btnSaveIcon = document.getElementById('btn-save-roster-icon');
+  const btnDeleteScale = document.getElementById('btn-delete-roster-scale');
 
   if (existingScale) {
+    currentEditingScaleId = existingScale.id;
     assignedMinisters = (existingScale.ministers || []).map(m => ({
       id: m.id,
       name: m.name,
       phone: m.phone || '',
       avatar: m.avatar || null
     }));
-    renderCelebrationSelect(existingScale.celebrationName || 'Santa Missa Dominical');
-    renderCelebrantSelect(existingScale.celebrant || existingScale.celebrantId || '');
+    renderCelebrationSelect(existingScale.celebration_id || existingScale.celebrationId || existingScale.celebrationName || 'Santa Missa Dominical');
+    renderCelebrantSelect(existingScale.celebrantId || existingScale.celebrant_id || existingScale.celebrant || '');
     if (subtitleInput) subtitleInput.value = existingScale.subtitle || '';
+
+    if (editBanner) {
+      editBanner.classList.remove('hidden');
+      editBanner.classList.add('flex');
+    }
+    if (editEventId) {
+      editEventId.textContent = existingScale.id ? `#${existingScale.id}` : '';
+    }
+    if (editDesc) {
+      editDesc.textContent = `${existingScale.celebrationName || 'Santa Missa'} - ${existingScale.time}h (${assignedMinisters.length} ministros)`;
+    }
+    if (btnSaveText) btnSaveText.textContent = 'Salvar Alterações';
+    if (btnSaveIcon) btnSaveIcon.textContent = 'save';
+    if (btnDeleteScale) {
+      btnDeleteScale.classList.remove('hidden');
+      btnDeleteScale.classList.add('flex');
+    }
   } else {
+    currentEditingScaleId = null;
+    if (editBanner) {
+      editBanner.classList.add('hidden');
+      editBanner.classList.remove('flex');
+    }
+    if (btnSaveText) btnSaveText.textContent = 'Salvar Escala';
+    if (btnSaveIcon) btnSaveIcon.textContent = 'check_circle';
+    if (btnDeleteScale) {
+      btnDeleteScale.classList.add('hidden');
+      btnDeleteScale.classList.remove('flex');
+    }
+
     // Sugestão de celebração com base no dia da semana
     const dateParts = selectedRosterDate.split('-');
     const year = parseInt(dateParts[0], 10);
@@ -395,6 +452,78 @@ function loadExistingScaleForSelectedDate() {
   renderAssignedMinisters();
   renderCandidateMinisters();
 }
+
+/**
+ * Reseta o formulário para o modo de nova escala
+ */
+function resetRosterToNew() {
+  currentEditingScaleId = null;
+  const editBanner = document.getElementById('roster-edit-banner');
+  const btnSaveText = document.getElementById('btn-save-roster-text');
+  const btnSaveIcon = document.getElementById('btn-save-roster-icon');
+  const btnDeleteScale = document.getElementById('btn-delete-roster-scale');
+  const subtitleInput = document.getElementById('roster-subtitle');
+
+  if (editBanner) {
+    editBanner.classList.add('hidden');
+    editBanner.classList.remove('flex');
+  }
+  if (btnSaveText) btnSaveText.textContent = 'Salvar Escala';
+  if (btnSaveIcon) btnSaveIcon.textContent = 'check_circle';
+  if (btnDeleteScale) {
+    btnDeleteScale.classList.add('hidden');
+    btnDeleteScale.classList.remove('flex');
+  }
+
+  assignedMinisters = [];
+  if (subtitleInput) subtitleInput.value = '';
+  renderAssignedMinisters();
+  renderCandidateMinisters();
+  if (window.showToast) window.showToast('Modo de nova escala ativado.', 'info');
+}
+
+/**
+ * Exclui a escala em edição atual
+ */
+async function deleteCurrentRosterScale() {
+  if (!currentEditingScaleId) return;
+
+  const user = window.appStore && window.appStore.currentUser;
+  const canManage = Boolean(user && (user.role === 'admin' || user.role === 'coordinator' || user.isAdmin === true));
+  if (!canManage) {
+    if (window.showToast) window.showToast('Apenas administradores e coordenadores podem excluir escalas.', 'warning');
+    return;
+  }
+
+  const confirmDelete = window.confirm('Tem certeza que deseja excluir esta celebração e sua escala de ministros?');
+  if (!confirmDelete) return;
+
+  const btnDelete = document.getElementById('btn-delete-roster-scale');
+  try {
+    if (btnDelete) {
+      btnDelete.disabled = true;
+      btnDelete.classList.add('opacity-75', 'cursor-not-allowed');
+    }
+
+    if (window.appStore) {
+      await window.appStore.deleteScale(currentEditingScaleId);
+    }
+    if (window.showToast) window.showToast('Escala excluída com sucesso!', 'success');
+    currentEditingScaleId = null;
+    loadExistingScaleForSelectedDate();
+  } catch (err) {
+    console.error('Erro ao excluir escala:', err);
+    if (window.showErrorToast) {
+      window.showErrorToast(err, 'Erro ao excluir escala.');
+    }
+  } finally {
+    if (btnDelete) {
+      btnDelete.disabled = false;
+      btnDelete.classList.remove('opacity-75', 'cursor-not-allowed');
+    }
+  }
+}
+window.deleteCurrentRosterScale = deleteCurrentRosterScale;
 
 /**
  * Renderiza a lista de ministros já escalados no Passo 3
@@ -539,17 +668,42 @@ function renderCandidateMinisters(searchTerm = '') {
  * Salva a escala atual no Store
  */
 async function saveCurrentRoster(notifyWhatsApp = false) {
+  const user = window.appStore && window.appStore.currentUser;
+  const canManage = Boolean(user && (user.role === 'admin' || user.role === 'coordinator' || user.isAdmin === true));
+  if (!canManage) {
+    if (window.showToast) window.showToast('Apenas administradores e coordenadores podem salvar escalas.', 'warning');
+    return;
+  }
+
   if (assignedMinisters.length === 0) {
-    if (window.showToast) window.showToast('Adicione pelo menos um ministro à celebração antes de salvar.');
+    if (window.showToast) window.showToast('Adicione pelo menos um ministro à celebração antes de salvar.', 'warning');
     return;
   }
 
   const celebrationSelect = document.getElementById('celebration-select');
-  const celebrationName = celebrationSelect ? (celebrationSelect.value || celebrationSelect.options[celebrationSelect.selectedIndex]?.text) : 'Santa Missa';
+  const selectedOption = celebrationSelect ? celebrationSelect.options[celebrationSelect.selectedIndex] : null;
+  const rawCelebrationId = selectedOption ? selectedOption.value : null;
+  const celebrationName = selectedOption ? (selectedOption.getAttribute('data-name') || selectedOption.text) : 'Santa Missa';
+
+  if (!rawCelebrationId && !celebrationName) {
+    if (window.showToast) window.showToast('Por favor, selecione uma celebração antes de salvar.', 'warning');
+    return;
+  }
+
+  const parsedCelebrationId = rawCelebrationId && !String(rawCelebrationId).startsWith('cel-') && !isNaN(rawCelebrationId) 
+    ? Number(rawCelebrationId) 
+    : rawCelebrationId;
 
   const celebranteSelect = document.getElementById('celebrante');
-  const celebrantName = celebranteSelect ? celebranteSelect.options[celebranteSelect.selectedIndex]?.text : 'Pe. Marcelo Rossi (Pároco)';
-  const celebrantId = celebranteSelect ? celebranteSelect.value : '';
+  const selectedCelebrantOption = celebranteSelect ? celebranteSelect.options[celebranteSelect.selectedIndex] : null;
+  const celebrantName = selectedCelebrantOption ? (selectedCelebrantOption.getAttribute('data-name') || selectedCelebrantOption.text) : '';
+  const rawCelebrantId = selectedCelebrantOption ? selectedCelebrantOption.value : '';
+
+  if (!rawCelebrantId || isNaN(rawCelebrantId)) {
+    if (window.showToast) window.showToast('Por favor, selecione um celebrante cadastrado para a escala.', 'warning');
+    return;
+  }
+  const parsedCelebrantId = Number(rawCelebrantId);
 
   const subtitleInput = document.getElementById('roster-subtitle');
   const subtitle = subtitleInput ? subtitleInput.value.trim() : '';
@@ -563,8 +717,16 @@ async function saveCurrentRoster(notifyWhatsApp = false) {
   const dayOfWeekFullName = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'][dt.getDay()];
   const formattedDateDDMMAAAA = `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
 
+  const parsedMinistersIds = assignedMinisters
+    .map(m => (typeof m === 'object' ? m.id : m))
+    .map(id => Number(id))
+    .filter(id => !isNaN(id) && id > 0);
+
+  const isEditMode = Boolean(currentEditingScaleId && !String(currentEditingScaleId).startsWith('scale-'));
+  const finalEventId = isEditMode ? Number(currentEditingScaleId) : `scale-${selectedRosterDate}-${selectedRosterHour.replace(':', '')}`;
+
   const scaleData = {
-    id: `scale-${selectedRosterDate}-${selectedRosterHour.replace(':', '')}`,
+    id: finalEventId,
     year,
     month,
     day,
@@ -572,14 +734,28 @@ async function saveCurrentRoster(notifyWhatsApp = false) {
     dateString: selectedRosterDate,
     title: `${dayOfWeekFullName}, ${formattedDateDDMMAAAA}`,
     time: selectedRosterHour,
+    celebration_id: Number(parsedCelebrationId),
+    celebrationId: Number(parsedCelebrationId),
     celebrationName,
-    subtitle: subtitle || undefined,
+    subtitle: subtitle || null,
     celebrant: celebrantName,
-    celebrantId: celebrantId || undefined,
-    ministers: assignedMinisters
+    celebrant_id: parsedCelebrantId,
+    celebrantId: parsedCelebrantId,
+    ministers: assignedMinisters,
+    minister_ids: parsedMinistersIds
   };
 
+  const btnSave = document.getElementById('btn-save-roster');
+  const btnSaveNotify = document.getElementById('btn-save-notify');
+  const targetBtn = notifyWhatsApp ? btnSaveNotify : btnSave;
+  const originalHtml = targetBtn ? targetBtn.innerHTML : '';
+
   try {
+    if (targetBtn) {
+      targetBtn.disabled = true;
+      targetBtn.classList.add('opacity-75', 'cursor-not-allowed');
+    }
+
     if (window.appStore) {
       await window.appStore.saveScale(scaleData);
     }
@@ -587,12 +763,42 @@ async function saveCurrentRoster(notifyWhatsApp = false) {
     if (notifyWhatsApp && window.copyScaleReminder) {
       window.copyScaleReminder(scaleData);
     } else {
-      if (window.showToast) window.showToast(`Escala da "${celebrationName}" salva com sucesso!`);
+      const successMsg = isEditMode
+        ? `Escala da "${celebrationName}" atualizada com sucesso!`
+        : `Escala da "${celebrationName}" salva com sucesso!`;
+      if (window.showToast) window.showToast(successMsg, 'success');
     }
+
+    loadExistingScaleForSelectedDate();
   } catch (err) {
     console.error('Erro ao salvar escala:', err);
+    if (!window.appStore && window.showErrorToast) {
+      window.showErrorToast(err, 'Erro ao salvar escala.');
+    }
+  } finally {
+    if (targetBtn) {
+      targetBtn.disabled = false;
+      targetBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+      targetBtn.innerHTML = originalHtml;
+    }
   }
 }
+
+// Iniciar edição de escala programaticamente (a partir de outros componentes)
+window.setRosterEditingScale = function(dateString, time, scaleId) {
+  if (dateString) selectedRosterDate = dateString;
+  if (time) selectedRosterHour = time.substring(0, 5);
+  if (scaleId) currentEditingScaleId = scaleId;
+
+  const datePicker = document.getElementById('roster-date-picker');
+  if (datePicker && dateString) datePicker.value = dateString;
+
+  const hourSelect = document.getElementById('roster-hour-select');
+  if (hourSelect && time) hourSelect.value = selectedRosterHour;
+
+  setSelectedRosterDate(selectedRosterDate);
+  loadExistingScaleForSelectedDate();
+};
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initRosterComponent);

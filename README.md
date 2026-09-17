@@ -47,11 +47,16 @@ O sistema conta com 5 telas SPA integradas na barra superior de navegação:
 
 - **Administrador**:
   - Acesso irrestrito a todas as ferramentas.
+  - Acesso exclusivo para gerenciamento de usuários do sistema.
   - Permissão para cadastrar, editar e excluir membros e celebrações.
-  - Acesso exclusivo à aba **"Gerir Escalas"** e ao painel de coordenação no Calendário.
+  - Acesso à aba **"Gerir Escalas"** e ao painel de coordenação no Calendário.
+- **Coordenador**:
+  - Permissão para cadastrar, editar e excluir membros e celebrações.
+  - Acesso à aba **"Gerir Escalas"** e ao painel de coordenação no Calendário.
+  - Sem permissão para gerenciar usuários do sistema.
 - **Visitante**:
   - Modo somente leitura para consulta comunitária das escalas, celebrações e membros.
-  - Ações de alteração/exclusão e a aba **"Gerir Escalas"** ficam ocultas.
+  - Ações de alteração/exclusão, a aba **"Gerir Escalas"** e o gerenciamento de usuários ficam ocultos.
 
 ---
 

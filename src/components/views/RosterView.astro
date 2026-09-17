@@ -3,6 +3,26 @@
 ---
 <div id="view-montar-escala" class="view-container w-full pt-32 md:pt-24 pb-12 px-margin-screen">
   <div class="flex flex-col w-full space-y-spacing-md max-w-4xl mx-auto">
+    <!-- Banner Informativo de Modo de Edição -->
+    <div id="roster-edit-banner" class="hidden bg-secondary-container/30 border border-secondary/30 rounded-2xl p-4 items-center justify-between gap-3 shadow-xs">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-9 h-9 rounded-xl bg-secondary text-on-secondary flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-[20px]">edit_calendar</span>
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-secondary px-2 py-0.5 rounded-md bg-secondary/15">Modo de Edição</span>
+            <span id="roster-edit-event-id" class="text-xs text-on-surface-variant font-medium">#501</span>
+          </div>
+          <p id="roster-edit-desc" class="text-sm font-semibold text-on-surface truncate mt-0.5">Editando escala existente</p>
+        </div>
+      </div>
+      <button type="button" id="btn-cancel-roster-edit" class="px-3 py-1.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-semibold flex items-center gap-1 transition-all active:scale-95 shrink-0 cursor-pointer">
+        <span class="material-symbols-outlined text-[16px]">add</span>
+        <span>Criar Nova</span>
+      </button>
+    </div>
+
     <!-- Passo 1 -->
     <div class="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 border border-outline-variant/30 shadow-sm">
       <div class="flex items-center justify-end mb-spacing-xs">
@@ -127,13 +147,18 @@
     <div class="pt-spacing-xs space-y-spacing-xs">
       <!-- Primary CTA: Save -->
       <button class="w-full h-12 py-3 px-4 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg shadow-sm flex items-center justify-center gap-2 hover:bg-primary-container active:scale-[0.99] transition-all" id="btn-save-roster" type="button">
-        <span class="material-symbols-outlined text-[20px]">check_circle</span>
-        Salvar Escala
+        <span class="material-symbols-outlined text-[20px]" id="btn-save-roster-icon">check_circle</span>
+        <span id="btn-save-roster-text">Salvar Escala</span>
       </button>
       <!-- Secondary CTA: Save and Copy Reminder -->
       <button class="w-full h-12 py-3 px-4 rounded-xl bg-surface-container-high text-primary font-label-lg text-label-lg flex items-center justify-center gap-2 hover:bg-surface-container-highest active:scale-[0.99] transition-all" id="btn-save-notify" type="button">
         <span class="material-symbols-outlined text-primary text-[20px]">content_copy</span>
-        Salvar e Copiar Lembrete
+        <span id="btn-save-notify-text">Salvar e Copiar Lembrete</span>
+      </button>
+      <!-- Botão de Exclusão da Escala (Apenas visível no Modo de Edição) -->
+      <button class="w-full h-11 py-2.5 px-4 rounded-xl bg-error-container/30 text-error hover:bg-error-container/60 font-label-md text-label-md hidden items-center justify-center gap-1.5 transition-colors cursor-pointer" id="btn-delete-roster-scale" type="button">
+        <span class="material-symbols-outlined text-[18px]">delete</span>
+        <span>Excluir Esta Escala</span>
       </button>
       <!-- Export Monthly PDF Options -->
       <button class="w-full h-11 py-2.5 px-4 rounded-xl text-on-surface-variant font-label-md text-label-md flex items-center justify-center gap-1.5 hover:bg-surface-container-low transition-colors" id="btn-export-pdf" type="button">
