@@ -11,6 +11,7 @@ function initLoginComponent() {
   const loginPassword = document.getElementById('login-password');
   const togglePassBtn = document.getElementById('toggle-password-btn');
   const loginSubmitBtn = document.getElementById('btn-login-submit') || (loginForm ? loginForm.querySelector('button[type="submit"]') : null);
+  const loginGuestBtn = document.getElementById('btn-guest-access');
 
   // Popula o select de igrejas a partir da API
   async function populateChurches() {
@@ -56,6 +57,7 @@ function initLoginComponent() {
     if (loginPassword) loginPassword.disabled = !hasChurch;
     if (togglePassBtn) togglePassBtn.disabled = !hasChurch;
     if (loginSubmitBtn) loginSubmitBtn.disabled = !hasChurch;
+    if (loginGuestBtn) loginGuestBtn.disabled = !hasChurch;
   }
 
   // Listener para troca de igreja
@@ -96,7 +98,7 @@ function initLoginComponent() {
     });
   }
 
-  // Acesso e Autenticação no Backend
+  // Acesso e Autenticação no Backend (Usuário e Senha)
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -146,6 +148,7 @@ function initLoginComponent() {
         const roleNames = {
           admin: 'Administrador',
           coordinator: 'Coordenador',
+          guest: 'Convidado',
           visitor: 'Visitante'
         };
 
@@ -200,6 +203,94 @@ function initLoginComponent() {
           loginSubmitBtn.innerHTML = `
             <span class="material-symbols-outlined text-[20px]">login</span>
             <span>Acessar</span>
+          `;
+        }
+      }
+    });
+  }
+
+  // Acesso Direto como Convidado (Emissão de Token JWT de Visitante)
+  if (loginGuestBtn) {
+    loginGuestBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+
+      if (!loginChurch || !loginChurch.value) {
+        if (window.showToast) {
+          window.showToast('Por favor, selecione uma comunidade para continuar como convidado.', 'warning');
+        }
+        return;
+      }
+
+      const churchId = loginChurch.value;
+      const churchName = loginChurch.selectedOptions[0] ? loginChurch.selectedOptions[0].text : 'Comunidade Paroquial';
+
+      loginGuestBtn.disabled = true;
+      loginGuestBtn.innerHTML = `
+        <span class="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
+        <span>Acessando...</span>
+      `;
+
+      try {
+        if (!window.api || !window.api.auth) {
+          throw new Error('Módulo de API não inicializado.');
+        }
+
+        const authResult = await window.api.auth.loginGuest({
+          church_id: churchId
+        });
+
+        const userData = (authResult && (authResult.user || authResult.data)) || {};
+
+        window.appStore.setUser({
+          id: userData.id || null,
+          role: 'guest',
+          isAdmin: false,
+          roleName: 'Convidado',
+          name: userData.name || 'Convidado',
+          username: userData.username || 'guest',
+          email: userData.email || null,
+          churchId: authResult.church_id || churchId || 1,
+          churchName: churchName,
+          is_guest: true
+        });
+
+        // Carrega dados da comunidade logada no store
+        await window.appStore.init(churchId);
+
+        if (window.showToast) {
+          window.showToast('Bem-vindo(a)! Você entrou como convidado.', 'success');
+        }
+
+        if (window.appRouter) {
+          window.appRouter.navigate('calendario-missas');
+        }
+      } catch (err) {
+        console.error('Falha no acesso de convidado:', err);
+
+        // Limpa qualquer sessão residual
+        if (window.api && window.api.auth) {
+          window.api.auth.logout();
+        }
+        if (window.appStore) {
+          window.appStore.setUser(null);
+        }
+
+        let errorMsg = 'Não foi possível entrar como convidado.';
+        if (!err.status || err.message?.includes('Failed to fetch') || err.message?.includes('NetworkError') || err.message?.includes('CONNECTION_REFUSED')) {
+          errorMsg = 'Servidor backend indisponível em http://localhost:8000. Inicie o backend para acessar.';
+        } else if (err.message) {
+          errorMsg = err.message;
+        }
+
+        if (window.showToast) {
+          window.showToast(errorMsg, 'error', 4500);
+        }
+      } finally {
+        if (loginGuestBtn) {
+          loginGuestBtn.disabled = false;
+          loginGuestBtn.innerHTML = `
+            <span class="material-symbols-outlined text-[20px]">person_pin_circle</span>
+            <span>Entrar como Convidado</span>
           `;
         }
       }

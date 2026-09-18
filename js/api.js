@@ -138,6 +138,48 @@ class ApiClient {
       }
     },
 
+    loginGuest: async (data = {}) => {
+      try {
+        const payload = data && data.church_id ? { church_id: parseInt(data.church_id, 10) } : {};
+        // Tenta /api/v1/auth/guest, com fallback para /sessions/guest, /api/sessions/guest e /api/auth/guest
+        const res = await this.request('/api/v1/auth/guest', {
+          method: 'POST',
+          body: payload
+        }).catch(async (err) => {
+          if (err.status === 404) {
+            return await this.request('/sessions/guest', {
+              method: 'POST',
+              body: payload
+            }).catch(async (err2) => {
+              if (err2.status === 404) {
+                return await this.request('/api/sessions/guest', {
+                  method: 'POST',
+                  body: payload
+                }).catch(async (err3) => {
+                  if (err3.status === 404) {
+                    return await this.request('/api/auth/guest', {
+                      method: 'POST',
+                      body: payload
+                    });
+                  }
+                  throw err3;
+                });
+              }
+              throw err2;
+            });
+          }
+          throw err;
+        });
+
+        if (res && res.token) {
+          this.setToken(res.token);
+        }
+        return res;
+      } catch (err) {
+        throw err;
+      }
+    },
+
     getProfile: async () => {
       return await this.request('/api/users/profile', { method: 'GET' });
     },

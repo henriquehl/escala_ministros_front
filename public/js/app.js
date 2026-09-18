@@ -125,7 +125,7 @@ function initUserProfileMenu() {
       const isAdmin = Boolean(user && (user.role === 'admin' || user.isAdmin === true));
       const churchName = (user && user.churchName) ? user.churchName : 'Capela Divino Espírito Santo';
       if (userNameEl) {
-        userNameEl.textContent = (user && user.name) ? user.name : (isAdmin ? 'Administrador' : 'Visitante');
+        userNameEl.textContent = (user && user.name) ? user.name : (isAdmin ? 'Administrador' : (user && user.role === 'guest' ? 'Convidado' : 'Visitante'));
       }
       if (userChurchEl) {
         userChurchEl.textContent = churchName;

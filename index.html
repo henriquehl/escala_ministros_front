@@ -267,14 +267,19 @@
               </div>
             </div>
 
-            <button id="btn-login-submit" class="mt-2 w-full h-12 bg-primary hover:bg-primary-container text-on-primary font-label-lg text-label-lg rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:shadow-none" type="submit" disabled>
+            <button id="btn-login-submit" class="mt-2 w-full h-12 bg-primary hover:bg-primary-container text-on-primary font-label-lg text-label-lg rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:shadow-none cursor-pointer" type="submit" disabled>
               <span class="material-symbols-outlined text-[20px]">login</span>
               <span>Acessar</span>
             </button>
 
-            <button id="btn-visitor-access" class="w-full h-12 bg-surface-container-low hover:bg-surface-container text-primary font-label-lg text-label-lg rounded-xl flex items-center justify-center gap-2 border border-outline-variant/20 transition-colors active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none" type="button" disabled>
-              <span class="material-symbols-outlined text-[20px]">visibility</span>
-              <span>Acessar como visitante</span>
+            <div class="relative flex items-center justify-center my-0.5 w-full">
+              <div class="border-t border-outline-variant/30 w-full"></div>
+              <span class="bg-surface-container-lowest px-3 text-[11px] text-on-surface-variant uppercase tracking-wider font-semibold">ou</span>
+            </div>
+
+            <button id="btn-guest-access" class="w-full h-12 bg-surface-container-low hover:bg-surface-container text-primary font-label-lg text-label-lg rounded-xl flex items-center justify-center gap-2 border border-outline-variant/30 transition-all active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none cursor-pointer" type="button" disabled>
+              <span class="material-symbols-outlined text-[20px]">person_pin_circle</span>
+              <span>Entrar como Convidado</span>
             </button>
           </form>
         </div>

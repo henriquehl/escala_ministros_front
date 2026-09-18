@@ -137,7 +137,7 @@ class Router {
     const isAdmin = Boolean(currentUser && (currentUser.role === 'admin' || currentUser.isAdmin === true));
     const isCoordinator = Boolean(currentUser && currentUser.role === 'coordinator');
     const canManageScales = Boolean(currentUser && (currentUser.role === 'admin' || currentUser.role === 'coordinator' || currentUser.isAdmin === true));
-    const roleName = (currentUser && (currentUser.roleName || (currentUser.role === 'admin' ? 'Administrador' : (currentUser.role === 'coordinator' ? 'Coordenador' : 'Visitante')))) || (isAdmin ? 'Administrador' : 'Visitante');
+    const roleName = (currentUser && (currentUser.roleName || (currentUser.role === 'admin' ? 'Administrador' : (currentUser.role === 'coordinator' ? 'Coordenador' : (currentUser.role === 'guest' ? 'Convidado' : 'Visitante'))))) || (isAdmin ? 'Administrador' : 'Visitante');
     const churchName = (currentUser && currentUser.churchName) ? currentUser.churchName : 'Capela Divino Espírito Santo';
 
     if (path === 'inicio-login') {
