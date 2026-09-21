@@ -297,7 +297,7 @@ window.exportSingleDayPdf = function(scaleData) {
       <!-- Cabeçalho Paroquial Oficial -->
       <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #b3093f; padding-bottom: 10px; margin-bottom: 16px;">
         <div style="display: flex; align-items: center; gap: 14px;">
-          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIgSu4l2yDG1jT_7SwkOJJqFNaW2p_4HqqVnHCztIoLyqUYDPmoSGWYlYdkUc-1yWYm_JOr9NmY3lq_A-ZQddP4x4tS9u05k13J4a9O-yNFaKsUxGHTjy03OnqVp6ljUawhwHZrufK-bLI8Jsw_If_pirzKyW79ZrY_N8pBzfsYjOBN1N8pfD6vQCEQfT8MKv7RTPUUi4574MReICVACO_1wS4kDxI3rf_rviObVKnYChRfYyQT9tbBg" style="height: 52px; width: auto;" alt="Logo Paróquia">
+          <img src="/logo-paroquia.jpg" style="height: 52px; width: auto;" alt="Logo Paróquia">
           <div>
             <h1 style="font-size: 17pt; margin: 0; color: #b3093f; font-family: 'Source Serif 4', Georgia, serif; font-weight: bold;">${userChurch.toUpperCase()}</h1>
             <p style="margin: 3px 0 0 0; font-size: 9.5pt; color: #564243; text-transform: uppercase; letter-spacing: 0.05em;">Pastoral dos Ministros Extraordinários da Sagrada Comunhão</p>
@@ -390,7 +390,7 @@ window.exportMonthlySheetPdf = function(year, month) {
       <!-- Cabeçalho do Painel Mensal A4 -->
       <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #b3093f; padding-bottom: 8px; margin-bottom: 12px;">
         <div style="display: flex; align-items: center; gap: 12px;">
-          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIgSu4l2yDG1jT_7SwkOJJqFNaW2p_4HqqVnHCztIoLyqUYDPmoSGWYlYdkUc-1yWYm_JOr9NmY3lq_A-ZQddP4x4tS9u05k13J4a9O-yNFaKsUxGHTjy03OnqVp6ljUawhwHZrufK-bLI8Jsw_If_pirzKyW79ZrY_N8pBzfsYjOBN1N8pfD6vQCEQfT8MKv7RTPUUi4574MReICVACO_1wS4kDxI3rf_rviObVKnYChRfYyQT9tbBg" style="height: 44px; width: auto;" alt="Logo Paróquia">
+          <img src="/logo-paroquia.jpg" style="height: 44px; width: auto;" alt="Logo Paróquia">
           <div>
             <h1 style="font-size: 15pt; margin: 0; color: #b3093f; font-family: 'Source Serif 4', Georgia, serif; font-weight: bold; line-height: 1.15;">${userChurch.toUpperCase()}</h1>
             <p style="margin: 2px 0 0 0; font-size: 9.5pt; color: #564243; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Escala Geral Mensal dos Ministros da Eucaristia</p>
