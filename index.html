@@ -511,27 +511,6 @@
               <p id="stat-regular-celebrations-hero" class="text-xs text-on-surface-variant font-medium mt-0.5">Carregando celebrações...</p>
             </div>
           </div>
-
-          <!-- Métricas Minimalistas (Pills) -->
-          <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0 self-start sm:self-auto">
-            <!-- Dominicais -->
-            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container-low/70 border border-outline-variant/25">
-              <span class="w-2 h-2 rounded-full bg-primary"></span>
-              <div class="flex items-baseline gap-1.5">
-                <span id="stat-dominicais-count" class="text-sm sm:text-base font-bold text-on-surface leading-none">--</span>
-                <span class="text-[11px] text-on-surface-variant font-medium">Dominicais</span>
-              </div>
-            </div>
-
-            <!-- Solenes & Especiais -->
-            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container-low/70 border border-outline-variant/25">
-              <span class="w-2 h-2 rounded-full bg-secondary"></span>
-              <div class="flex items-baseline gap-1.5">
-                <span id="stat-solenes-count" class="text-sm sm:text-base font-bold text-on-surface-variant leading-none">--</span>
-                <span class="text-[11px] text-on-surface-variant font-medium">Solenes/Outras</span>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- Action: Add Celebration CTA -->
@@ -565,9 +544,6 @@
             </button>
             <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="sacramento" type="button">
               Sacramentos
-            </button>
-            <button class="px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm whitespace-nowrap" data-filter="especial" type="button">
-              Especiais
             </button>
           </div>
         </div>
@@ -1015,11 +991,10 @@
           <div class="relative">
             <span class="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px]">category</span>
             <select class="w-full h-12 pl-10 pr-10 bg-surface-container-low rounded-xl font-body-md text-body-md text-on-surface focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 focus:outline-none shadow-sm appearance-none border border-outline-variant/20" id="input-cel-category">
-              <option value="dominical" selected="">Dominical (Preceito)</option>
-              <option value="semanal">Semanal (Ferial)</option>
-              <option value="solenidade">Solenidade Especial</option>
+              <option value="dominical" selected="">Dominical</option>
+              <option value="semanal">Semanal</option>
+              <option value="solenidade">Solenidade especial</option>
               <option value="sacramento">Sacramento (Batismo, Matrimônio, Crisma)</option>
-              <option value="especial">Especial / Devocional / Exéquias</option>
             </select>
             <span class="absolute right-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px] pointer-events-none">expand_more</span>
           </div>

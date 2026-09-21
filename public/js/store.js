@@ -155,27 +155,59 @@ class Store {
   }
 
   getCelebrationObjects() {
+    const idToCategory = {
+      '1': 'dominical',
+      '2': 'semanal',
+      '3': 'solenidade',
+      '4': 'sacramento',
+      '5': 'especial'
+    };
+
+    const nameToCategory = {
+      dominical: 'dominical',
+      semanal: 'semanal',
+      solenidade: 'solenidade',
+      'solenidade especial': 'solenidade',
+      sacramento: 'sacramento',
+      especial: 'especial'
+    };
+
     return this.celebrations.map((c, idx) => {
       if (typeof c === 'string') {
         return {
           id: `cel-${idx}`,
           name: c,
-          category: 'especial',
+          category: 'dominical',
           icon: 'church',
           description: 'Celebração litúrgica paroquial.',
           minMinisters: 2,
           isDefault: false
         };
       }
-      const cat = c.category || (c.category_name ? c.category_name.toLowerCase() : (c.category_id ? String(c.category_id).replace('cat-', '') : 'especial'));
+
+      let rawCat = '';
+      if (c.category && typeof c.category === 'object' && c.category.name) {
+        rawCat = c.category.name.toLowerCase().trim();
+      } else if (typeof c.category === 'string') {
+        rawCat = c.category.toLowerCase().trim();
+      } else if (c.category_name) {
+        rawCat = c.category_name.toLowerCase().trim();
+      } else if (c.category_id) {
+        const rawId = String(c.category_id).replace('cat-', '').trim();
+        rawCat = idToCategory[rawId] || rawId;
+      }
+
+      const normalizedCat = idToCategory[rawCat] || nameToCategory[rawCat] || rawCat || 'dominical';
+
       return {
         ...c,
         id: c.id,
         name: c.name || '',
-        category: cat,
-        icon: c.icon || (cat === 'semanal' ? 'wb_sunny' : cat === 'solenidade' ? 'star' : cat === 'sacramento' ? 'water_drop' : 'church'),
-        minMinisters: c.min_ministers || c.minMinisters || (cat === 'dominical' || cat === 'solenidade' ? 4 : 2),
-        description: c.description || 'Celebração litúrgica paroquial.'
+        category: normalizedCat,
+        category_id: c.category_id || (c.category && c.category.id) || undefined,
+        icon: c.icon || (normalizedCat === 'semanal' ? 'wb_sunny' : normalizedCat === 'solenidade' ? 'star' : normalizedCat === 'sacramento' ? 'water_drop' : 'church'),
+        minMinisters: c.min_ministers || c.minMinisters || (normalizedCat === 'dominical' || normalizedCat === 'solenidade' ? 4 : 2),
+        description: c.description || (c.category && c.category.description) || 'Celebração litúrgica paroquial.'
       };
     });
   }
@@ -190,20 +222,31 @@ class Store {
   }
 
   async addCelebration(dataOrName) {
+    const categoryIdMap = {
+      dominical: 1,
+      semanal: 2,
+      solenidade: 3,
+      sacramento: 4,
+      especial: 5
+    };
+
     try {
       let payload;
       if (typeof dataOrName === 'string') {
         payload = {
           name: dataOrName.trim(),
-          category: 'especial',
+          category: 'dominical',
+          category_id: 1,
           description: 'Celebração cadastrada pela coordenação.',
           min_ministers: 2
         };
       } else {
+        const selectedCat = (dataOrName.category || 'dominical').toLowerCase();
+        const catId = dataOrName.category_id || categoryIdMap[selectedCat] || 1;
         payload = {
           name: (dataOrName.name || '').trim(),
-          category: dataOrName.category || 'especial',
-          category_id: dataOrName.category_id || undefined,
+          category: selectedCat,
+          category_id: catId,
           description: (dataOrName.description || '').trim(),
           min_ministers: dataOrName.minMinisters || dataOrName.min_ministers || 2
         };
@@ -228,11 +271,21 @@ class Store {
   }
 
   async updateCelebration(id, updatedData) {
+    const categoryIdMap = {
+      dominical: 1,
+      semanal: 2,
+      solenidade: 3,
+      sacramento: 4,
+      especial: 5
+    };
+
     try {
+      const selectedCat = (updatedData.category || 'dominical').toLowerCase();
+      const catId = updatedData.category_id || categoryIdMap[selectedCat] || 1;
       const payload = {
         name: updatedData.name,
-        category: updatedData.category,
-        category_id: updatedData.category_id,
+        category: selectedCat,
+        category_id: catId,
         description: updatedData.description,
         min_ministers: updatedData.minMinisters || updatedData.min_ministers
       };

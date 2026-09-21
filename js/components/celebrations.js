@@ -134,8 +134,6 @@ function renderCelebrationsStats() {
   if (solChip) solChip.textContent = `Solenidades (${stats.solenidades})`;
   const sacChip = document.querySelector('#celebrations-filter-chips button[data-filter="sacramento"]');
   if (sacChip) sacChip.textContent = `Sacramentos (${stats.sacramentos})`;
-  const espChip = document.querySelector('#celebrations-filter-chips button[data-filter="especial"]');
-  if (espChip) espChip.textContent = `Especiais (${stats.especiais})`;
 }
 
 /**
@@ -161,7 +159,7 @@ function getCategoryBadgeInfo(category) {
       };
     case 'solenidade':
       return {
-        label: 'Solenidade',
+        label: 'Solenidade especial',
         badgeClass: 'bg-amber-50 text-amber-800 border border-amber-300/60',
         dotClass: 'bg-amber-500',
         icon: 'star',
@@ -173,15 +171,15 @@ function getCategoryBadgeInfo(category) {
         badgeClass: 'bg-blue-50 text-blue-700 border border-blue-200/60',
         dotClass: 'bg-blue-500',
         icon: 'water_drop',
-        desc: 'Rito Sacramental'
+        desc: 'Batismo, Matrimônio, Crisma'
       };
     default:
       return {
-        label: 'Especial',
+        label: 'Dominical',
         badgeClass: 'bg-surface-container-high text-on-surface-variant border border-outline-variant/30',
         dotClass: 'bg-outline',
-        icon: 'favorite',
-        desc: 'Devocional / Votiva'
+        icon: 'church',
+        desc: 'Celebração Litúrgica'
       };
   }
 }
@@ -269,18 +267,6 @@ function renderCelebrationsList() {
                 </div>
               ` : ''
             }
-          </div>
-        </div>
-
-        <!-- Linha Inferior: Ministros Sugeridos e Categoria -->
-        <div class="flex items-center justify-between gap-1.5 pt-2 border-t border-outline-variant/20 text-xs text-on-surface-variant font-medium">
-          <div class="flex items-center gap-1.5 min-w-0" title="${minMinisters} ministros na escala sugerida">
-            <span class="material-symbols-outlined text-[15px] text-primary shrink-0">groups</span>
-            <span class="truncate font-semibold text-on-surface">${minMinisters} ministros sugeridos</span>
-          </div>
-          <div class="flex items-center gap-1 shrink-0 text-on-surface-variant/80">
-            <span class="material-symbols-outlined text-[14px]">church</span>
-            <span>${badgeInfo.label}</span>
           </div>
         </div>
       </div>
