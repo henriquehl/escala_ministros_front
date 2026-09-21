@@ -49,6 +49,19 @@ function initCalendarComponent() {
     });
   }
 
+  // Ação rápida do Header: Montar Escala com a data ativa do calendário
+  const btnCalendarCreateRoster = document.getElementById('btn-calendar-create-roster');
+  if (btnCalendarCreateRoster) {
+    btnCalendarCreateRoster.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (window.openRosterWithSelectedCalendarDate) {
+        window.openRosterWithSelectedCalendarDate();
+      } else if (window.appRouter) {
+        window.appRouter.navigate('montar-escala');
+      }
+    });
+  }
+
   // Filtros de Horário
   const filterChips = document.querySelectorAll('#calendar-time-filters .filter-chip');
   filterChips.forEach((chip) => {
@@ -234,7 +247,7 @@ function renderSelectedDayCard() {
     }
     if (listEl) {
       const createBtnHtml = canManage ? `
-        <button type="button" class="mt-3 px-4 py-2 rounded-xl bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors active:scale-95 cursor-pointer" onclick="if(window.startEditScale){window.startEditScale('${dateStr}', '10:00');}else if(window.appRouter){window.appRouter.navigate('montar-escala');}">
+        <button type="button" class="mt-3 px-4 py-2 rounded-xl bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors active:scale-95 cursor-pointer" onclick="if(window.openRosterWithSelectedCalendarDate){window.openRosterWithSelectedCalendarDate('10:00');}else if(window.startEditScale){window.startEditScale('${dateStr}', '10:00');}else if(window.appRouter){window.appRouter.navigate('montar-escala');}">
           Montar Escala para este Dia
         </button>
       ` : '';
@@ -269,6 +282,13 @@ function renderSelectedDayCard() {
       </button>
     ` : '';
 
+    const deleteBtnHtml = canManage ? `
+      <button type="button" class="px-2.5 py-1 rounded-lg bg-primary text-on-primary text-xs font-semibold hover:bg-primary-container transition-all active:scale-95 flex items-center gap-1 shadow-xs cursor-pointer" onclick="window.deleteScaleFromCalendar('${scale.id || ''}', '${(scale.celebrationName || 'Santa Missa').replace(/'/g, "\\'")}', '${scale.time}', '${scale.dateString}')" title="Excluir esta escala">
+        <span class="material-symbols-outlined text-[14px]">delete</span>
+        <span>Excluir</span>
+      </button>
+    ` : '';
+
     const copyBtnHtml = `
       <button type="button" class="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-semibold flex items-center gap-1 transition-all active:scale-95 cursor-pointer" onclick="window.copyScaleReminderByEvent('${scale.dateString}', '${scale.time}', '${scale.id || ''}')" title="Copiar lembrete desta missa para WhatsApp">
         <span class="material-symbols-outlined text-[14px] text-primary">content_copy</span>
@@ -282,6 +302,7 @@ function renderSelectedDayCard() {
           <span class="inline-flex items-center gap-1.5"><span class="material-symbols-outlined text-[15px] leading-none">group</span><span>${assignedCount} Ministro${assignedCount === 1 ? '' : 's'} Escalado${assignedCount === 1 ? '' : 's'}</span></span>
           ${copyBtnHtml}
           ${editBtnHtml}
+          ${deleteBtnHtml}
         </div>
       `;
     }
@@ -330,7 +351,18 @@ function renderSelectedDayCard() {
   }
 
   if (countRatioEl) {
-    countRatioEl.innerHTML = `<span class="material-symbols-outlined text-[15px] leading-none">group</span><span>${totalMinisters} Ministro${totalMinisters === 1 ? '' : 's'} (${dayScales.length} Missas)</span>`;
+    const copyAllBtnHtml = `
+      <button type="button" class="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-semibold flex items-center gap-1 transition-all active:scale-95 cursor-pointer" onclick="window.copyScaleReminder()" title="Copiar lembrete de todas as celebrações deste dia para WhatsApp">
+        <span class="material-symbols-outlined text-[14px] text-primary">content_copy</span>
+        <span>Copiar Lembrete</span>
+      </button>
+    `;
+    countRatioEl.innerHTML = `
+      <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+        <span class="inline-flex items-center gap-1.5"><span class="material-symbols-outlined text-[15px] leading-none">group</span><span>${totalMinisters} Ministro${totalMinisters === 1 ? '' : 's'} (${dayScales.length} Missas)</span></span>
+        ${copyAllBtnHtml}
+      </div>
+    `;
   }
 
   if (listEl) {
@@ -343,8 +375,15 @@ function renderSelectedDayCard() {
         </button>
       ` : '';
 
+      const deleteBtnHtml = canManage ? `
+        <button type="button" class="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-primary hover:text-on-primary text-primary text-xs font-semibold flex items-center gap-1 transition-all active:scale-95 cursor-pointer" onclick="window.deleteScaleFromCalendar('${scale.id || ''}', '${(scale.celebrationName || 'Santa Missa').replace(/'/g, "\\'")}', '${scale.time}', '${scale.dateString}')" title="Excluir esta celebração (${scale.time}h)">
+          <span class="material-symbols-outlined text-[14px]">delete</span>
+          <span>Excluir</span>
+        </button>
+      ` : '';
+
       const copyBtnHtml = `
-        <button type="button" class="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-semibold flex items-center gap-1 transition-all active:scale-95 cursor-pointer" onclick="window.copyScaleReminderByEvent('${scale.dateString}', '${scale.time}', '${scale.id || ''}')" title="Copiar lembrete desta missa (${scale.time}h) para WhatsApp">
+        <button type="button" class="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-semibold flex items-center gap-1 transition-all active:scale-95 cursor-pointer" onclick="window.copyScaleReminderByEvent('${scale.dateString}', '${scale.time}', '${scale.id || ''}')" title="Copiar lembrete das celebrações deste dia para WhatsApp">
           <span class="material-symbols-outlined text-[14px] text-primary">content_copy</span>
           <span>Copiar Lembrete</span>
         </button>
@@ -381,6 +420,7 @@ function renderSelectedDayCard() {
               <span class="text-xs font-medium text-on-surface-variant">${(scale.ministers || []).length} escalados</span>
               ${copyBtnHtml}
               ${editBtnHtml}
+              ${deleteBtnHtml}
             </div>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
@@ -398,9 +438,14 @@ window.getSelectedScale = function() {
   return window.appStore ? window.appStore.getScaleByDateAndHour(dateStr, activeTimeFilter) : null;
 };
 
-// Obter todas as celebrações do dia selecionado
+// Obter data selecionada no calendário no formato AAAA-MM-DD
+window.getSelectedCalendarDate = function() {
+  return `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
+};
+
+// Obter escalas do dia selecionado
 window.getSelectedDayScales = function() {
-  const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
+  const dateStr = window.getSelectedCalendarDate();
   return window.appStore ? window.appStore.getScalesForDay(dateStr, 'todos') : [];
 };
 
@@ -419,11 +464,79 @@ window.startEditScale = function(dateString, time, scaleId) {
   }
 };
 
-// Copiar lembrete de um evento específico
+// Abrir tela de montagem de escala com a data ativa do calendário
+window.openRosterWithSelectedCalendarDate = function(time, scaleId) {
+  const dateStr = window.getSelectedCalendarDate ? window.getSelectedCalendarDate() : `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
+  let targetTime = time;
+  let targetScaleId = scaleId;
+
+  if (!targetTime && window.appStore) {
+    const scales = window.appStore.getScalesForDay(dateStr);
+    if (scales && scales.length > 0) {
+      targetTime = scales[0].time;
+      targetScaleId = scales[0].id;
+    } else {
+      targetTime = '10:00';
+    }
+  }
+
+  window.startEditScale(dateStr, targetTime || '10:00', targetScaleId || null);
+};
+
+// Excluir escala a partir do calendário (Admin/Coordenador)
+window.deleteScaleFromCalendar = async function(scaleId, celebrationName, time, dateString) {
+  const user = window.appStore && window.appStore.currentUser;
+  const canManage = Boolean(user && (user.role === 'admin' || user.role === 'coordinator' || user.isAdmin === true));
+  if (!canManage) {
+    if (window.showToast) window.showToast('Apenas administradores e coordenadores podem excluir escalas.', 'warning');
+    return;
+  }
+
+  let targetId = scaleId;
+  if (!targetId && dateString && time && window.appStore) {
+    const scales = window.appStore.getScalesForDay(dateString);
+    const found = scales.find(s => s.time && s.time.startsWith(time.substring(0, 2)));
+    if (found) targetId = found.id;
+  }
+
+  if (!targetId) {
+    if (window.showToast) window.showToast('Identificador da escala não encontrado para exclusão.', 'warning');
+    return;
+  }
+
+  const celebrationLabel = celebrationName ? `"${celebrationName}" (${time}h)` : `escala de ${time}h`;
+  const confirmMsg = `Deseja realmente excluir a celebração ${celebrationLabel} e seus ministros escalados?`;
+
+  if (!window.confirm(confirmMsg)) return;
+
+  try {
+    if (window.appStore) {
+      await window.appStore.deleteScale(targetId);
+    }
+    if (window.showToast) window.showToast('Escala excluída com sucesso!', 'success');
+  } catch (err) {
+    console.error('Erro ao excluir escala pelo calendário:', err);
+    if (window.showErrorToast) {
+      window.showErrorToast(err, 'Erro ao excluir escala.');
+    } else if (window.showToast) {
+      window.showToast(err.message || 'Erro ao excluir escala.', 'error');
+    }
+  }
+};
+
+// Copiar lembrete de um evento específico (ou de todas as escalas do dia se houver mais de uma)
 window.copyScaleReminderByEvent = function(dateString, time, scaleId) {
   if (!window.appStore) return;
   const dayScales = window.appStore.getScalesForDay(dateString);
-  const found = dayScales.find(s => (scaleId && String(s.id) === String(scaleId)) || (s.time && s.time.startsWith(time.substring(0, 2)))) || dayScales[0];
+  if (dayScales && dayScales.length > 1) {
+    // Se houver mais de uma escala no dia, traz todas as escalas
+    if (window.copyScaleReminder) {
+      window.copyScaleReminder(dayScales);
+      return;
+    }
+  }
+
+  const found = (dayScales || []).find(s => (scaleId && String(s.id) === String(scaleId)) || (s.time && s.time.startsWith(time.substring(0, 2)))) || (dayScales && dayScales[0]);
   if (found && window.copyScaleReminder) {
     window.copyScaleReminder(found);
   } else if (window.showToast) {

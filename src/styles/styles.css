@@ -126,14 +126,14 @@
     width: 100%;
     border-collapse: collapse;
     margin-top: 8px;
-    font-size: 9.5pt;
+    font-size: 10pt;
   }
 
   .monthly-print-table th {
     background-color: #ffd9e2 !important;
     color: #b3093f !important;
     border: 1px solid #c2b5b6 !important;
-    padding: 6px 8px;
+    padding: 7px 8px;
     font-weight: 700;
     text-align: left;
     -webkit-print-color-adjust: exact;
@@ -142,7 +142,7 @@
 
   .monthly-print-table td {
     border: 1px solid #d4cbcc !important;
-    padding: 6px 8px;
+    padding: 7px 8px;
     vertical-align: top;
   }
 

@@ -109,6 +109,9 @@ function initRosterComponent() {
       const hourSelect = document.getElementById('roster-hour-select');
       if (hourSelect) hourSelect.value = selectedRosterHour;
 
+      const datePicker = document.getElementById('roster-date-picker');
+      if (datePicker && selectedRosterDate) datePicker.value = selectedRosterDate;
+
       if (window.appStore) {
         await Promise.allSettled([
           window.appStore.fetchMembers(),
@@ -116,6 +119,7 @@ function initRosterComponent() {
         ]);
       }
 
+      setSelectedRosterDate(selectedRosterDate);
       renderRosterDateChips();
       renderCelebrationSelect();
       renderCelebrantSelect();
@@ -353,6 +357,11 @@ function setSelectedRosterDate(dateStr) {
           if (top) top.className = `font-label-sm text-[11px] ${isSunday ? 'text-primary font-bold' : ''}`;
         }
       });
+
+      const activeChip = document.getElementById(`chip-date-${dateStr}`);
+      if (activeChip) {
+        activeChip.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
     }
   }
 
@@ -379,7 +388,14 @@ function initRosterHourSelect() {
 function loadExistingScaleForSelectedDate() {
   if (!window.appStore) return;
 
-  const existingScale = window.appStore.getScaleByDateAndHour(selectedRosterDate, selectedRosterHour);
+  let existingScale = null;
+  if (currentEditingScaleId && window.appStore.scales) {
+    existingScale = window.appStore.scales.find(s => String(s.id) === String(currentEditingScaleId));
+  }
+  if (!existingScale) {
+    existingScale = window.appStore.getScaleByDateAndHour(selectedRosterDate, selectedRosterHour);
+  }
+
   const subtitleInput = document.getElementById('roster-subtitle');
   const editBanner = document.getElementById('roster-edit-banner');
   const editEventId = document.getElementById('roster-edit-event-id');
@@ -390,6 +406,11 @@ function loadExistingScaleForSelectedDate() {
 
   if (existingScale) {
     currentEditingScaleId = existingScale.id;
+    if (existingScale.time) {
+      selectedRosterHour = existingScale.time.substring(0, 5);
+      const hourSelect = document.getElementById('roster-hour-select');
+      if (hourSelect) hourSelect.value = selectedRosterHour;
+    }
     assignedMinisters = (existingScale.ministers || []).map(m => ({
       id: m.id,
       name: m.name,
