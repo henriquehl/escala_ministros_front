@@ -315,11 +315,12 @@ class Store {
 
   getCelebrants() {
     return this.members.filter(m => 
+      m.profile === 'padre' || 
       m.profile === 'celebrante' || 
       m.profile === 'celebrant' || 
       m.profile === 'diacono' || 
       m.profile === 'deacon' || 
-      (m.name && (m.name.startsWith('Pe.') || m.name.startsWith('Dom ') || m.name.startsWith('Diác.')))
+      (m.name && (m.name.startsWith('Pe.') || m.name.startsWith('Padre') || m.name.startsWith('Dom ') || m.name.startsWith('Diác.')))
     );
   }
 

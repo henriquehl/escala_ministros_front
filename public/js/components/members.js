@@ -204,17 +204,14 @@ function renderMembersList() {
     }
 
     const profileLabels = {
-      celebrant: 'Celebrante',
-      celebrante: 'Celebrante',
-      deacon: 'Diácono',
-      diacono: 'Diácono',
-      coordinator: 'Coordenador',
-      coordenador: 'Coordenador',
+      padre: 'Padre',
+      celebrant: 'Padre',
+      celebrante: 'Padre',
       minister: 'Ministro',
       ministro: 'Ministro'
     };
     const profileLabel = profileLabels[member.profile] || 'Ministro';
-    const isSpecialProfile = member.profile && !['ministro', 'minister'].includes(member.profile);
+    const isSpecialProfile = ['padre', 'celebrant', 'celebrante'].includes(member.profile);
     const profileTag = isSpecialProfile
       ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-primary-fixed text-primary border border-primary/20 text-[10px] font-bold uppercase tracking-wider">${profileLabel}</span>`
       : '';
@@ -234,7 +231,7 @@ function renderMembersList() {
               </div>
               <p class="text-xs text-primary font-medium flex items-center gap-1 mt-0.5 truncate">
                 <span class="material-symbols-outlined text-[13px] shrink-0">verified_user</span>
-                <span class="truncate">${member.experience || (member.profile === 'celebrante' || member.profile === 'celebrant' ? 'Sacerdote / Celebrante' : 'Ministro MESC')}</span>
+                <span class="truncate">${member.experience || (['padre', 'celebrante', 'celebrant'].includes(member.profile) ? 'Padre / Sacerdote' : 'Ministro MESC')}</span>
               </p>
             </div>
           </div>
@@ -312,7 +309,7 @@ function openAddMemberModal() {
   if (modalTitle) modalTitle.textContent = 'Cadastrar Novo Membro';
   if (nameInput) nameInput.value = '';
   if (phoneInput) phoneInput.value = '';
-  if (profileInput) profileInput.value = 'minister';
+  if (profileInput) profileInput.value = '';
   if (startDateInput) startDateInput.value = '';
   if (statusInput) statusInput.value = 'ativo';
 
@@ -343,10 +340,9 @@ window.openEditMemberModal = function(id) {
   if (nameInput) nameInput.value = member.name || '';
   if (phoneInput) phoneInput.value = member.phone || '';
   
-  const currentProfile = member.profile === 'celebrante' ? 'celebrant'
-    : member.profile === 'diacono' ? 'deacon'
-    : member.profile === 'coordenador' ? 'coordinator'
-    : (member.profile || 'minister');
+  const currentProfile = ['celebrante', 'celebrant', 'padre'].includes(member.profile)
+    ? 'celebrant'
+    : 'minister';
   if (profileInput) profileInput.value = currentProfile;
 
   if (startDateInput) startDateInput.value = member.start_date || member.startDate || '';
@@ -413,6 +409,11 @@ async function saveMemberForm() {
 
   if (!name) {
     if (window.showToast) window.showToast('Por favor, informe o nome do membro.', 'warning');
+    return;
+  }
+
+  if (!profile) {
+    if (window.showToast) window.showToast('Por favor, selecione o Perfil / Função do membro (Padre ou Ministro).', 'warning');
     return;
   }
 
