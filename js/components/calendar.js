@@ -78,11 +78,17 @@ function initCalendarComponent() {
   });
 
   function updateCalendarAdminVisibility() {
+    const user = window.appStore && window.appStore.currentUser;
+    const canManage = Boolean(user && (user.role === 'admin' || user.role === 'coordinator' || user.isAdmin === true));
+
     const adminSection = document.getElementById('admin-management-section');
     if (adminSection) {
-      const user = window.appStore && window.appStore.currentUser;
-      const canManage = Boolean(user && (user.role === 'admin' || user.role === 'coordinator' || user.isAdmin === true));
       adminSection.style.display = canManage ? 'block' : 'none';
+    }
+
+    const btnCalendarCreateRoster = document.getElementById('btn-calendar-create-roster');
+    if (btnCalendarCreateRoster) {
+      btnCalendarCreateRoster.style.display = canManage ? 'flex' : 'none';
     }
   }
 
@@ -456,6 +462,12 @@ window.getCurrentCalendarMonthAndYear = function() {
 
 // Iniciar edição de escala a partir do calendário
 window.startEditScale = function(dateString, time, scaleId) {
+  const user = window.appStore && window.appStore.currentUser;
+  const canManage = Boolean(user && (user.role === 'admin' || user.role === 'coordinator' || user.isAdmin === true));
+  if (!canManage) {
+    if (window.showToast) window.showToast('Apenas administradores e coordenadores podem gerir escalas.', 'warning');
+    return;
+  }
   if (window.setRosterEditingScale) {
     window.setRosterEditingScale(dateString, time, scaleId);
   }
@@ -466,6 +478,12 @@ window.startEditScale = function(dateString, time, scaleId) {
 
 // Abrir tela de montagem de escala com a data ativa do calendário
 window.openRosterWithSelectedCalendarDate = function(time, scaleId) {
+  const user = window.appStore && window.appStore.currentUser;
+  const canManage = Boolean(user && (user.role === 'admin' || user.role === 'coordinator' || user.isAdmin === true));
+  if (!canManage) {
+    if (window.showToast) window.showToast('Apenas administradores e coordenadores podem gerir escalas.', 'warning');
+    return;
+  }
   const dateStr = window.getSelectedCalendarDate ? window.getSelectedCalendarDate() : `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
   let targetTime = time;
   let targetScaleId = scaleId;
