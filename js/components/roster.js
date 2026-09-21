@@ -164,19 +164,21 @@ function renderCelebrantSelect(selectedCelebrantValue = '') {
   const celebrants = window.appStore.getCelebrants();
   const allMembers = window.appStore.getMembers();
   const listToRender = celebrants.length > 0 ? celebrants : allMembers;
-  const currentVal = selectedCelebrantValue || celebranteSelect.value;
+  const isSelectedEmpty = !selectedCelebrantValue;
 
-  if (listToRender.length === 0) {
-    celebranteSelect.innerHTML = `<option value="">Nenhum celebrante/membro cadastrado na paróquia</option>`;
-    return;
-  }
-
-  celebranteSelect.innerHTML = listToRender.map((c) => {
-    const isSelected = String(c.id) === String(currentVal) || 
-      c.name === currentVal || 
-      (selectedCelebrantValue && c.name.toLowerCase().includes(String(selectedCelebrantValue).toLowerCase()));
+  const optionsHtml = listToRender.map((c) => {
+    const isSelected = Boolean(selectedCelebrantValue) && (
+      String(c.id) === String(selectedCelebrantValue) || 
+      c.name === selectedCelebrantValue || 
+      c.name.toLowerCase().includes(String(selectedCelebrantValue).toLowerCase())
+    );
     return `<option value="${c.id}" data-name="${c.name}" ${isSelected ? 'selected' : ''}>${c.name}</option>`;
   }).join('');
+
+  celebranteSelect.innerHTML = `
+    <option value="" ${isSelectedEmpty ? 'selected' : ''}>Selecione o celebrante (opcional)...</option>
+    ${optionsHtml}
+  `;
 }
 
 /**
@@ -635,7 +637,10 @@ function renderCandidateMinisters(searchTerm = '') {
   const baseCountEl = document.getElementById('active-base-count');
   if (!container || !window.appStore) return;
 
-  const allMembers = window.appStore.getMembers().filter((m) => m.status !== 'licenca' && m.profile !== 'celebrante');
+  const allMembers = window.appStore.getMembers().filter((m) => 
+    m.status !== 'licenca' && 
+    !['celebrante', 'celebrant', 'padre'].includes(m.profile)
+  );
   const assignedIds = new Set(assignedMinisters.map((m) => String(m.id)));
 
   if (baseCountEl) {
@@ -716,15 +721,11 @@ async function saveCurrentRoster(notifyWhatsApp = false) {
     : rawCelebrationId;
 
   const celebranteSelect = document.getElementById('celebrante');
-  const selectedCelebrantOption = celebranteSelect ? celebranteSelect.options[celebranteSelect.selectedIndex] : null;
-  const celebrantName = selectedCelebrantOption ? (selectedCelebrantOption.getAttribute('data-name') || selectedCelebrantOption.text) : '';
+  const selectedCelebrantOption = celebranteSelect && celebranteSelect.selectedIndex >= 0 ? celebranteSelect.options[celebranteSelect.selectedIndex] : null;
   const rawCelebrantId = selectedCelebrantOption ? selectedCelebrantOption.value : '';
-
-  if (!rawCelebrantId || isNaN(rawCelebrantId)) {
-    if (window.showToast) window.showToast('Por favor, selecione um celebrante cadastrado para a escala.', 'warning');
-    return;
-  }
-  const parsedCelebrantId = Number(rawCelebrantId);
+  const hasCelebrant = Boolean(rawCelebrantId && !isNaN(rawCelebrantId) && Number(rawCelebrantId) > 0);
+  const parsedCelebrantId = hasCelebrant ? Number(rawCelebrantId) : null;
+  const celebrantName = hasCelebrant ? (selectedCelebrantOption.getAttribute('data-name') || selectedCelebrantOption.text) : null;
 
   const subtitleInput = document.getElementById('roster-subtitle');
   const subtitle = subtitleInput ? subtitleInput.value.trim() : '';

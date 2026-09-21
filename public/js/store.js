@@ -518,7 +518,7 @@ class Store {
           const foundCelebrant = this.getMemberById(evt.celebrant_id);
           if (foundCelebrant) celebrantName = foundCelebrant.name;
         }
-        if (!celebrantName) celebrantName = 'Pe. Marcelo Rossi (Pároco)';
+        if (!celebrantName) celebrantName = '';
 
         // Resolução de ministros escalados
         const rawMinisters = evt.ministers || evt.members || [];
@@ -634,7 +634,7 @@ class Store {
         date: scaleData.dateString,
         time: scaleData.time,
         celebration_id: celebrationId,
-        celebrant_id: celebrantId,
+        celebrant_id: celebrantId ? Number(celebrantId) : null,
         subtitle: scaleData.subtitle || null,
         minister_ids: ministersIds
       };

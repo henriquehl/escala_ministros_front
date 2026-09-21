@@ -187,9 +187,8 @@ window.exportSingleDayPdf = function(scaleData) {
 
   if (dayScales.length === 1) {
     const scale = dayScales[0];
-    const ministersRows = scale.ministers.map((m, idx) => `
+    const ministersRows = scale.ministers.map((m) => `
       <tr>
-        <td style="text-align: center; font-weight: bold; width: 40px; padding: 8px 6px;">${idx + 1}</td>
         <td style="font-weight: 600; padding: 8px 10px;">${m.name} ${m.isLeader ? '<span style="color:#b3093f; font-size: 9.5pt;">(Coordenador)</span>' : ''}</td>
         <td style="padding: 8px 10px;">${m.role || 'Ministro'}</td>
         <td style="text-align: center; padding: 8px 10px;">${m.phone || '-'}</td>
@@ -201,9 +200,9 @@ window.exportSingleDayPdf = function(scaleData) {
       <div style="background-color: #faf9f7; border: 1px solid #e3e2e0; border-radius: 8px; padding: 14px 18px; margin-bottom: 18px;">
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
           <div>
-            <p style="margin: 0; font-size: 10pt; color: #564243; font-weight: 600; text-transform: uppercase;">Celebração Litúrgica</p>
+            <p style="margin: 0; font-size: 10pt; color: #564243; font-weight: 600; text-transform: uppercase;">Celebração</p>
             <h2 style="margin: 3px 0 0 0; font-size: 15pt; color: #b3093f; font-family: 'Source Serif 4', Georgia, serif; font-weight: bold;">${scale.celebrationName || 'Santa Missa'}</h2>
-            <p style="margin: 5px 0 0 0; font-size: 11pt; color: #1a1c1b;"><strong>Celebrante:</strong> ${scale.celebrant || 'Pároco'}</p>
+            ${scale.celebrant ? `<p style="margin: 5px 0 0 0; font-size: 11pt; color: #1a1c1b;"><strong>Celebrante:</strong> ${scale.celebrant}</p>` : ''}
           </div>
           <div style="text-align: right;">
             <p style="margin: 0; font-size: 10pt; color: #564243; font-weight: 600; text-transform: uppercase;">Data & Horário</p>
@@ -214,11 +213,10 @@ window.exportSingleDayPdf = function(scaleData) {
       </div>
 
       <!-- Tabela dos Ministros Escalados -->
-      <h3 style="font-size: 12pt; color: #b3093f; margin: 0 0 10px 0; text-transform: uppercase; font-weight: bold; border-bottom: 1.5px solid #b3093f; padding-bottom: 5px;">Corpo Ministerial Escalado (${scale.ministers.length} Ministros)</h3>
+      <h3 style="font-size: 12pt; color: #b3093f; margin: 0 0 10px 0; text-transform: uppercase; font-weight: bold; border-bottom: 1.5px solid #b3093f; padding-bottom: 5px;">Ministros Escalados (${scale.ministers.length} Ministros)</h3>
       <table class="monthly-print-table" style="width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 11pt;">
         <thead>
           <tr style="background-color: #efeeec;">
-            <th style="border: 1px solid #dadad8; padding: 8px 6px; width: 40px; text-align: center;">#</th>
             <th style="border: 1px solid #dadad8; padding: 8px 10px; text-align: left;">Ministro(a)</th>
             <th style="border: 1px solid #dadad8; padding: 8px 10px; text-align: left;">Função Litúrgica</th>
             <th style="border: 1px solid #dadad8; padding: 8px 10px; text-align: center; width: 150px;">Contato</th>
@@ -232,9 +230,8 @@ window.exportSingleDayPdf = function(scaleData) {
   } else {
     // Múltiplas celebrações no mesmo dia
     const celebrationsHtml = dayScales.map((scale) => {
-      const ministersRows = scale.ministers.map((m, idx) => `
+      const ministersRows = scale.ministers.map((m) => `
         <tr>
-          <td style="text-align: center; font-weight: bold; width: 36px; padding: 6px 4px;">${idx + 1}</td>
           <td style="font-weight: 600; padding: 6px 8px;">${m.name} ${m.isLeader ? '<span style="color:#b3093f; font-size: 9pt;">(Coordenador)</span>' : ''}</td>
           <td style="padding: 6px 8px;">${m.role || 'Ministro'}</td>
           <td style="text-align: center; padding: 6px 8px;">${m.phone || '-'}</td>
@@ -249,7 +246,7 @@ window.exportSingleDayPdf = function(scaleData) {
               <span style="background-color: #b3093f; color: #ffffff; font-size: 11pt; font-weight: bold; padding: 3px 10px; border-radius: 4px; letter-spacing: 0.02em;">${scale.time}h</span>
               <div>
                 <h3 style="margin: 0; font-size: 13pt; color: #b3093f; font-family: 'Source Serif 4', Georgia, serif; font-weight: bold;">${scale.celebrationName || 'Santa Missa'}</h3>
-                <p style="margin: 2px 0 0 0; font-size: 10pt; color: #1a1c1b;"><strong>Celebrante:</strong> ${scale.celebrant || 'Pároco'}</p>
+                ${scale.celebrant ? `<p style="margin: 2px 0 0 0; font-size: 10pt; color: #1a1c1b;"><strong>Celebrante:</strong> ${scale.celebrant}</p>` : ''}
               </div>
             </div>
             <div style="text-align: right;">
@@ -261,7 +258,6 @@ window.exportSingleDayPdf = function(scaleData) {
           <table class="monthly-print-table" style="width: 100%; border-collapse: collapse; margin-bottom: 2px; font-size: 10.5pt;">
             <thead>
               <tr style="background-color: #efeeec;">
-                <th style="border: 1px solid #dadad8; padding: 6px; width: 36px; text-align: center;">#</th>
                 <th style="border: 1px solid #dadad8; padding: 6px 8px; text-align: left;">Ministro(a)</th>
                 <th style="border: 1px solid #dadad8; padding: 6px 8px; text-align: left;">Função Litúrgica</th>
                 <th style="border: 1px solid #dadad8; padding: 6px 8px; text-align: center; width: 140px;">Contato</th>
@@ -300,26 +296,17 @@ window.exportSingleDayPdf = function(scaleData) {
           <img src="/logo-paroquia.jpg" style="height: 52px; width: auto;" alt="Logo Paróquia">
           <div>
             <h1 style="font-size: 17pt; margin: 0; color: #b3093f; font-family: 'Source Serif 4', Georgia, serif; font-weight: bold;">${userChurch.toUpperCase()}</h1>
-            <p style="margin: 3px 0 0 0; font-size: 9.5pt; color: #564243; text-transform: uppercase; letter-spacing: 0.05em;">Pastoral dos Ministros Extraordinários da Sagrada Comunhão</p>
+            <p style="margin: 3px 0 0 0; font-size: 9.5pt; color: #564243; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">ESCALA DE MINISTROS PARA O DIA ${formattedDateDDMMAAAA}</p>
           </div>
-        </div>
-        <div style="text-align: right;">
-          <span style="display: inline-block; background-color: #ffd9e2; color: #b3093f; font-size: 9.5pt; font-weight: bold; padding: 4px 10px; border-radius: 4px; text-transform: uppercase;">${dayScales.length > 1 ? 'Escala do Dia' : 'Modelo Individual'}</span>
-          <p style="margin: 4px 0 0 0; font-size: 8.5pt; color: #897173;">Emitido em: ${new Date().toLocaleDateString('pt-BR')}</p>
         </div>
       </div>
 
       <!-- Conteúdo do Dia -->
       ${contentHtml}
 
-      <!-- Orientações Paroquiais -->
-      <div class="print-page-break-inside-avoid" style="border: 1px dashed #897173; border-radius: 6px; padding: 10px 14px; margin-bottom: 16px; font-size: 9.5pt; color: #564243; background-color: #faf9f7;">
-        <strong style="color: #b3093f; font-size: 10pt;">Lembretes Litúrgicos:</strong>
-        <ul style="margin: 4px 0 0 0; padding-left: 18px; line-height: 1.4;">
-          <li>Apresentar-se na Sacristia com no mínimo <strong>15 minutos de antecedência</strong> da celebração.</li>
-          <li>Portar veste litúrgica oficial limpa e bem cuidada.</li>
-          <li>Em caso de imprevisto urgente, providenciar a substituição antecipada comunicando a Coordenação Pastoral.</li>
-        </ul>
+      <!-- Aviso Fraterno de Rodapé -->
+      <div style="border-top: 1px solid #c2b5b6; padding-top: 8px; margin-top: 12px; font-size: 9pt; color: #564243; line-height: 1.35;">
+        <strong>Aviso:</strong> Chegar com 15 min de antecedência e em caso de impossibilidade de comparecimento, favor comunicar a coordenação para substituição prévia.
       </div>
     </div>
   `;
@@ -357,7 +344,7 @@ window.exportMonthlySheetPdf = function(year, month) {
 
   const tableRows = monthScales.map((scale) => {
     const ministersFormatted = (scale.ministers && scale.ministers.length > 0)
-      ? scale.ministers.map((m, i) => `<span style="display:inline-block; margin-right: 10px; font-size: 10pt;"><strong>${i + 1}.</strong> ${m.name} <em style="color:#564243; font-size: 9pt;">(${m.role || 'Altar'})</em></span>`).join(' ')
+      ? scale.ministers.map((m, i) => `<div style="display:block; margin-bottom: 2px; font-size: 9.5pt; line-height: 1.3;"><strong>${i + 1}.</strong> ${m.name}</div>`).join('')
       : '<em style="color:#897173; font-size: 9.5pt;">Sem ministros</em>';
 
     const dayPad = String(scale.day).padStart(2, '0');
@@ -373,8 +360,7 @@ window.exportMonthlySheetPdf = function(year, month) {
           ${scale.time}h
         </td>
         <td style="font-size: 10pt; padding: 7px 10px;">
-          <strong style="font-size: 10.5pt;">${scale.celebrationName || 'Missa'}</strong><br>
-          <span style="color: #564243; font-size: 9.5pt;">${scale.celebrant || 'Pe. Marcelo'}</span>
+          <strong style="font-size: 10.5pt;">${scale.celebrationName || 'Missa'}</strong>${scale.celebrant ? `<br><span style="color: #564243; font-size: 9.5pt;">${scale.celebrant}</span>` : ''}
         </td>
         <td style="font-size: 10pt; line-height: 1.4; padding: 7px 10px;">
           ${ministersFormatted}
@@ -393,12 +379,11 @@ window.exportMonthlySheetPdf = function(year, month) {
           <img src="/logo-paroquia.jpg" style="height: 44px; width: auto;" alt="Logo Paróquia">
           <div>
             <h1 style="font-size: 15pt; margin: 0; color: #b3093f; font-family: 'Source Serif 4', Georgia, serif; font-weight: bold; line-height: 1.15;">${userChurch.toUpperCase()}</h1>
-            <p style="margin: 2px 0 0 0; font-size: 9.5pt; color: #564243; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Escala Geral Mensal dos Ministros da Eucaristia</p>
+            <p style="margin: 2px 0 0 0; font-size: 9.5pt; color: #564243; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Escala Geral Mensal de Ministros</p>
           </div>
         </div>
         <div style="text-align: right;">
           <span style="display: inline-block; background-color: #b3093f; color: #ffffff; font-size: 10.5pt; font-weight: bold; padding: 3px 12px; border-radius: 4px; text-transform: uppercase;">${monthName.toUpperCase()} / ${targetYear}</span>
-          <p style="margin: 3px 0 0 0; font-size: 8.5pt; color: #897173;">Quadro Oficial para Mural e Sacristia</p>
         </div>
       </div>
 
@@ -408,8 +393,8 @@ window.exportMonthlySheetPdf = function(year, month) {
           <tr>
             <th style="width: 85px; text-align: center; font-size: 10pt; padding: 7px 8px;">DATA / DIA</th>
             <th style="width: 60px; text-align: center; font-size: 10pt; padding: 7px 8px;">HORA</th>
-            <th style="width: 190px; font-size: 10pt; padding: 7px 10px;">CELEBRAÇÃO & CELEBRANTE</th>
-            <th style="font-size: 10pt; padding: 7px 10px;">MINISTROS ESCALADOS & FUNÇÕES</th>
+            <th style="width: 190px; font-size: 10pt; padding: 7px 10px;">CELEBRAÇÃO</th>
+            <th style="font-size: 10pt; padding: 7px 10px;">MINISTROS ESCALADOS</th>
           </tr>
         </thead>
         <tbody>
