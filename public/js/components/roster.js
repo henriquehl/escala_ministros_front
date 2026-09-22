@@ -7,7 +7,7 @@
 
 const _nowRoster = new Date();
 let selectedRosterDate = `${_nowRoster.getFullYear()}-${String(_nowRoster.getMonth() + 1).padStart(2, '0')}-${String(_nowRoster.getDate()).padStart(2, '0')}`;
-let selectedRosterHour = '10:00';
+let selectedRosterHour = '';
 let assignedMinisters = [];
 
 const ROSTER_MONTH_NAMES = [
@@ -18,6 +18,8 @@ const ROSTER_MONTH_NAMES = [
 const WEEKDAY_NAMES_SHORT = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
 
 let currentEditingScaleId = null;
+let originalEditingDate = null;
+let originalEditingHour = null;
 
 function initRosterComponent() {
   const datePicker = document.getElementById('roster-date-picker');
@@ -33,7 +35,7 @@ function initRosterComponent() {
     datePicker.value = selectedRosterDate;
     datePicker.addEventListener('change', (e) => {
       if (e.target.value) {
-        setSelectedRosterDate(e.target.value);
+        handleRosterDateTimeChange(e.target.value, selectedRosterHour);
       }
     });
   }
@@ -96,6 +98,7 @@ function initRosterComponent() {
     window.appStore.subscribe((event) => {
       if (event === 'members' || event === 'scales') {
         renderRosterDateChips();
+        renderRosterDayScalesChips();
         renderCelebrantSelect();
         renderCandidateMinisters();
       } else if (event === 'celebrations') {
@@ -106,8 +109,11 @@ function initRosterComponent() {
 
   window.addEventListener('routeChanged', async (e) => {
     if (e.detail && e.detail.path === 'montar-escala') {
+      if (!currentEditingScaleId) {
+        selectedRosterHour = '';
+      }
       const hourSelect = document.getElementById('roster-hour-select');
-      if (hourSelect) hourSelect.value = selectedRosterHour;
+      if (hourSelect) hourSelect.value = selectedRosterHour || '';
 
       const datePicker = document.getElementById('roster-date-picker');
       if (datePicker && selectedRosterDate) datePicker.value = selectedRosterDate;
@@ -155,29 +161,70 @@ function renderCelebrationSelect(selectedCelebrationIdOrName = '') {
 }
 
 /**
- * Renderiza o <select> de Celebrante Principal dinamicamente com IDs numéricos
+ * Renderiza o <select> de Celebrante Principal dinamicamente com IDs numéricos,
+ * disponibilizando tanto padres quanto ministros que estiverem ativos.
  */
 function renderCelebrantSelect(selectedCelebrantValue = '') {
   const celebranteSelect = document.getElementById('celebrante');
   if (!celebranteSelect || !window.appStore) return;
 
-  const celebrants = window.appStore.getCelebrants();
-  const allMembers = window.appStore.getMembers();
-  const listToRender = celebrants.length > 0 ? celebrants : allMembers;
+  const allMembers = window.appStore.getMembers() || [];
   const isSelectedEmpty = !selectedCelebrantValue;
 
-  const optionsHtml = listToRender.map((c) => {
-    const isSelected = Boolean(selectedCelebrantValue) && (
-      String(c.id) === String(selectedCelebrantValue) || 
-      c.name === selectedCelebrantValue || 
-      c.name.toLowerCase().includes(String(selectedCelebrantValue).toLowerCase())
-    );
+  const isCelebrantProfile = (m) => {
+    const p = (m.profile || '').toLowerCase();
+    const n = m.name || '';
+    return ['padre', 'celebrante', 'celebrant', 'diacono', 'deacon'].includes(p) ||
+      n.startsWith('Pe.') || n.startsWith('Padre') || n.startsWith('Dom ') || n.startsWith('Diác.');
+  };
+
+  const isSelectedMatch = (m) => Boolean(selectedCelebrantValue) && (
+    String(m.id) === String(selectedCelebrantValue) || 
+    m.name === selectedCelebrantValue || 
+    (m.name && m.name.toLowerCase() === String(selectedCelebrantValue).toLowerCase()) ||
+    (m.name && m.name.toLowerCase().includes(String(selectedCelebrantValue).toLowerCase()))
+  );
+
+  // Filtrar apenas membros ativos (ou que já estejam selecionados na escala)
+  const activeMembers = allMembers.filter((m) => {
+    const isActive = (m.status || 'ativo') === 'ativo' && m.status !== 'licenca' && m.status !== 'inativo';
+    return isActive || isSelectedMatch(m);
+  });
+
+  const celebrantsList = activeMembers.filter(isCelebrantProfile);
+  const ministersList = activeMembers.filter((m) => !isCelebrantProfile(m));
+
+  // Ordenar alfabeticamente
+  celebrantsList.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt-BR'));
+  ministersList.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt-BR'));
+
+  const renderOption = (c) => {
+    const isSelected = isSelectedMatch(c);
     return `<option value="${c.id}" data-name="${c.name}" ${isSelected ? 'selected' : ''}>${c.name}</option>`;
-  }).join('');
+  };
+
+  let groupsHtml = '';
+
+  if (celebrantsList.length > 0 && ministersList.length > 0) {
+    groupsHtml = `
+      <optgroup label="Padres / Celebrantes">
+        ${celebrantsList.map(renderOption).join('')}
+      </optgroup>
+      <optgroup label="Ministros (MESC)">
+        ${ministersList.map(renderOption).join('')}
+      </optgroup>
+    `;
+  } else if (celebrantsList.length > 0) {
+    groupsHtml = celebrantsList.map(renderOption).join('');
+  } else if (ministersList.length > 0) {
+    groupsHtml = ministersList.map(renderOption).join('');
+  } else if (allMembers.length > 0) {
+    groupsHtml = allMembers.map(renderOption).join('');
+  }
 
   celebranteSelect.innerHTML = `
     <option value="" ${isSelectedEmpty ? 'selected' : ''}>Selecione o celebrante (opcional)...</option>
-    ${optionsHtml}
+    ${groupsHtml}
   `;
 }
 
@@ -296,7 +343,7 @@ function renderRosterDateChips() {
     chip.addEventListener('click', () => {
       const date = chip.getAttribute('data-date');
       if (date) {
-        setSelectedRosterDate(date);
+        handleRosterDateTimeChange(date, selectedRosterHour);
       }
     });
   });
@@ -322,15 +369,7 @@ function setSelectedRosterDate(dateStr) {
   }
 
   const parts = dateStr.split('-');
-  const year = parseInt(parts[0], 10);
   const month = parseInt(parts[1], 10);
-  const monthBadge = document.getElementById('roster-month-badge');
-  if (monthBadge) {
-    monthBadge.innerHTML = `
-      <span class="material-symbols-outlined text-[14px]">event</span>
-      ${ROSTER_MONTH_NAMES[month - 1]} ${year}
-    `;
-  }
 
   const container = document.getElementById('roster-date-chips');
   if (container) {
@@ -367,7 +406,443 @@ function setSelectedRosterDate(dateStr) {
     }
   }
 
-  loadExistingScaleForSelectedDate();
+  renderRosterDayScalesChips();
+}
+
+/**
+ * Renderiza os chips de celebrações cadastradas no dia selecionado
+ */
+function renderRosterDayScalesChips() {
+  const container = document.getElementById('roster-day-scales-container');
+  const chipsContainer = document.getElementById('roster-day-scales-chips');
+  if (!container || !chipsContainer || !window.appStore) return;
+
+  const dayScales = window.appStore.getScalesForDay(selectedRosterDate) || [];
+  if (dayScales.length === 0) {
+    container.classList.add('hidden');
+    chipsContainer.innerHTML = '';
+    return;
+  }
+
+  container.classList.remove('hidden');
+
+  const chipsHtml = dayScales.map(scale => {
+    const isCurrentlyEditing = currentEditingScaleId && String(currentEditingScaleId) === String(scale.id);
+    if (isCurrentlyEditing) {
+      return `
+        <button type="button" class="px-3.5 py-1.5 rounded-xl bg-secondary text-on-secondary font-label-md text-xs font-bold shadow-xs flex items-center gap-1.5 ring-2 ring-secondary/50 cursor-default">
+          <span class="material-symbols-outlined text-[15px]">edit</span>
+          <span>${scale.time}h • ${scale.celebrationName || 'Santa Missa'} (Editando)</span>
+        </button>
+      `;
+    }
+    return `
+      <button type="button" class="px-3.5 py-1.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-md text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95 border border-outline-variant/30 cursor-pointer" onclick="window.setRosterEditingScale('${selectedRosterDate}', '${scale.time}', '${scale.id}')">
+        <span class="material-symbols-outlined text-[15px] text-primary">schedule</span>
+        <span>${scale.time}h • ${scale.celebrationName || 'Santa Missa'}</span>
+      </button>
+    `;
+  });
+
+  const isCreateMode = !currentEditingScaleId;
+  const newScaleChip = `
+    <button type="button" class="px-3.5 py-1.5 rounded-xl ${isCreateMode ? 'bg-primary text-on-primary font-bold shadow-xs' : 'bg-surface-container-low hover:bg-surface-container text-primary font-semibold border border-primary/30'} font-label-md text-xs flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer" onclick="window.resetRosterToNew()">
+      <span class="material-symbols-outlined text-[15px]">add_circle</span>
+      <span>+ Nova Escala neste dia</span>
+    </button>
+  `;
+
+  chipsContainer.innerHTML = [...chipsHtml, newScaleChip].join('');
+}
+
+/**
+ * Atualiza os elementos visuais do cabeçalho de modo (Cadastro vs Edição)
+ */
+function updateRosterModeUI(existingScale = null) {
+  const header = document.getElementById('roster-mode-header');
+  const iconContainer = document.getElementById('roster-mode-icon-container');
+  const icon = document.getElementById('roster-mode-icon');
+  const badge = document.getElementById('roster-mode-badge');
+  const badgeText = document.getElementById('roster-mode-badge-text');
+  const eventIdEl = document.getElementById('roster-edit-event-id');
+  const title = document.getElementById('roster-mode-title');
+  const desc = document.getElementById('roster-mode-desc');
+  const btnCancelEdit = document.getElementById('btn-cancel-roster-edit');
+  const btnSaveText = document.getElementById('btn-save-roster-text');
+  const btnSaveIcon = document.getElementById('btn-save-roster-icon');
+  const btnSaveNotifyText = document.getElementById('btn-save-notify-text');
+  const btnDeleteScale = document.getElementById('btn-delete-roster-scale');
+
+  const parts = selectedRosterDate.split('-');
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10);
+  const day = parseInt(parts[2], 10);
+  const formattedDate = `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
+
+  if (existingScale) {
+    if (header) {
+      header.className = 'rounded-2xl p-5 sm:p-6 border transition-all duration-200 shadow-sm bg-secondary-container/10 border-secondary/40';
+    }
+    if (iconContainer) {
+      iconContainer.className = 'w-11 h-11 rounded-2xl bg-secondary/15 text-secondary flex items-center justify-center shrink-0 mt-0.5';
+    }
+    if (icon) icon.textContent = 'edit_calendar';
+    if (badge) {
+      badge.className = 'inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-secondary/20 text-secondary border border-secondary/30';
+    }
+    if (badgeText) badgeText.textContent = 'Modo de Edição';
+    if (eventIdEl) {
+      eventIdEl.classList.remove('hidden');
+      eventIdEl.textContent = existingScale.id ? `#${existingScale.id}` : '';
+    }
+    if (title) title.textContent = 'Editar Escala Existente';
+    if (desc) {
+      desc.textContent = `Alterando: ${existingScale.celebrationName || 'Santa Missa'} — ${selectedRosterHour || existingScale.time}h (${formattedDate})`;
+    }
+    if (btnCancelEdit) {
+      btnCancelEdit.classList.remove('hidden');
+      btnCancelEdit.classList.add('flex');
+    }
+    if (btnSaveText) btnSaveText.textContent = 'Salvar Alterações';
+    if (btnSaveIcon) btnSaveIcon.textContent = 'save';
+    if (btnSaveNotifyText) btnSaveNotifyText.textContent = 'Salvar Alterações e Copiar Lembrete';
+    if (btnDeleteScale) {
+      btnDeleteScale.classList.remove('hidden');
+      btnDeleteScale.classList.add('flex');
+    }
+  } else {
+    if (header) {
+      header.className = 'rounded-2xl p-5 sm:p-6 border transition-all duration-200 shadow-sm bg-surface-container-lowest border-outline-variant/30';
+    }
+    if (iconContainer) {
+      iconContainer.className = 'w-11 h-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5';
+    }
+    if (icon) icon.textContent = 'post_add';
+    if (badge) {
+      badge.className = 'inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/20';
+    }
+    if (badgeText) badgeText.textContent = 'Nova Escala';
+    if (eventIdEl) eventIdEl.classList.add('hidden');
+    if (title) title.textContent = 'Cadastrar Nova Escala';
+    if (desc) {
+      desc.textContent = `Selecione o horário e escalone os ministros para criar a escala de ${formattedDate}.`;
+    }
+    if (btnCancelEdit) {
+      btnCancelEdit.classList.add('hidden');
+      btnCancelEdit.classList.remove('flex');
+    }
+    if (btnSaveText) btnSaveText.textContent = 'Salvar Escala';
+    if (btnSaveIcon) btnSaveIcon.textContent = 'check_circle';
+    if (btnSaveNotifyText) btnSaveNotifyText.textContent = 'Salvar e Copiar Lembrete';
+    if (btnDeleteScale) {
+      btnDeleteScale.classList.add('hidden');
+      btnDeleteScale.classList.remove('flex');
+    }
+  }
+}
+
+/**
+ * Controla a exibição do Modal Dinâmico de Confirmação/Conflito/Decisão
+ */
+function openRosterConfirmModal({
+  icon = 'info',
+  iconColorClass = 'bg-primary/15 text-primary',
+  badgeText = 'Aviso',
+  badgeColorClass = 'bg-primary/10 text-primary border border-primary/20',
+  title = '',
+  message = '',
+  details = null,
+  submessage = 'O que você deseja fazer?',
+  actions = []
+}) {
+  const modal = document.getElementById('roster-confirm-modal');
+  const iconBox = document.getElementById('roster-confirm-icon-box');
+  const iconEl = document.getElementById('roster-confirm-icon');
+  const badgeEl = document.getElementById('roster-confirm-badge');
+  const titleEl = document.getElementById('roster-confirm-title');
+  const messageEl = document.getElementById('roster-confirm-message');
+  const detailsBox = document.getElementById('roster-confirm-details-box');
+  const detailCelebration = document.getElementById('roster-confirm-detail-celebration');
+  const detailTime = document.getElementById('roster-confirm-detail-time');
+  const detailMinisters = document.getElementById('roster-confirm-detail-ministers');
+  const detailCelebrant = document.getElementById('roster-confirm-detail-celebrant');
+  const submessageEl = document.getElementById('roster-confirm-submessage');
+  const actionsEl = document.getElementById('roster-confirm-actions');
+
+  if (!modal) return;
+
+  if (iconBox) iconBox.className = `w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${iconColorClass}`;
+  if (iconEl) iconEl.textContent = icon;
+  if (badgeEl) {
+    badgeEl.textContent = badgeText;
+    badgeEl.className = `inline-flex items-center text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md mb-0.5 ${badgeColorClass}`;
+  }
+  if (titleEl) titleEl.textContent = title;
+  if (messageEl) messageEl.innerHTML = message;
+
+  if (details && detailsBox) {
+    detailsBox.classList.remove('hidden');
+    if (detailCelebration) detailCelebration.textContent = details.celebration || 'Santa Missa';
+    if (detailTime) detailTime.textContent = `${details.time || ''}h`;
+    if (detailMinisters) detailMinisters.textContent = `${details.ministersCount || 0} ministro(s)`;
+    if (detailCelebrant) detailCelebrant.textContent = details.celebrant || 'Sem celebrante';
+  } else if (detailsBox) {
+    detailsBox.classList.add('hidden');
+  }
+
+  if (submessageEl) submessageEl.textContent = submessage;
+
+  if (actionsEl) {
+    actionsEl.innerHTML = '';
+    actions.forEach(action => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      let btnClass = 'flex-1 h-11 px-3.5 rounded-xl font-label-md text-label-md flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer font-semibold ';
+      if (action.primary) {
+        btnClass += 'bg-primary text-on-primary shadow-sm hover:bg-primary-container';
+      } else if (action.danger) {
+        btnClass += 'bg-error-container/30 text-error hover:bg-error-container/60 border border-error/20';
+      } else {
+        btnClass += 'bg-surface-container-high text-on-surface hover:bg-surface-container-highest border border-outline-variant/30';
+      }
+      btn.className = btnClass;
+      btn.innerHTML = `
+        ${action.icon ? `<span class="material-symbols-outlined text-[18px]">${action.icon}</span>` : ''}
+        <span>${action.text}</span>
+      `;
+      btn.addEventListener('click', () => {
+        closeRosterConfirmModal();
+        if (action.onClick) action.onClick();
+      });
+      actionsEl.appendChild(btn);
+    });
+  }
+
+  const closeBtn = document.getElementById('btn-close-roster-confirm-modal');
+  if (closeBtn) {
+    closeBtn.onclick = () => {
+      closeRosterConfirmModal();
+      const cancelAction = actions.find(a => a.isCancel);
+      if (cancelAction && cancelAction.onClick) cancelAction.onClick();
+    };
+  }
+
+  modal.classList.remove('hidden');
+}
+
+function closeRosterConfirmModal() {
+  const modal = document.getElementById('roster-confirm-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+/**
+ * Intercepta e valida alterações de Data e Horário com os devidos popups de confirmação/conflito
+ */
+function handleRosterDateTimeChange(targetDate, targetHour) {
+  const newDate = targetDate || selectedRosterDate;
+  const newHour = (targetHour !== undefined && targetHour !== null) ? targetHour : selectedRosterHour;
+
+  if (!newHour) {
+    selectedRosterDate = newDate;
+    selectedRosterHour = '';
+    const datePicker = document.getElementById('roster-date-picker');
+    if (datePicker && datePicker.value !== newDate) datePicker.value = newDate;
+    const hourSelect = document.getElementById('roster-hour-select');
+    if (hourSelect && hourSelect.value !== '') hourSelect.value = '';
+    setSelectedRosterDate(newDate);
+    const currentScale = currentEditingScaleId && window.appStore?.scales?.find(s => String(s.id) === String(currentEditingScaleId));
+    updateRosterModeUI(currentScale || null);
+    renderRosterDayScalesChips();
+    return;
+  }
+
+  const parts = newDate.split('-');
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10);
+  const day = parseInt(parts[2], 10);
+  const formattedDate = `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
+
+  const existingAtTarget = window.appStore ? window.appStore.getScaleByDateAndHour(newDate, newHour) : null;
+
+  // CENÁRIO 1: Usuário está em Modo de Cadastro e selecionou data/hora com escala existente
+  if (!currentEditingScaleId) {
+    if (existingAtTarget) {
+      openRosterConfirmModal({
+        icon: 'event_repeat',
+        iconColorClass: 'bg-primary/15 text-primary',
+        badgeText: 'Aviso • Escala Existente',
+        badgeColorClass: 'bg-primary/15 text-primary border border-primary/20',
+        title: 'Escala Existente Encontrada',
+        message: `Já existe uma escala cadastrada para o dia <strong>${formattedDate}</strong> às <strong>${newHour}h</strong> (${existingAtTarget.celebrationName || 'Santa Missa'}).`,
+        details: {
+          celebration: existingAtTarget.celebrationName || 'Santa Missa',
+          time: existingAtTarget.time,
+          ministersCount: (existingAtTarget.ministers || []).length,
+          celebrant: existingAtTarget.celebrant
+        },
+        submessage: 'Deseja abrir esta celebração para edição?',
+        actions: [
+          {
+            text: 'Sim, Editar Escala',
+            icon: 'edit',
+            primary: true,
+            onClick: () => {
+              window.setRosterEditingScale(newDate, newHour, existingAtTarget.id);
+            }
+          },
+          {
+            text: 'Cancelar',
+            icon: 'close',
+            secondary: true,
+            isCancel: true,
+            onClick: () => {
+              selectedRosterHour = '';
+              const hourSelect = document.getElementById('roster-hour-select');
+              if (hourSelect) hourSelect.value = '';
+              renderRosterDayScalesChips();
+            }
+          }
+        ]
+      });
+      return;
+    }
+
+    // Sem escala existente: aplica normalmente
+    selectedRosterDate = newDate;
+    selectedRosterHour = newHour;
+    const hourSelect = document.getElementById('roster-hour-select');
+    if (hourSelect) hourSelect.value = newHour;
+    setSelectedRosterDate(newDate);
+    updateRosterModeUI(null);
+    renderRosterDayScalesChips();
+    return;
+  }
+
+  // Se estiver em MODO DE EDIÇÃO
+  // Se for a mesma data e hora original da escala em edição, atualiza os dados sem disparar modal
+  if (newDate === originalEditingDate && newHour === originalEditingHour) {
+    selectedRosterDate = newDate;
+    selectedRosterHour = newHour;
+    const hourSelect = document.getElementById('roster-hour-select');
+    if (hourSelect) hourSelect.value = newHour;
+    setSelectedRosterDate(newDate);
+    const currentScale = window.appStore?.scales?.find(s => String(s.id) === String(currentEditingScaleId));
+    updateRosterModeUI(currentScale);
+    renderRosterDayScalesChips();
+    return;
+  }
+
+  // CENÁRIO 2: Editando e alterou para data/hora já ocupada por OUTRA escala (Conflito)
+  if (existingAtTarget && String(existingAtTarget.id) !== String(currentEditingScaleId)) {
+    openRosterConfirmModal({
+      icon: 'event_busy',
+      iconColorClass: 'bg-error-container/40 text-error',
+      badgeText: 'Conflito de Horário',
+      badgeColorClass: 'bg-error-container/30 text-error border border-error/30',
+      title: 'Conflito de Horário',
+      message: `Já existe outra escala cadastrada para o dia <strong>${formattedDate}</strong> às <strong>${newHour}h</strong> (${existingAtTarget.celebrationName || 'Santa Missa'}). Não é possível transferir a escala atual para este horário.`,
+      details: {
+        celebration: existingAtTarget.celebrationName || 'Santa Missa',
+        time: existingAtTarget.time,
+        ministersCount: (existingAtTarget.ministers || []).length,
+        celebrant: existingAtTarget.celebrant
+      },
+      submessage: 'Por favor, selecione outro horário livre ou mantenha o horário original.',
+      actions: [
+        {
+          text: 'Voltar ao Horário Anterior',
+          icon: 'undo',
+          primary: true,
+          isCancel: true,
+          onClick: () => {
+            revertRosterDateTimeSelectors();
+          }
+        }
+      ]
+    });
+    return;
+  }
+
+  // CENÁRIO 3: Editando e alterou para data/hora LIVRE (Pergunta se deseja alterar escala atual ou criar nova)
+  openRosterConfirmModal({
+    icon: 'schedule_send',
+    iconColorClass: 'bg-secondary/15 text-secondary',
+    badgeText: 'Alteração de Data/Horário',
+    badgeColorClass: 'bg-secondary/20 text-secondary border border-secondary/30',
+    title: 'Alterar Escala Existente',
+    message: `Você selecionou a nova data/horário: <strong>${formattedDate} às ${newHour}h</strong>.`,
+    submessage: 'Deseja alterar a data/hora da escala atual ou criar uma nova escala a partir destes dados?',
+    actions: [
+      {
+        text: 'Alterar Data/Hora Atual',
+        icon: 'update',
+        primary: true,
+        onClick: () => {
+          selectedRosterDate = newDate;
+          selectedRosterHour = newHour;
+          originalEditingDate = newDate;
+          originalEditingHour = newHour;
+          const hourSelect = document.getElementById('roster-hour-select');
+          if (hourSelect) hourSelect.value = newHour;
+          const datePicker = document.getElementById('roster-date-picker');
+          if (datePicker) datePicker.value = newDate;
+          setSelectedRosterDate(newDate);
+          const currentScale = window.appStore?.scales?.find(s => String(s.id) === String(currentEditingScaleId));
+          updateRosterModeUI(currentScale);
+          renderRosterDayScalesChips();
+          if (window.showToast) window.showToast(`Data/horário alterados para ${formattedDate} às ${newHour}h. Clique em "Salvar Alterações" para confirmar.`, 'info');
+        }
+      },
+      {
+        text: 'Criar Nova Escala',
+        icon: 'add_circle',
+        secondary: true,
+        onClick: () => {
+          currentEditingScaleId = null;
+          originalEditingDate = null;
+          originalEditingHour = null;
+          selectedRosterDate = newDate;
+          selectedRosterHour = newHour;
+          const hourSelect = document.getElementById('roster-hour-select');
+          if (hourSelect) hourSelect.value = newHour;
+          const datePicker = document.getElementById('roster-date-picker');
+          if (datePicker) datePicker.value = newDate;
+          setSelectedRosterDate(newDate);
+          updateRosterModeUI(null);
+          renderRosterDayScalesChips();
+          if (window.showToast) window.showToast(`Modo de nova escala ativado para ${formattedDate} às ${newHour}h.`, 'info');
+        }
+      },
+      {
+        text: 'Cancelar',
+        icon: 'close',
+        secondary: true,
+        isCancel: true,
+        onClick: () => {
+          revertRosterDateTimeSelectors();
+        }
+      }
+    ]
+  });
+}
+
+function revertRosterDateTimeSelectors() {
+  const targetDate = originalEditingDate || selectedRosterDate;
+  const targetHour = originalEditingHour || selectedRosterHour;
+
+  selectedRosterDate = targetDate;
+  selectedRosterHour = targetHour;
+
+  const datePicker = document.getElementById('roster-date-picker');
+  if (datePicker) datePicker.value = targetDate;
+
+  const hourSelect = document.getElementById('roster-hour-select');
+  if (hourSelect) hourSelect.value = targetHour;
+
+  setSelectedRosterDate(targetDate);
+  const currentScale = currentEditingScaleId && window.appStore?.scales?.find(s => String(s.id) === String(currentEditingScaleId));
+  updateRosterModeUI(currentScale);
+  renderRosterDayScalesChips();
 }
 
 /**
@@ -378,8 +853,7 @@ function initRosterHourSelect() {
   if (hourSelect) {
     hourSelect.value = selectedRosterHour;
     hourSelect.addEventListener('change', (e) => {
-      selectedRosterHour = e.target.value || '10:00';
-      loadExistingScaleForSelectedDate();
+      handleRosterDateTimeChange(selectedRosterDate, e.target.value);
     });
   }
 }
@@ -394,22 +868,15 @@ function loadExistingScaleForSelectedDate() {
   if (currentEditingScaleId && window.appStore.scales) {
     existingScale = window.appStore.scales.find(s => String(s.id) === String(currentEditingScaleId));
   }
-  if (!existingScale) {
-    existingScale = window.appStore.getScaleByDateAndHour(selectedRosterDate, selectedRosterHour);
-  }
 
   const subtitleInput = document.getElementById('roster-subtitle');
-  const editBanner = document.getElementById('roster-edit-banner');
-  const editEventId = document.getElementById('roster-edit-event-id');
-  const editDesc = document.getElementById('roster-edit-desc');
-  const btnSaveText = document.getElementById('btn-save-roster-text');
-  const btnSaveIcon = document.getElementById('btn-save-roster-icon');
-  const btnDeleteScale = document.getElementById('btn-delete-roster-scale');
 
   if (existingScale) {
     currentEditingScaleId = existingScale.id;
+    originalEditingDate = existingScale.dateString || selectedRosterDate;
     if (existingScale.time) {
       selectedRosterHour = existingScale.time.substring(0, 5);
+      originalEditingHour = selectedRosterHour;
       const hourSelect = document.getElementById('roster-hour-select');
       if (hourSelect) hourSelect.value = selectedRosterHour;
     }
@@ -423,34 +890,11 @@ function loadExistingScaleForSelectedDate() {
     renderCelebrantSelect(existingScale.celebrantId || existingScale.celebrant_id || existingScale.celebrant || '');
     if (subtitleInput) subtitleInput.value = existingScale.subtitle || '';
 
-    if (editBanner) {
-      editBanner.classList.remove('hidden');
-      editBanner.classList.add('flex');
-    }
-    if (editEventId) {
-      editEventId.textContent = existingScale.id ? `#${existingScale.id}` : '';
-    }
-    if (editDesc) {
-      editDesc.textContent = `${existingScale.celebrationName || 'Santa Missa'} - ${existingScale.time}h (${assignedMinisters.length} ministros)`;
-    }
-    if (btnSaveText) btnSaveText.textContent = 'Salvar Alterações';
-    if (btnSaveIcon) btnSaveIcon.textContent = 'save';
-    if (btnDeleteScale) {
-      btnDeleteScale.classList.remove('hidden');
-      btnDeleteScale.classList.add('flex');
-    }
+    updateRosterModeUI(existingScale);
   } else {
     currentEditingScaleId = null;
-    if (editBanner) {
-      editBanner.classList.add('hidden');
-      editBanner.classList.remove('flex');
-    }
-    if (btnSaveText) btnSaveText.textContent = 'Salvar Escala';
-    if (btnSaveIcon) btnSaveIcon.textContent = 'check_circle';
-    if (btnDeleteScale) {
-      btnDeleteScale.classList.add('hidden');
-      btnDeleteScale.classList.remove('flex');
-    }
+    originalEditingDate = null;
+    originalEditingHour = null;
 
     // Sugestão de celebração com base no dia da semana
     const dateParts = selectedRosterDate.split('-');
@@ -470,8 +914,11 @@ function loadExistingScaleForSelectedDate() {
     renderCelebrantSelect();
     if (subtitleInput) subtitleInput.value = '';
     assignedMinisters = [];
+
+    updateRosterModeUI(null);
   }
 
+  renderRosterDayScalesChips();
   renderAssignedMinisters();
   renderCandidateMinisters();
 }
@@ -481,29 +928,39 @@ function loadExistingScaleForSelectedDate() {
  */
 function resetRosterToNew() {
   currentEditingScaleId = null;
-  const editBanner = document.getElementById('roster-edit-banner');
-  const btnSaveText = document.getElementById('btn-save-roster-text');
-  const btnSaveIcon = document.getElementById('btn-save-roster-icon');
-  const btnDeleteScale = document.getElementById('btn-delete-roster-scale');
+  originalEditingDate = null;
+  originalEditingHour = null;
+  selectedRosterHour = '';
+  const hourSelect = document.getElementById('roster-hour-select');
+  if (hourSelect) hourSelect.value = '';
   const subtitleInput = document.getElementById('roster-subtitle');
-
-  if (editBanner) {
-    editBanner.classList.add('hidden');
-    editBanner.classList.remove('flex');
-  }
-  if (btnSaveText) btnSaveText.textContent = 'Salvar Escala';
-  if (btnSaveIcon) btnSaveIcon.textContent = 'check_circle';
-  if (btnDeleteScale) {
-    btnDeleteScale.classList.add('hidden');
-    btnDeleteScale.classList.remove('flex');
-  }
-
-  assignedMinisters = [];
   if (subtitleInput) subtitleInput.value = '';
+
+  // Sugestão de celebração com base no dia da semana
+  const dateParts = selectedRosterDate.split('-');
+  const year = parseInt(dateParts[0], 10);
+  const month = parseInt(dateParts[1], 10);
+  const day = parseInt(dateParts[2], 10);
+  const dt = new Date(year, month - 1, day);
+  const dayOfWeek = dt.getDay();
+
+  let defaultCelebration = 'Santa Missa Dominical';
+  if (dayOfWeek === 0) defaultCelebration = 'Santa Missa Dominical';
+  else if (dayOfWeek === 6) defaultCelebration = 'Missa Vespertina de Sábado';
+  else if (dayOfWeek === 5) defaultCelebration = 'Missa da Primeira Sexta-feira (Sagrado Coração)';
+  else defaultCelebration = 'Santa Missa Semanal';
+
+  renderCelebrationSelect(defaultCelebration);
+  renderCelebrantSelect();
+  assignedMinisters = [];
+
+  updateRosterModeUI(null);
+  renderRosterDayScalesChips();
   renderAssignedMinisters();
   renderCandidateMinisters();
   if (window.showToast) window.showToast('Modo de nova escala ativado.', 'info');
 }
+window.resetRosterToNew = resetRosterToNew;
 
 /**
  * Exclui a escala em edição atual
@@ -706,6 +1163,19 @@ async function saveCurrentRoster(notifyWhatsApp = false) {
     return;
   }
 
+  const hourSelect = document.getElementById('roster-hour-select');
+  const finalHour = (hourSelect ? hourSelect.value : selectedRosterHour) || '';
+  if (!finalHour) {
+    if (window.showToast) window.showToast('Por favor, selecione o horário da missa antes de salvar.', 'warning');
+    if (hourSelect) {
+      hourSelect.focus();
+      hourSelect.classList.add('ring-2', 'ring-primary');
+      setTimeout(() => hourSelect.classList.remove('ring-2', 'ring-primary'), 2000);
+    }
+    return;
+  }
+  selectedRosterHour = finalHour;
+
   const celebrationSelect = document.getElementById('celebration-select');
   const selectedOption = celebrationSelect ? celebrationSelect.options[celebrationSelect.selectedIndex] : null;
   const rawCelebrationId = selectedOption ? selectedOption.value : null;
@@ -808,9 +1278,15 @@ async function saveCurrentRoster(notifyWhatsApp = false) {
 
 // Iniciar edição de escala programaticamente (a partir de outros componentes)
 window.setRosterEditingScale = function(dateString, time, scaleId) {
-  if (dateString) selectedRosterDate = dateString;
-  if (time) selectedRosterHour = time.substring(0, 5);
-  if (scaleId) currentEditingScaleId = scaleId;
+  if (dateString) {
+    selectedRosterDate = dateString;
+    originalEditingDate = dateString;
+  }
+  if (time) {
+    selectedRosterHour = time.substring(0, 5);
+    originalEditingHour = selectedRosterHour;
+  }
+  currentEditingScaleId = scaleId || null;
 
   const datePicker = document.getElementById('roster-date-picker');
   if (datePicker && dateString) datePicker.value = dateString;

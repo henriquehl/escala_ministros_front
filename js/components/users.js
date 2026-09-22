@@ -302,8 +302,6 @@ function initUsersComponent() {
       if (selectedChurches.length === 0) {
         if (window.showToast) {
           window.showToast('Por favor, selecione ao menos uma comunidade vinculada para o usuário.', 'warning');
-        } else {
-          alert('Por favor, selecione ao menos uma comunidade vinculada para o usuário.');
         }
         return;
       }
@@ -333,7 +331,7 @@ function initUsersComponent() {
         payload.id = id;
       }
 
-      const saveBtn = modalForm.querySelector('button[type="submit"]');
+      const saveBtn = userForm.querySelector('button[type="submit"]');
       const originalHtml = saveBtn ? saveBtn.innerHTML : '';
 
       try {

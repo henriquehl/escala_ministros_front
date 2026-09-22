@@ -65,7 +65,7 @@ window.showToast = function(message, typeOrDuration = 'success', duration = null
   toast.classList.add(currentConfig.borderClass);
 
   toastText.textContent = message;
-  toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-3');
+  toast.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-4', 'translate-y-3');
   toast.classList.add('opacity-100', 'translate-y-0');
 
   if (window._toastTimeout) {
@@ -74,7 +74,7 @@ window.showToast = function(message, typeOrDuration = 'success', duration = null
 
   window._toastTimeout = setTimeout(() => {
     toast.classList.remove('opacity-100', 'translate-y-0');
-    toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-3');
+    toast.classList.add('opacity-0', 'pointer-events-none', '-translate-y-4');
   }, timeoutDuration);
 };
 

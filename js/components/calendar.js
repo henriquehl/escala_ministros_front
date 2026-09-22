@@ -253,7 +253,7 @@ function renderSelectedDayCard() {
     }
     if (listEl) {
       const createBtnHtml = canManage ? `
-        <button type="button" class="mt-3 px-4 py-2 rounded-xl bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors active:scale-95 cursor-pointer" onclick="if(window.openRosterWithSelectedCalendarDate){window.openRosterWithSelectedCalendarDate('10:00');}else if(window.startEditScale){window.startEditScale('${dateStr}', '10:00');}else if(window.appRouter){window.appRouter.navigate('montar-escala');}">
+        <button type="button" class="mt-3 px-4 py-2 rounded-xl bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors active:scale-95 cursor-pointer" onclick="if(window.openRosterWithSelectedCalendarDate){window.openRosterWithSelectedCalendarDate('');}else if(window.startEditScale){window.startEditScale('${dateStr}', '');}else if(window.appRouter){window.appRouter.navigate('montar-escala');}">
           Montar Escala para este Dia
         </button>
       ` : '';
@@ -389,7 +389,7 @@ function renderSelectedDayCard() {
       ` : '';
 
       const copyBtnHtml = `
-        <button type="button" class="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-semibold flex items-center gap-1 transition-all active:scale-95 cursor-pointer" onclick="window.copyScaleReminderByEvent('${scale.dateString}', '${scale.time}', '${scale.id || ''}')" title="Copiar lembrete das celebrações deste dia para WhatsApp">
+        <button type="button" class="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-semibold flex items-center gap-1 transition-all active:scale-95 cursor-pointer" onclick="window.copyScaleReminderByEvent('${scale.dateString}', '${scale.time}', '${scale.id || ''}')" title="Copiar lembrete desta celebração para WhatsApp">
           <span class="material-symbols-outlined text-[14px] text-primary">content_copy</span>
           <span>Copiar Lembrete</span>
         </button>
@@ -485,20 +485,10 @@ window.openRosterWithSelectedCalendarDate = function(time, scaleId) {
     return;
   }
   const dateStr = window.getSelectedCalendarDate ? window.getSelectedCalendarDate() : `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
-  let targetTime = time;
-  let targetScaleId = scaleId;
+  const targetTime = time || '';
+  const targetScaleId = scaleId || null;
 
-  if (!targetTime && window.appStore) {
-    const scales = window.appStore.getScalesForDay(dateStr);
-    if (scales && scales.length > 0) {
-      targetTime = scales[0].time;
-      targetScaleId = scales[0].id;
-    } else {
-      targetTime = '10:00';
-    }
-  }
-
-  window.startEditScale(dateStr, targetTime || '10:00', targetScaleId || null);
+  window.startEditScale(dateStr, targetTime, targetScaleId);
 };
 
 // Excluir escala a partir do calendário (Admin/Coordenador)
@@ -542,19 +532,22 @@ window.deleteScaleFromCalendar = async function(scaleId, celebrationName, time, 
   }
 };
 
-// Copiar lembrete de um evento específico (ou de todas as escalas do dia se houver mais de uma)
+// Copiar lembrete de um evento específico
 window.copyScaleReminderByEvent = function(dateString, time, scaleId) {
   if (!window.appStore) return;
-  const dayScales = window.appStore.getScalesForDay(dateString);
-  if (dayScales && dayScales.length > 1) {
-    // Se houver mais de uma escala no dia, traz todas as escalas
-    if (window.copyScaleReminder) {
-      window.copyScaleReminder(dayScales);
-      return;
-    }
+  const dayScales = window.appStore.getScalesForDay(dateString) || [];
+
+  let found = null;
+  if (scaleId) {
+    found = dayScales.find(s => String(s.id) === String(scaleId));
+  }
+  if (!found && time) {
+    found = dayScales.find(s => s.time === time || (s.time && s.time.startsWith(time.substring(0, 2))));
+  }
+  if (!found && dayScales.length === 1) {
+    found = dayScales[0];
   }
 
-  const found = (dayScales || []).find(s => (scaleId && String(s.id) === String(scaleId)) || (s.time && s.time.startsWith(time.substring(0, 2)))) || (dayScales && dayScales[0]);
   if (found && window.copyScaleReminder) {
     window.copyScaleReminder(found);
   } else if (window.showToast) {

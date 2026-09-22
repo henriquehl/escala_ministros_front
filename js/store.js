@@ -610,8 +610,8 @@ class Store {
       // Resolução inteligente de celebrant_id
       let celebrantId = scaleData.celebrant_id || scaleData.celebrantId;
       if ((!celebrantId || isNaN(celebrantId)) && scaleData.celebrant) {
-        const found = this.getCelebrants().find(c => 
-          c.name.toLowerCase() === scaleData.celebrant.toLowerCase() ||
+        const found = (this.members || []).find(c => 
+          (c.name && c.name.toLowerCase() === scaleData.celebrant.toLowerCase()) ||
           String(c.id) === String(scaleData.celebrant)
         );
         if (found && found.id && !isNaN(found.id)) {

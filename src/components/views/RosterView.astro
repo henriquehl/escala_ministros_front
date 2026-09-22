@@ -3,70 +3,86 @@
 ---
 <div id="view-montar-escala" class="view-container w-full pt-32 md:pt-24 pb-12 px-margin-screen">
   <div class="flex flex-col w-full space-y-spacing-md max-w-4xl mx-auto">
-    <!-- Banner Informativo de Modo de Edição -->
-    <div id="roster-edit-banner" class="hidden bg-secondary-container/30 border border-secondary/30 rounded-2xl p-4 items-center justify-between gap-3 shadow-xs">
-      <div class="flex items-center gap-3 min-w-0">
-        <div class="w-9 h-9 rounded-xl bg-secondary text-on-secondary flex items-center justify-center shrink-0">
-          <span class="material-symbols-outlined text-[20px]">edit_calendar</span>
-        </div>
-        <div class="min-w-0">
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-bold uppercase tracking-wider text-secondary px-2 py-0.5 rounded-md bg-secondary/15">Modo de Edição</span>
-            <span id="roster-edit-event-id" class="text-xs text-on-surface-variant font-medium">#501</span>
+    <!-- Cabeçalho Principal com Indicador Dinâmico de Modo (Cadastro vs Edição) -->
+    <div id="roster-mode-header" class="rounded-2xl p-5 sm:p-6 border transition-all duration-200 shadow-sm bg-surface-container-lowest border-outline-variant/30">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-start gap-3.5">
+          <div id="roster-mode-icon-container" class="w-11 h-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
+            <span id="roster-mode-icon" class="material-symbols-outlined text-[24px]">post_add</span>
           </div>
-          <p id="roster-edit-desc" class="text-sm font-semibold text-on-surface truncate mt-0.5">Editando escala existente</p>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+              <span id="roster-mode-badge" class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-primary/15 text-primary">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                <span id="roster-mode-badge-text">Nova Escala</span>
+              </span>
+              <span id="roster-edit-event-id" class="hidden text-xs text-on-surface-variant font-semibold">#19</span>
+            </div>
+            <h1 id="roster-mode-title" class="font-headline-sm text-headline-sm text-on-surface font-bold">Cadastrar Nova Escala</h1>
+            <p id="roster-mode-desc" class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Selecione a data, horário e os ministros para criar uma nova escala litúrgica.</p>
+          </div>
+        </div>
+
+        <div id="roster-mode-actions" class="shrink-0 flex items-center gap-2 self-start sm:self-center">
+          <button type="button" id="btn-cancel-roster-edit" class="hidden px-4 py-2 rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-bold items-center gap-1.5 transition-all active:scale-95 shadow-xs cursor-pointer border border-outline-variant/30">
+            <span class="material-symbols-outlined text-[16px]">add_circle</span>
+            <span>Alternar para Nova Escala</span>
+          </button>
         </div>
       </div>
-      <button type="button" id="btn-cancel-roster-edit" class="px-3 py-1.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-semibold flex items-center gap-1 transition-all active:scale-95 shrink-0 cursor-pointer">
-        <span class="material-symbols-outlined text-[16px]">add</span>
-        <span>Criar Nova</span>
-      </button>
     </div>
 
     <!-- Passo 1 -->
     <div class="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 border border-outline-variant/30 shadow-sm">
-      <div class="flex items-center justify-end mb-spacing-xs">
-        <div class="flex items-center gap-2">
-          <span class="inline-flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm bg-surface-container-high px-2 py-0.5 rounded-full" id="roster-month-badge">
-            <span class="material-symbols-outlined text-[14px]">event</span>
-            Outubro 2025
-          </span>
-        </div>
-      </div>
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div class="flex flex-col gap-4">
         <div>
           <h2 class="font-headline-sm text-headline-sm text-on-surface">Data e Celebração</h2>
           <p class="font-body-sm text-body-sm text-on-surface-variant">Selecione a data e o horário para montar ou editar a escala.</p>
         </div>
         <!-- Seletores de Data e Horário -->
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <!-- Seletor Rápido de Data do Calendário Ampliado -->
-          <div class="flex items-center justify-between sm:justify-start gap-3 bg-surface-container-low px-4 py-2.5 rounded-2xl border-2 border-surface-container-high hover:border-primary/40 focus-within:border-primary transition-all shadow-sm">
-            <label for="roster-date-picker" class="font-label-md text-label-md text-on-surface font-bold flex items-center gap-2 cursor-pointer whitespace-nowrap">
-              <span class="material-symbols-outlined text-primary text-[26px]">calendar_month</span>
-              <span>Data da Escala:</span>
-            </label>
-            <input type="date" id="roster-date-picker" value="2025-10-19" class="bg-surface text-on-surface font-title-md text-title-md font-semibold h-11 px-3 py-1.5 rounded-xl border border-outline/20 focus:outline-none focus:ring-2 focus:ring-primary/30 cursor-pointer shadow-inner">
+          <div class="flex items-center gap-3 bg-surface-container-low px-4 py-3 rounded-2xl border-2 border-surface-container-high hover:border-primary/40 focus-within:border-primary transition-all shadow-sm">
+            <span class="material-symbols-outlined text-primary text-[24px] shrink-0">calendar_month</span>
+            <div class="flex flex-col min-w-0 flex-1">
+              <label for="roster-date-picker" class="font-label-sm text-label-sm text-on-surface-variant font-semibold cursor-pointer whitespace-nowrap">Data da Escala</label>
+              <input type="date" id="roster-date-picker" value="2025-10-19" class="bg-transparent text-on-surface font-title-md text-title-md font-semibold focus:outline-none cursor-pointer w-full">
+            </div>
           </div>
 
           <!-- Seletor Suspenso de Horário da Missa -->
-          <div class="flex items-center justify-between sm:justify-start gap-3 bg-surface-container-low px-4 py-2.5 rounded-2xl border-2 border-surface-container-high hover:border-primary/40 focus-within:border-primary transition-all shadow-sm">
-            <label for="roster-hour-select" class="font-label-md text-label-md text-on-surface font-bold flex items-center gap-2 cursor-pointer whitespace-nowrap">
-              <span class="material-symbols-outlined text-primary text-[26px]">schedule</span>
-              <span>Horário da Missa:</span>
-            </label>
-            <div class="relative min-w-[110px]">
-              <select id="roster-hour-select" class="w-full bg-surface text-on-surface font-title-md text-title-md font-semibold h-11 pl-3 pr-8 py-1.5 rounded-xl border border-outline/20 focus:outline-none focus:ring-2 focus:ring-primary/30 cursor-pointer shadow-inner appearance-none">
-                <option value="07:00">07:00</option>
-                <option value="08:00">08:00</option>
-                <option value="10:00" selected>10:00</option>
-                <option value="18:00">18:00</option>
-                <option value="19:00">19:00</option>
-                <option value="19:30">19:30</option>
-              </select>
-              <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[20px]">expand_more</span>
+          <div class="flex items-center gap-3 bg-surface-container-low px-4 py-3 rounded-2xl border-2 border-surface-container-high hover:border-primary/40 focus-within:border-primary transition-all shadow-sm">
+            <span class="material-symbols-outlined text-primary text-[24px] shrink-0">schedule</span>
+            <div class="flex flex-col min-w-0 flex-1">
+              <label for="roster-hour-select" class="font-label-sm text-label-sm text-on-surface-variant font-semibold cursor-pointer whitespace-nowrap">Horário da Missa</label>
+              <div class="relative">
+                <select id="roster-hour-select" class="w-full bg-transparent text-on-surface font-title-md text-title-md font-semibold pr-6 focus:outline-none cursor-pointer appearance-none">
+                  <option value="" disabled selected>Selecione</option>
+                  <option value="07:00">07:00</option>
+                  <option value="08:00">08:00</option>
+                  <option value="10:00">10:00</option>
+                  <option value="18:00">18:00</option>
+                  <option value="19:00">19:00</option>
+                  <option value="19:30">19:30</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-0 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[20px]">expand_more</span>
+              </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Seção Informativa de Celebrações Existentes no Dia Selecionado -->
+      <div id="roster-day-scales-container" class="mt-4 pt-4 border-t border-outline-variant/20 hidden">
+        <div class="flex items-center justify-between gap-2 mb-2.5 flex-wrap">
+          <span class="text-xs font-bold text-on-surface-variant flex items-center gap-1.5 uppercase tracking-wide">
+            <span class="material-symbols-outlined text-[16px] text-primary">event_available</span>
+            Escalas cadastradas neste dia:
+          </span>
+          <span class="text-xs text-on-surface-variant">Clique para alternar a edição ou iniciar nova escala</span>
+        </div>
+        <div id="roster-day-scales-chips" class="flex items-center gap-2 flex-wrap">
+          <!-- Renderizado dinamicamente via js/components/roster.js -->
         </div>
       </div>
     </div>
@@ -105,7 +121,7 @@
           <div class="relative">
             <select class="w-full bg-surface-container-low text-on-surface font-body-md text-body-md rounded-xl p-3 pr-10 appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container font-medium border border-outline-variant/20" id="celebrante">
               <option value="" selected>Selecione o celebrante (opcional)...</option>
-              <!-- Populado dinamicamente via js/components/roster.js a partir dos membros celebrantes -->
+              <!-- Populado dinamicamente via js/components/roster.js a partir dos membros celebrantes e ministros ativos -->
             </select>
             <span class="material-symbols-outlined absolute right-3 top-3 text-on-surface-variant pointer-events-none text-[20px]">expand_more</span>
           </div>
@@ -170,8 +186,8 @@
   </div>
 
   <!-- Popup Modal: Cadastrar Novo Nome de Celebração -->
-  <div id="roster-celebration-modal" class="fixed inset-0 z-50 bg-inverse-surface/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity duration-200 hidden">
-    <div class="w-full sm:max-w-md bg-surface-container-lowest rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto space-y-4 animate-fade-in border border-outline-variant/30">
+  <div id="roster-celebration-modal" class="fixed inset-0 z-[100] bg-inverse-surface/70 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-200 hidden">
+    <div class="w-full max-w-md bg-surface-container-lowest rounded-2xl sm:rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto space-y-4 animate-fade-in border border-outline-variant/30 my-auto">
       <!-- Modal Header -->
       <div class="flex items-center justify-between pb-3 border-b border-outline-variant/20">
         <div>
@@ -222,4 +238,5 @@
       </div>
     </div>
   </div>
+
 </div>

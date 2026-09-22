@@ -1,0 +1,102 @@
+{
+  "pbtResults": {
+    "1. Escrever teste de exploração da condição de bug (Bug Condition)": {
+      "status": "passed",
+      "failingExample": "Contraexemplo 1 (edição):\n  submitHandler({ type:'submit', target:#user-form, id:'42', church-checkbox:checked })\n  → ReferenceError: modalForm is not defined (linha 336 do código original)\n  → saveUserToList NUNCA chamado\n\nContraexemplo 2 (cadastro):\n  submitHandler({ type:'submit', target:#user-form, id:'', church-checkbox:checked })\n  → ReferenceError: modalForm is not defined (linha 336 do código original)\n  → saveUserToList NUNCA chamado\n\nStack trace (Vitest unhandled error):\n  ReferenceError: modalForm is not defined\n   ❯ Proxy.<anonymous> js/components/users.js:336:23\n   ❯ innerInvokeEventListeners (jsdom EventTarget-impl.js:378:16)\n\nSaída do teste:\n  ✓ pré-condição: snapshot do código original contém \"modalForm.querySelector\"\n  × caso de edição: saveUserToList não foi chamado (AssertionError: expected \"vi.fn()\" to be called at least once)\n  × caso de cadastro: saveUserToList não foi chamado (AssertionError: expected \"vi.fn()\" to be called at least once)\n  ✓ caso controle (sem comunidade): retorna cedo com toast de aviso — sem ReferenceError",
+      "lastRunTimestamp": 1790033425859
+    },
+    "2. Escrever testes de preservação (ANTES de implementar o fix)": {
+      "status": "passed",
+      "lastRunTimestamp": 1790034981043
+    },
+    "3.4 Verificar que os testes de preservação (Property 2) ainda passam": {
+      "status": "passed",
+      "lastRunTimestamp": 1790035425835
+    },
+    "3.3 Verificar que o teste de condição de bug (Property 1) agora passa": {
+      "status": "passed",
+      "lastRunTimestamp": 1790035472606
+    }
+  },
+  "executionHistory": {
+    "1. Escrever teste de exploração da condição de bug (Bug Condition)": [
+      {
+        "executionId": "96c7e3e7-165e-4ed9-9d88-d7fb658fc801",
+        "chatSessionId": "sess_12990503-0ebf-48c6-9772-0474c792b155",
+        "timestamp": 1790032946189
+      },
+      {
+        "executionId": "96c7e3e7-165e-4ed9-9d88-d7fb658fc801",
+        "chatSessionId": "sess_12990503-0ebf-48c6-9772-0474c792b155",
+        "timestamp": 1790033446165
+      }
+    ],
+    "2. Escrever testes de preservação (ANTES de implementar o fix)": [
+      {
+        "executionId": "7407d2bc-7c4c-498e-bca7-487e98f11334",
+        "chatSessionId": "sess_6a0620ce-1417-462c-858f-c6e73ffafe3a",
+        "timestamp": 1790033628748
+      },
+      {
+        "executionId": "7407d2bc-7c4c-498e-bca7-487e98f11334",
+        "chatSessionId": "sess_6a0620ce-1417-462c-858f-c6e73ffafe3a",
+        "timestamp": 1790034994996
+      }
+    ],
+    "3.1 Aplicar o fix em `js/components/users.js`": [
+      {
+        "executionId": "7df0e25f-aa58-4793-b2a7-dd457e03734a",
+        "chatSessionId": "sess_3bd0f05d-ea2f-45f8-8b28-acebd61bd094",
+        "timestamp": 1790035037478
+      },
+      {
+        "executionId": "7df0e25f-aa58-4793-b2a7-dd457e03734a",
+        "chatSessionId": "sess_3bd0f05d-ea2f-45f8-8b28-acebd61bd094",
+        "timestamp": 1790035078445
+      }
+    ],
+    "3.2 Aplicar o mesmo fix em `public/js/components/users.js`": [
+      {
+        "executionId": "7df0e25f-aa58-4793-b2a7-dd457e03734a",
+        "chatSessionId": "sess_3bd0f05d-ea2f-45f8-8b28-acebd61bd094",
+        "timestamp": 1790035040313
+      },
+      {
+        "executionId": "7df0e25f-aa58-4793-b2a7-dd457e03734a",
+        "chatSessionId": "sess_3bd0f05d-ea2f-45f8-8b28-acebd61bd094",
+        "timestamp": 1790035081489
+      }
+    ],
+    "3.3 Verificar que o teste de condição de bug (Property 1) agora passa": [
+      {
+        "executionId": "7df0e25f-aa58-4793-b2a7-dd457e03734a",
+        "chatSessionId": "sess_3bd0f05d-ea2f-45f8-8b28-acebd61bd094",
+        "timestamp": 1790035084818
+      },
+      {
+        "executionId": "7df0e25f-aa58-4793-b2a7-dd457e03734a",
+        "chatSessionId": "sess_3bd0f05d-ea2f-45f8-8b28-acebd61bd094",
+        "timestamp": 1790035486777
+      }
+    ],
+    "3.4 Verificar que os testes de preservação (Property 2) ainda passam": [
+      {
+        "executionId": "7df0e25f-aa58-4793-b2a7-dd457e03734a",
+        "chatSessionId": "sess_3bd0f05d-ea2f-45f8-8b28-acebd61bd094",
+        "timestamp": 1790035087764
+      },
+      {
+        "executionId": "7df0e25f-aa58-4793-b2a7-dd457e03734a",
+        "chatSessionId": "sess_3bd0f05d-ea2f-45f8-8b28-acebd61bd094",
+        "timestamp": 1790035490828
+      }
+    ],
+    "3. Corrigir ReferenceError no submit handler de usuários": [
+      {
+        "executionId": "7df0e25f-aa58-4793-b2a7-dd457e03734a",
+        "chatSessionId": "sess_3bd0f05d-ea2f-45f8-8b28-acebd61bd094",
+        "timestamp": 1790035490878
+      }
+    ]
+  }
+}

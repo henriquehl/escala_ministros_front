@@ -4,6 +4,7 @@ import Toast from '../components/Toast.astro';
 import MemberModal from '../components/modals/MemberModal.astro';
 import CelebrationModal from '../components/modals/CelebrationModal.astro';
 import ExportModal from '../components/modals/ExportModal.astro';
+import RosterConfirmModal from '../components/modals/RosterConfirmModal.astro';
 import '../styles/styles.css';
 
 interface Props {
@@ -47,6 +48,7 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:8000';
   <MemberModal />
   <CelebrationModal />
   <ExportModal />
+  <RosterConfirmModal />
 
   <!-- Notificação Toast Global -->
   <Toast />
