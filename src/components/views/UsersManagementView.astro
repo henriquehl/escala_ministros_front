@@ -220,7 +220,12 @@
           <span class="material-symbols-outlined text-[16px] text-on-surface-variant">lock_reset</span>
           Senha Provisória / Redefinição
         </label>
-        <input class="w-full h-12 bg-surface-container-low text-on-surface placeholder:text-outline font-body-md text-body-md px-3.5 rounded-xl border border-outline-variant/20 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container transition-colors" id="user-form-password" placeholder="Digite a senha inicial ou deixe em branco para manter" type="password" />
+        <div class="relative flex items-center">
+          <input class="w-full h-12 bg-surface-container-low text-on-surface placeholder:text-outline font-body-md text-body-md pl-3.5 pr-12 rounded-xl border border-outline-variant/20 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container transition-colors" id="user-form-password" placeholder="Digite a senha inicial ou deixe em branco para manter" type="password" />
+          <button id="toggle-user-password-btn" class="absolute right-3 text-on-surface-variant hover:text-on-surface p-1 flex items-center justify-center cursor-pointer transition-colors" type="button" aria-label="Mostrar ou ocultar senha" title="Mostrar ou ocultar senha">
+            <span class="material-symbols-outlined text-[20px]" id="toggle-user-password-icon">visibility</span>
+          </button>
+        </div>
       </div>
 
       <!-- Botões de Ação do Modal -->

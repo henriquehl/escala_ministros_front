@@ -375,21 +375,21 @@ function renderSelectedDayCard() {
     listEl.innerHTML = dayScales.map((scale) => {
       const celebrantText = scale.celebrant ? ` • ${scale.celebrant}` : '';
       const editBtnHtml = canManage ? `
-        <button type="button" class="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-primary hover:text-on-primary text-primary text-xs font-semibold flex items-center gap-1 transition-all active:scale-95 cursor-pointer" onclick="window.startEditScale('${scale.dateString}', '${scale.time}', '${scale.id || ''}')">
+        <button type="button" class="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-primary hover:text-on-primary text-primary text-xs font-semibold flex items-center gap-1 transition-all active:scale-95 cursor-pointer whitespace-nowrap shrink-0" onclick="window.startEditScale('${scale.dateString}', '${scale.time}', '${scale.id || ''}')">
           <span class="material-symbols-outlined text-[14px]">edit</span>
           <span>Editar</span>
         </button>
       ` : '';
 
       const deleteBtnHtml = canManage ? `
-        <button type="button" class="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-primary hover:text-on-primary text-primary text-xs font-semibold flex items-center gap-1 transition-all active:scale-95 cursor-pointer" onclick="window.deleteScaleFromCalendar('${scale.id || ''}', '${(scale.celebrationName || 'Santa Missa').replace(/'/g, "\\'")}', '${scale.time}', '${scale.dateString}')" title="Excluir esta celebração (${scale.time}h)">
+        <button type="button" class="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-primary hover:text-on-primary text-primary text-xs font-semibold flex items-center gap-1 transition-all active:scale-95 cursor-pointer whitespace-nowrap shrink-0" onclick="window.deleteScaleFromCalendar('${scale.id || ''}', '${(scale.celebrationName || 'Santa Missa').replace(/'/g, "\\'")}', '${scale.time}', '${scale.dateString}')" title="Excluir esta celebração (${scale.time}h)">
           <span class="material-symbols-outlined text-[14px]">delete</span>
           <span>Excluir</span>
         </button>
       ` : '';
 
       const copyBtnHtml = `
-        <button type="button" class="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-semibold flex items-center gap-1 transition-all active:scale-95 cursor-pointer" onclick="window.copyScaleReminderByEvent('${scale.dateString}', '${scale.time}', '${scale.id || ''}')" title="Copiar lembrete desta celebração para WhatsApp">
+        <button type="button" class="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-semibold flex items-center gap-1 transition-all active:scale-95 cursor-pointer whitespace-nowrap shrink-0" onclick="window.copyScaleReminderByEvent('${scale.dateString}', '${scale.time}', '${scale.id || ''}')" title="Copiar lembrete desta celebração para WhatsApp">
           <span class="material-symbols-outlined text-[14px] text-primary">content_copy</span>
           <span>Copiar Lembrete</span>
         </button>
@@ -416,14 +416,14 @@ function renderSelectedDayCard() {
 
       return `
         <div class="col-span-full p-4 rounded-2xl bg-surface-container-low/70 border border-outline-variant/20 mb-2">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 border-b border-outline-variant/15 pb-2">
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="px-2.5 py-0.5 rounded-full bg-primary text-on-primary font-bold text-xs">${scale.time}h</span>
-              <span class="text-sm font-bold text-on-surface">${scale.celebrationName || 'Santa Missa'}</span>
-              <span class="text-xs text-on-surface-variant hidden sm:inline">${celebrantText}</span>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3 border-b border-outline-variant/15 pb-2.5">
+            <div class="flex items-center gap-2 min-w-0 flex-1">
+              <span class="px-2.5 py-0.5 rounded-full bg-primary text-on-primary font-bold text-xs shrink-0">${scale.time}h</span>
+              <span class="text-sm font-bold text-on-surface truncate">${scale.celebrationName || 'Santa Missa'}</span>
+              <span class="text-xs text-on-surface-variant truncate">${celebrantText}</span>
             </div>
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="text-xs font-medium text-on-surface-variant">${(scale.ministers || []).length} escalados</span>
+            <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-nowrap">
+              <span class="text-xs font-medium text-on-surface-variant whitespace-nowrap">${(scale.ministers || []).length} escalados</span>
               ${copyBtnHtml}
               ${editBtnHtml}
               ${deleteBtnHtml}

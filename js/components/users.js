@@ -246,6 +246,17 @@ function initUsersComponent() {
       renderChurchCheckboxes(['1']);
     }
 
+    // Reset do campo de senha para o estado oculto padrão
+    const passInputReset = document.getElementById('user-form-password');
+    const toggleUserPassIconReset = document.getElementById('toggle-user-password-icon');
+    if (passInputReset) {
+      passInputReset.type = 'password';
+      passInputReset.value = '';
+    }
+    if (toggleUserPassIconReset) {
+      toggleUserPassIconReset.textContent = 'visibility';
+    }
+
     userModal.classList.remove('hidden');
     document.body.classList.add('overflow-hidden');
   }
@@ -253,8 +264,32 @@ function initUsersComponent() {
   // Modal: Fechar
   function closeModal() {
     if (!userModal) return;
+    const passInputReset = document.getElementById('user-form-password');
+    const toggleUserPassIconReset = document.getElementById('toggle-user-password-icon');
+    if (passInputReset) {
+      passInputReset.type = 'password';
+      passInputReset.value = '';
+    }
+    if (toggleUserPassIconReset) {
+      toggleUserPassIconReset.textContent = 'visibility';
+    }
     userModal.classList.add('hidden');
     document.body.classList.remove('overflow-hidden');
+  }
+
+  // Toggle Mostrar/Ocultar Senha do Modal
+  const toggleUserPassBtn = document.getElementById('toggle-user-password-btn');
+  const toggleUserPassIcon = document.getElementById('toggle-user-password-icon');
+  const userPassInput = document.getElementById('user-form-password');
+
+  if (toggleUserPassBtn && userPassInput) {
+    toggleUserPassBtn.addEventListener('click', () => {
+      const isPassword = userPassInput.type === 'password';
+      userPassInput.type = isPassword ? 'text' : 'password';
+      if (toggleUserPassIcon) {
+        toggleUserPassIcon.textContent = isPassword ? 'visibility_off' : 'visibility';
+      }
+    });
   }
 
   // Listeners de abertura/fechamento do modal
