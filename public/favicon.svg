@@ -1,8 +1,42 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <circle cx="50" cy="50" r="46" fill="#b3093f"/>
-  <circle cx="50" cy="50" r="42" fill="none" stroke="#fcedc4" stroke-width="2"/>
-  <!-- Dove / Holy Spirit Icon -->
-  <path d="M50 22 C52 28 58 34 68 36 C64 42 56 46 50 54 C44 46 36 42 32 36 C42 34 48 28 50 22 Z" fill="#ffffff"/>
-  <path d="M50 54 C54 62 60 72 66 76 C58 76 52 70 50 64 C48 70 42 76 34 76 C40 72 46 62 50 54 Z" fill="#fcedc4"/>
-  <circle cx="50" cy="46" r="3" fill="#b3093f"/>
+  <!-- Background Disc -->
+  <circle cx="50" cy="50" r="48" fill="#faf9f7" stroke="#b3093f" stroke-width="2"/>
+  
+  <!-- Golden Radiance Rays from the Sacred Heart -->
+  <g stroke="#d4af37" stroke-width="1.2" stroke-linecap="round" opacity="0.9">
+    <line x1="50" y1="14" x2="50" y2="24" />
+    <line x1="68" y1="19" x2="62" y2="27" />
+    <line x1="82" y1="32" x2="73" y2="38" />
+    <line x1="86" y1="50" x2="76" y2="50" />
+    <line x1="82" y1="68" x2="73" y2="62" />
+    <line x1="68" y1="81" x2="62" y2="73" />
+    <line x1="50" y1="86" x2="50" y2="76" />
+    <line x1="32" y1="81" x2="38" y2="73" />
+    <line x1="18" y1="68" x2="27" y2="62" />
+    <line x1="14" y1="50" x2="24" y2="50" />
+    <line x1="18" y1="32" x2="27" y2="38" />
+    <line x1="32" y1="19" x2="38" y2="27" />
+  </g>
+
+  <!-- Sacred Heart Flames (Chamas do Amor Divino) -->
+  <path d="M46 36 C42 30 46 22 50 18 C54 22 58 30 54 36 C58 32 62 34 60 38 C56 42 52 40 50 42 C48 40 44 42 40 38 C38 34 42 32 46 36 Z" fill="#f59e0b" stroke="#d97706" stroke-width="0.8"/>
+  <path d="M48 35 C46 31 48 25 50 22 C52 25 54 31 52 35 Z" fill="#fef08a"/>
+
+  <!-- Small Cross emerging from Flames -->
+  <g stroke="#78350f" stroke-width="1.4" stroke-linecap="square">
+    <line x1="50" y1="16" x2="50" y2="28" />
+    <line x1="45" y1="20" x2="55" y2="20" />
+  </g>
+
+  <!-- Sacred Heart Body -->
+  <path d="M50 80 C30 65 24 50 28 42 C32 34 44 34 50 44 C56 34 68 34 72 42 C76 50 70 65 50 80 Z" fill="#b3093f" stroke="#8f002f" stroke-width="1.5"/>
+
+  <!-- Crown of Thorns around Heart -->
+  <path d="M26 48 C34 44 66 44 74 48 C66 52 34 52 26 48 Z" fill="none" stroke="#5a3818" stroke-width="2" stroke-linecap="round"/>
+  <g stroke="#5a3818" stroke-width="1.2">
+    <line x1="34" y1="44" x2="37" y2="50" />
+    <line x1="44" y1="43" x2="42" y2="49" />
+    <line x1="52" y1="44" x2="55" y2="50" />
+    <line x1="62" y1="43" x2="60" y2="49" />
+  </g>
 </svg>
