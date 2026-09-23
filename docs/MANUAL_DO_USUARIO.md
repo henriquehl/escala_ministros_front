@@ -100,7 +100,7 @@ Na aba **"Celebrações"**:
    - *Dominicais* (Missas de preceito dominical e vespertina).
    - *Semanais* (Missas feriais e celebrações da palavra).
    - *Solenidades* (Grandes festas litúrgicas e padroeiros).
-   - *Sacramentos* (Batismo, Matrimônio, Crisma).
+   - *Sacramentos* (Batismo, Matrimônio, Crisma, Eucaristia).
    - *Especiais* (1ª Sexta-feira, Crianças, Enfermos, 7º Dia).
 3. **Cadastrar Nova Celebração**:
    - Clique em **"Adicionar Nova Celebração"**.

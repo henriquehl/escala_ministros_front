@@ -325,6 +325,7 @@ class Store {
 
   getCelebrationStats() {
     const list = this.getCelebrationObjects();
+    const santaMissa = list.filter(c => c.category === 'santa-missa' || c.category === 'santa_missa' || c.category === 'missa').length;
     const dominicais = list.filter(c => c.category === 'dominical').length;
     const semanais = list.filter(c => c.category === 'semanal').length;
     const solenidades = list.filter(c => c.category === 'solenidade').length;
@@ -333,6 +334,7 @@ class Store {
 
     return {
       total: list.length,
+      santaMissa,
       dominicais,
       semanais,
       solenidades,

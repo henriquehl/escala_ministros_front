@@ -126,6 +126,8 @@ function renderCelebrationsStats() {
   // Atualizar contadores nos chips
   const allChip = document.querySelector('#celebrations-filter-chips button[data-filter="todas"]');
   if (allChip) allChip.textContent = `Todas (${stats.total})`;
+  const missaChip = document.querySelector('#celebrations-filter-chips button[data-filter="santa-missa"]');
+  if (missaChip) missaChip.textContent = `Santas Missas (${stats.santaMissa || 0})`;
   const domChip = document.querySelector('#celebrations-filter-chips button[data-filter="dominical"]');
   if (domChip) domChip.textContent = `Dominicais (${stats.dominicais})`;
   const semChip = document.querySelector('#celebrations-filter-chips button[data-filter="semanal"]');
@@ -141,11 +143,21 @@ function renderCelebrationsStats() {
  */
 function getCategoryBadgeInfo(category) {
   switch (category) {
+    case 'santa-missa':
+    case 'santa_missa':
+    case 'missa':
+      return {
+        label: 'Santa Missa',
+        badgeClass: 'bg-primary/10 text-primary border border-primary/20',
+        dotClass: 'bg-primary',
+        icon: 'church',
+        desc: 'Celebração Eucarística'
+      };
     case 'dominical':
       return {
         label: 'Dominical',
-        badgeClass: 'bg-primary/10 text-primary border border-primary/20',
-        dotClass: 'bg-primary',
+        badgeClass: 'bg-rose-50 text-rose-700 border border-rose-200/60',
+        dotClass: 'bg-rose-500',
         icon: 'church',
         desc: 'Preceito Paroquial'
       };
@@ -171,11 +183,19 @@ function getCategoryBadgeInfo(category) {
         badgeClass: 'bg-blue-50 text-blue-700 border border-blue-200/60',
         dotClass: 'bg-blue-500',
         icon: 'water_drop',
-        desc: 'Batismo, Matrimônio, Crisma'
+        desc: 'Batismo, Matrimônio, Crisma, Eucaristia'
+      };
+    case 'especial':
+      return {
+        label: 'Especial / Devocional',
+        badgeClass: 'bg-purple-50 text-purple-700 border border-purple-200/60',
+        dotClass: 'bg-purple-500',
+        icon: 'favorite',
+        desc: 'Devocional / Exéquias'
       };
     default:
       return {
-        label: 'Dominical',
+        label: 'Santa Missa',
         badgeClass: 'bg-surface-container-high text-on-surface-variant border border-outline-variant/30',
         dotClass: 'bg-outline',
         icon: 'church',
@@ -351,7 +371,7 @@ async function saveCelebrationForm() {
   const categoryInput = document.getElementById('input-cel-category');
 
   const name = nameInput ? nameInput.value.trim() : '';
-  const category = categoryInput ? categoryInput.value : 'especial';
+  const category = categoryInput ? categoryInput.value : 'santa-missa';
   const minMinisters = category === 'dominical' || category === 'solenidade' ? 4 : 2;
 
   if (!name) {
