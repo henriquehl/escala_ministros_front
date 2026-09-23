@@ -1,6 +1,4 @@
 {
-  "name": "escala-virtual-divino-espirito-santo",
-  "pages_build_output_dir": "dist",
   "vars": {
     "PUBLIC_API_URL": "https://escala-509401.rj.r.appspot.com"
   }
