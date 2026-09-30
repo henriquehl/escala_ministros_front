@@ -24,6 +24,43 @@ function calculateArrivalTime(timeStr) {
   return `${String(newH).padStart(2, '0')}:${String(newM).padStart(2, '0')}`;
 }
 
+function getMinisterDisplayName(m) {
+  if (!m) return 'Ministro';
+  if (typeof m === 'string') return m;
+
+  // 1. Apelido direto no objeto
+  const directNick = m.nickname || m.apelido;
+  if (directNick && typeof directNick === 'string' && directNick.trim()) {
+    return directNick.trim();
+  }
+
+  // 2. Busca pelo ID no cadastro de membros
+  if (window.appStore) {
+    const member = window.appStore.getMemberById(m.id || m.memberId || m.member_id);
+    if (member) {
+      const memberNick = member.nickname || member.apelido;
+      if (memberNick && typeof memberNick === 'string' && memberNick.trim()) {
+        return memberNick.trim();
+      }
+    }
+
+    // 3. Fallback: Busca pelo Nome completo na lista de membros cadastrados
+    if (m.name) {
+      const allMembers = window.appStore.getMembers() || [];
+      const cleanName = m.name.trim().toLowerCase();
+      const foundByName = allMembers.find(mem => mem && mem.name && mem.name.trim().toLowerCase() === cleanName);
+      if (foundByName) {
+        const byNameNick = foundByName.nickname || foundByName.apelido;
+        if (byNameNick && typeof byNameNick === 'string' && byNameNick.trim()) {
+          return byNameNick.trim();
+        }
+      }
+    }
+  }
+
+  return m.name || 'Ministro';
+}
+
 /**
  * Formata o lembrete no padrão solicitado.
  * Suporta 1 única escala ou array com múltiplas escalas do mesmo dia:
@@ -48,7 +85,7 @@ function formatScaleReminderText(scaleOrScales) {
       text += `${s.time}h - ${celName} (Chegada às ${arrivalTime})\n`;
       if (s.ministers && s.ministers.length > 0) {
         s.ministers.forEach((m) => {
-          text += `${m.name};\n`;
+          text += `${getMinisterDisplayName(m)};\n`;
         });
       } else {
         text += `(Nenhum ministro escalado);\n`;
@@ -74,7 +111,7 @@ function formatSingleScaleReminder(scale, churchName) {
 
   if (scale.ministers && scale.ministers.length > 0) {
     scale.ministers.forEach((m) => {
-      text += `${m.name};\n`;
+      text += `${getMinisterDisplayName(m)};\n`;
     });
   } else {
     text += `(Nenhum ministro escalado);\n`;
@@ -189,7 +226,7 @@ window.exportSingleDayPdf = function(scaleData) {
     const scale = dayScales[0];
     const ministersRows = scale.ministers.map((m) => `
       <tr>
-        <td style="font-weight: 600; padding: 8px 10px;">${m.name} ${m.isLeader ? '<span style="color:#b3093f; font-size: 9.5pt;">(Coordenador)</span>' : ''}</td>
+        <td style="font-weight: 600; padding: 8px 10px;">${getMinisterDisplayName(m)} ${m.isLeader ? '<span style="color:#b3093f; font-size: 9.5pt;">(Coordenador)</span>' : ''}</td>
         <td style="padding: 8px 10px;">${m.role || 'Ministro'}</td>
         <td style="text-align: center; padding: 8px 10px;">${m.phone || '-'}</td>
       </tr>
@@ -232,7 +269,7 @@ window.exportSingleDayPdf = function(scaleData) {
     const celebrationsHtml = dayScales.map((scale) => {
       const ministersRows = scale.ministers.map((m) => `
         <tr>
-          <td style="font-weight: 600; padding: 6px 8px;">${m.name} ${m.isLeader ? '<span style="color:#b3093f; font-size: 9pt;">(Coordenador)</span>' : ''}</td>
+          <td style="font-weight: 600; padding: 6px 8px;">${getMinisterDisplayName(m)} ${m.isLeader ? '<span style="color:#b3093f; font-size: 9pt;">(Coordenador)</span>' : ''}</td>
           <td style="padding: 6px 8px;">${m.role || 'Ministro'}</td>
           <td style="text-align: center; padding: 6px 8px;">${m.phone || '-'}</td>
         </tr>
@@ -344,7 +381,7 @@ window.exportMonthlySheetPdf = function(year, month) {
 
   const tableRows = monthScales.map((scale) => {
     const ministersFormatted = (scale.ministers && scale.ministers.length > 0)
-      ? scale.ministers.map((m, i) => `<div style="display:block; margin-bottom: 2px; font-size: 9.5pt; line-height: 1.3;"><strong>${i + 1}.</strong> ${m.name}</div>`).join('')
+      ? scale.ministers.map((m, i) => `<div style="display:block; margin-bottom: 2px; font-size: 9.5pt; line-height: 1.3;"><strong>${i + 1}.</strong> ${getMinisterDisplayName(m)}</div>`).join('')
       : '<em style="color:#897173; font-size: 9.5pt;">Sem ministros</em>';
 
     const dayPad = String(scale.day).padStart(2, '0');

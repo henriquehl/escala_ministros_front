@@ -351,7 +351,12 @@ class Store {
     const cid = churchId || (this.currentUser && this.currentUser.churchId);
     try {
       const data = await window.api.members.list({ church_id: cid });
-      this.members = Array.isArray(data) ? data : (data && data.members) || [];
+      const rawMembers = Array.isArray(data) ? data : (data && data.members) || [];
+      this.members = rawMembers.map(m => ({
+        ...m,
+        nickname: m.nickname || m.apelido || '',
+        apelido: m.apelido || m.nickname || ''
+      }));
       this.notify('members');
       return this.members;
     } catch (err) {
@@ -381,9 +386,12 @@ class Store {
 
   async addMember(memberData) {
     try {
+      const nick = memberData.nickname || memberData.apelido || '';
       const payload = {
         church_id: memberData.church_id || (this.currentUser && this.currentUser.churchId) || 1,
         name: memberData.name,
+        nickname: nick,
+        apelido: nick,
         phone: memberData.phone,
         status: memberData.status || 'ativo',
         profile: memberData.profile || 'minister',
@@ -410,8 +418,11 @@ class Store {
 
   async updateMember(id, updatedData) {
     try {
+      const nick = updatedData.nickname || updatedData.apelido || '';
       const payload = {
         name: updatedData.name,
+        nickname: nick,
+        apelido: nick,
         phone: updatedData.phone,
         status: updatedData.status,
         profile: updatedData.profile,
@@ -423,7 +434,7 @@ class Store {
       const updated = await window.api.members.update(id, payload);
       const idx = this.members.findIndex(m => String(m.id) === String(id));
       if (idx !== -1) {
-        this.members[idx] = { ...this.members[idx], ...(updated || payload) };
+        this.members[idx] = { ...this.members[idx], ...(updated || payload), nickname: nick, apelido: nick };
       }
       this.notify('members');
       return this.members[idx];
@@ -527,9 +538,12 @@ class Store {
         const ministersList = rawMinisters.map(m => {
           const mId = typeof m === 'object' ? (m.id || m.member_id) : m;
           const memberObj = this.getMemberById(mId);
+          const nick = (typeof m === 'object' && (m.nickname || m.apelido)) || (memberObj && (memberObj.nickname || memberObj.apelido)) || '';
           return {
             id: mId,
             name: (typeof m === 'object' && m.name) || (memberObj && memberObj.name) || 'Ministro',
+            nickname: nick,
+            apelido: nick,
             phone: (typeof m === 'object' && m.phone) || (memberObj && memberObj.phone) || '',
             avatar: (typeof m === 'object' && (m.avatar || m.avatar_url)) || (memberObj && memberObj.avatar) || null
           };

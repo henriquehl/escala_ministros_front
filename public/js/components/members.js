@@ -301,6 +301,7 @@ function openAddMemberModal() {
   const modal = document.getElementById('minister-modal');
   const modalTitle = document.getElementById('modal-title');
   const nameInput = document.getElementById('input-name');
+  const nicknameInput = document.getElementById('input-nickname');
   const phoneInput = document.getElementById('input-phone');
   const profileInput = document.getElementById('input-profile');
   const startDateInput = document.getElementById('input-start-date');
@@ -308,6 +309,7 @@ function openAddMemberModal() {
 
   if (modalTitle) modalTitle.textContent = 'Cadastrar Novo Membro';
   if (nameInput) nameInput.value = '';
+  if (nicknameInput) nicknameInput.value = '';
   if (phoneInput) phoneInput.value = '';
   if (profileInput) profileInput.value = '';
   if (startDateInput) startDateInput.value = '';
@@ -331,6 +333,7 @@ window.openEditMemberModal = function(id) {
   const modal = document.getElementById('minister-modal');
   const modalTitle = document.getElementById('modal-title');
   const nameInput = document.getElementById('input-name');
+  const nicknameInput = document.getElementById('input-nickname');
   const phoneInput = document.getElementById('input-phone');
   const profileInput = document.getElementById('input-profile');
   const startDateInput = document.getElementById('input-start-date');
@@ -338,6 +341,7 @@ window.openEditMemberModal = function(id) {
 
   if (modalTitle) modalTitle.textContent = 'Editar Ministro';
   if (nameInput) nameInput.value = member.name || '';
+  if (nicknameInput) nicknameInput.value = member.nickname || member.apelido || '';
   if (phoneInput) phoneInput.value = member.phone || '';
   
   const currentProfile = ['celebrante', 'celebrant', 'padre'].includes(member.profile)
@@ -382,12 +386,14 @@ async function saveMemberForm() {
   }
 
   const nameInput = document.getElementById('input-name');
+  const nicknameInput = document.getElementById('input-nickname');
   const phoneInput = document.getElementById('input-phone');
   const profileInput = document.getElementById('input-profile');
   const startDateInput = document.getElementById('input-start-date');
   const statusInput = document.getElementById('input-status-hidden');
 
   const name = nameInput ? nameInput.value.trim() : '';
+  const nickname = nicknameInput ? nicknameInput.value.trim() : '';
   const phone = phoneInput ? phoneInput.value.trim() : '';
   const profile = profileInput ? profileInput.value : 'minister';
   const startDate = startDateInput ? startDateInput.value : '';
@@ -412,6 +418,11 @@ async function saveMemberForm() {
     return;
   }
 
+  if (!nickname) {
+    if (window.showToast) window.showToast('Por favor, informe o apelido do membro.', 'warning');
+    return;
+  }
+
   if (!profile) {
     if (window.showToast) window.showToast('Por favor, selecione o Perfil / Função do membro (Padre ou Ministro).', 'warning');
     return;
@@ -430,6 +441,8 @@ async function saveMemberForm() {
       const currentMember = window.appStore.getMemberById(editingMemberId);
       await window.appStore.updateMember(editingMemberId, {
         name,
+        nickname,
+        apelido: nickname,
         phone,
         profile,
         status,
@@ -440,6 +453,8 @@ async function saveMemberForm() {
     } else {
       await window.appStore.addMember({
         name,
+        nickname,
+        apelido: nickname,
         phone,
         profile,
         status,

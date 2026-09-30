@@ -883,6 +883,7 @@ function loadExistingScaleForSelectedDate() {
     assignedMinisters = (existingScale.ministers || []).map(m => ({
       id: m.id,
       name: m.name,
+      nickname: m.nickname || '',
       phone: m.phone || '',
       avatar: m.avatar || null
     }));
@@ -1077,6 +1078,7 @@ window.assignCandidateMinister = function(id) {
   assignedMinisters.push({
     id: member.id,
     name: member.name,
+    nickname: member.nickname || '',
     phone: member.phone || '',
     avatar: member.avatar || null
   });
